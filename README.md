@@ -1,4 +1,4 @@
-# common-di
+# @opensumi/di
 
 > 基于 Angular DI 的设计自行实现的一个依赖注入的工具，https://angular.io/guide/dependency-injection。
 
@@ -108,7 +108,7 @@ export interface FactoryProvider {
 ## Install
 
 ```sh
-$ tnpm install @ali/common-di --save
+$ npm install @opensumi/di --save
 ```
 
 ## Usage
