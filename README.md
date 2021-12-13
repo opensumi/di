@@ -15,7 +15,7 @@
 
 ## Background
 
-出于对于 DI 的需要，并且调研市场上的 DI 工具，都有一些不太满意的地方，所以自己写了一个工具来实现 Angular 定义的 DI 模式。
+出于对于 DI 的需要，并且调研市场上的 DI 工具，都有一些不太满意的地方，所以写了一个工具来实现 Angular 定义的 DI 模式。
 
 - Inversify.Js 用法太过于死板，显示的 Token 模式，导致要写很多代码，相较于 API 还是 Angular 的 Token 和 Provider 的设计更容易理解。
 - injection-js 从 Angular 抽离出来的 DI 工具，因为具有 Angular 的 Module 设计，一般的 DI 是不需要要的。

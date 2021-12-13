@@ -70,9 +70,6 @@ export function Optional(token: string | symbol = Symbol()) {
   };
 }
 
-// 兼容之前错误的命名
-export const Optinal = Optional;
-
 /**
  * 装饰一个类的属性，当这个属性被访问的时候，才开始使用注射器创建实例
  * @param token
