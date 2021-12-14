@@ -4,7 +4,6 @@ import {
   Injector,
   INJECTOR_TOKEN,
   Inject,
-  Optinal,
   Optional,
   CreatorStatus,
   Aspect,
@@ -510,7 +509,7 @@ describe(__filename, () => {
       @Injectable()
       class T {
         constructor(
-          @Optinal('a') public a: string = 'aaa',
+          @Optional('a') public a: string = 'aaa',
         ) {}
       }
 
