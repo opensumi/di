@@ -23,7 +23,11 @@ export function tagOnlyError(expectTag: string, currentTag: string) {
 }
 
 export function noInjectableError(target: object) {
-  return new Error(`需要保证 ${stringify(target)} 必须是被 Injectable 装饰过的，可能是安装了多个版本导致的，可以 tnpm update 彻底重装依赖解决。`);
+  return new Error(
+    `需要保证 ${stringify(
+      target,
+    )} 必须是被 Injectable 装饰过的，可能是安装了多个版本导致的，可以 tnpm update 彻底重装依赖解决。`,
+  );
 }
 
 export function notInjectError(target: object, index: number) {
@@ -32,8 +36,13 @@ export function notInjectError(target: object, index: number) {
 
 export function notSupportTokenError(target: object, key: string | symbol, token: any) {
   const tokenType = String(token);
-  const reason = '排查下面三种可能：（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（3）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。';
-  return new Error(`${stringify(target)} 的属性 ${stringify(key)} 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "${tokenType}"。${reason}`);
+  const reason =
+    '排查下面三种可能:（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（2）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。';
+  return new Error(
+    `${stringify(target)} 的属性 ${stringify(
+      key,
+    )} 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "${tokenType}"。${reason}`,
+  );
 }
 
 export function noInjectorError(target: object) {

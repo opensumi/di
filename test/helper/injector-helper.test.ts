@@ -1,7 +1,7 @@
 import * as Helper from '../../src/helper/injector-helper';
 import { ConstructorOf, InstanceOpts } from '../../src';
 
-// tslint:disable-next-line
+// eslint-disable-next-line
 const pkg = require('../../package.json');
 
 describe(__filename, () => {

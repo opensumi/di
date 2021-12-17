@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 import * as Helper from './helper';
 import * as Error from './error';
-import { Token,
+import {
+  Token,
   InstanceOpts,
   MethodName,
   HookType,
@@ -13,14 +14,14 @@ import { Token,
   IAfterThrowingAspectHookFunction,
 } from './declare';
 import { Injector } from './injector';
-import { makeAsAspect, makeAsHook} from './helper';
+import { makeAsAspect, makeAsHook } from './helper';
 
 /**
  * 装饰一个构造函数是否是可以被依赖注入的构造函数
  * @param opts
  */
 export function Injectable(opts?: InstanceOpts): ClassDecorator {
-  // tslint:disable-next-line:ban-types
+  // eslint-disable-next-line @typescript-eslint/ban-types
   return <T extends Function>(target: T) => {
     Helper.markInjectable(target, opts);
 
@@ -53,7 +54,7 @@ interface InjectOpts {
  * @param token
  */
 export function Inject(token: string | symbol, opts: InjectOpts = {}) {
-  // tslint:disable-next-line:ban-types
+  // eslint-disable-next-line @typescript-eslint/ban-types
   return <T extends Function>(target: T, _: string | symbol, index: number) => {
     Helper.setParameterIn(target, { ...opts, token }, index);
   };
@@ -64,7 +65,7 @@ export function Inject(token: string | symbol, opts: InjectOpts = {}) {
  * @param token
  */
 export function Optional(token: string | symbol = Symbol()) {
-  // tslint:disable-next-line:ban-types
+  // eslint-disable-next-line @typescript-eslint/ban-types
   return <T extends Function>(target: T, _: string | symbol, index: number) => {
     Helper.setParameterIn(target, { default: undefined, token }, index);
   };
@@ -181,10 +182,15 @@ export function Aspect() {
  * @param token
  * @param method
  */
-export function Before<ThisType = any, Args extends any[] = any, Result = any>(token: Token, method: MethodName,
-                                                                               options: IHookOptions = {}) {
-  return <T  extends Record<K, IBeforeAspectHookFunction<ThisType, Args, Result>>,
-    K extends MethodName>(target: T, property: K) => {
+export function Before<ThisType = any, Args extends any[] = any, Result = any>(
+  token: Token,
+  method: MethodName,
+  options: IHookOptions = {},
+) {
+  return <T extends Record<K, IBeforeAspectHookFunction<ThisType, Args, Result>>, K extends MethodName>(
+    target: T,
+    property: K,
+  ) => {
     makeAsHook(target, property, HookType.Before, token, method, options);
   };
 }
@@ -200,10 +206,15 @@ export function Before<ThisType = any, Args extends any[] = any, Result = any>(t
  * @param token
  * @param method
  */
-export function After<ThisType = any, Args extends any[] = any, Result = any>(token: Token, method: MethodName,
-                                                                              options: IHookOptions = {}) {
-  return <T  extends Record<K, IAfterAspectHookFunction<ThisType, Args, Result>>,
-    K extends MethodName>(target: T, property: K) => {
+export function After<ThisType = any, Args extends any[] = any, Result = any>(
+  token: Token,
+  method: MethodName,
+  options: IHookOptions = {},
+) {
+  return <T extends Record<K, IAfterAspectHookFunction<ThisType, Args, Result>>, K extends MethodName>(
+    target: T,
+    property: K,
+  ) => {
     makeAsHook(target, property, HookType.After, token, method, options);
   };
 }
@@ -227,10 +238,15 @@ export function After<ThisType = any, Args extends any[] = any, Result = any>(to
  * @param method
  * @description
  */
-export function Around<ThisType = any, Args extends any[] = any, Result = any>(token: Token, method: MethodName,
-                                                                               options: IHookOptions = {}) {
-  return <T  extends Record<K, IAroundAspectHookFunction<ThisType, Args, Result>>,
-    K extends MethodName>(target: T, property: K) => {
+export function Around<ThisType = any, Args extends any[] = any, Result = any>(
+  token: Token,
+  method: MethodName,
+  options: IHookOptions = {},
+) {
+  return <T extends Record<K, IAroundAspectHookFunction<ThisType, Args, Result>>, K extends MethodName>(
+    target: T,
+    property: K,
+  ) => {
     makeAsHook(target, property, HookType.Around, token, method, options);
   };
 }
@@ -247,10 +263,15 @@ export function Around<ThisType = any, Args extends any[] = any, Result = any>(t
  * @param method
  * @param options
  */
-export function AfterReturning<ThisType = any, Args extends any[] = any, Result = any>(token: Token, method: MethodName,
-                                                                                       options: IHookOptions = {}) {
-  return <T  extends Record<K, IAfterReturningAspectHookFunction<ThisType, Args, Result>>,
-    K extends MethodName>(target: T, property: K) => {
+export function AfterReturning<ThisType = any, Args extends any[] = any, Result = any>(
+  token: Token,
+  method: MethodName,
+  options: IHookOptions = {},
+) {
+  return <T extends Record<K, IAfterReturningAspectHookFunction<ThisType, Args, Result>>, K extends MethodName>(
+    target: T,
+    property: K,
+  ) => {
     makeAsHook(target, property, HookType.AfterReturning, token, method, options);
   };
 }
@@ -267,10 +288,15 @@ export function AfterReturning<ThisType = any, Args extends any[] = any, Result 
  * @param method
  * @param options
  */
-export function AfterThrowing<ThisType = any, Args extends any[] = any, Result = any>(token: Token, method: MethodName,
-                                                                                      options: IHookOptions = {}) {
-  return <T  extends Record<K, IAfterThrowingAspectHookFunction<ThisType, Args, Result>>,
-    K extends MethodName>(target: T, property: K) => {
+export function AfterThrowing<ThisType = any, Args extends any[] = any, Result = any>(
+  token: Token,
+  method: MethodName,
+  options: IHookOptions = {},
+) {
+  return <T extends Record<K, IAfterThrowingAspectHookFunction<ThisType, Args, Result>>, K extends MethodName>(
+    target: T,
+    property: K,
+  ) => {
     makeAsHook(target, property, HookType.AfterThrowing, token, method, options);
   };
 }

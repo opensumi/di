@@ -3,7 +3,7 @@ export type ConstructorOf<T = any> = new (...args: any[]) => T;
 export type TokenResult<T extends Token> = T extends ConstructorOf<infer R> ? R : any;
 
 // 注入对象的标记
-// tslint:disable-next-line
+// eslint-disable-next-line
 export type Token = string | symbol | Function;
 export type Tag = string | number;
 export type Domain = string | symbol;
@@ -99,19 +99,24 @@ export enum HookType {
   AfterThrowing = 'AfterThrowing',
 }
 
-export type IBeforeAspectHookFunction<ThisType = any, Args extends any[] = any[], Result = any>
-  = (joinPoint: IBeforeJoinPoint<ThisType, Args, Result>) => void | Promise<void>;
-export type IAfterAspectHookFunction<ThisType = any, Args extends any[] = any[], Result = any>
-  = (joinPoint: IAfterJoinPoint<ThisType, Args, Result>) => void | Promise<void>;
-export type IAroundAspectHookFunction<ThisType = any, Args extends any[] = any[], Result = any>
-  = (joinPoint: IAroundJoinPoint<ThisType, Args, Result>) => void | Promise<void>;
-export type IAfterReturningAspectHookFunction<ThisType = any, Args extends any[] = any[], Result = any>
-  = (joinPoint: IAfterReturningJoinPoint<ThisType, Args, Result>) => void | Promise<void>;
-export type IAfterThrowingAspectHookFunction<ThisType = any, Args extends any[] = any[], Result = any>
-  = (joinPoint: IAfterThrowingJoinPoint<ThisType, Args, Result>) => void | Promise<void>;
+export type IBeforeAspectHookFunction<ThisType = any, Args extends any[] = any[], Result = any> = (
+  joinPoint: IBeforeJoinPoint<ThisType, Args, Result>,
+) => void | Promise<void>;
+export type IAfterAspectHookFunction<ThisType = any, Args extends any[] = any[], Result = any> = (
+  joinPoint: IAfterJoinPoint<ThisType, Args, Result>,
+) => void | Promise<void>;
+export type IAroundAspectHookFunction<ThisType = any, Args extends any[] = any[], Result = any> = (
+  joinPoint: IAroundJoinPoint<ThisType, Args, Result>,
+) => void | Promise<void>;
+export type IAfterReturningAspectHookFunction<ThisType = any, Args extends any[] = any[], Result = any> = (
+  joinPoint: IAfterReturningJoinPoint<ThisType, Args, Result>,
+) => void | Promise<void>;
+export type IAfterThrowingAspectHookFunction<ThisType = any, Args extends any[] = any[], Result = any> = (
+  joinPoint: IAfterThrowingJoinPoint<ThisType, Args, Result>,
+) => void | Promise<void>;
 
 export type IAspectHookTypeFunction<ThisType, Args extends any[], Result> =
-  IBeforeAspectHookFunction<ThisType, Args, Result>
+  | IBeforeAspectHookFunction<ThisType, Args, Result>
   | IAfterAspectHookFunction<ThisType, Args, Result>
   | IAroundAspectHookFunction<ThisType, Args, Result>
   | IAfterReturningAspectHookFunction<ThisType, Args, Result>
@@ -132,20 +137,20 @@ export interface IAspectHook<ThisType = any, Args extends any[] = any[], Result 
 }
 
 export type IValidAspectHook<ThisType = any, Args extends any[] = any[], Result = any> =
-  IBeforeAspectHook<ThisType, Args, Result>
+  | IBeforeAspectHook<ThisType, Args, Result>
   | IAfterAspectHook<ThisType, Args, Result>
   | IAroundAspectHook<ThisType, Args, Result>
   | IAfterReturningAspectHook<ThisType, Args, Result>
   | IAfterThrowingAspectHook<ThisType, Args, Result>;
 
 export interface IBeforeAspectHook<ThisType = any, Args extends any[] = any[], Result = any>
-extends IAspectHook<ThisType, Args, Result> {
+  extends IAspectHook<ThisType, Args, Result> {
   type: HookType.Before;
   hook: IBeforeAspectHookFunction<ThisType, Args, Result>;
 }
 
 export interface IAfterAspectHook<ThisType = any, Args extends any[] = any[], Result = any>
-extends IAspectHook<ThisType, Args, Result> {
+  extends IAspectHook<ThisType, Args, Result> {
   type: HookType.After;
   hook: IAfterAspectHookFunction<ThisType, Args, Result>;
 }
@@ -179,15 +184,13 @@ export interface IBeforeJoinPoint<ThisType, Args extends any[], Result> extends 
   setArgs(args: Args): void;
 }
 
-export interface IAfterJoinPoint<ThisType, Args extends any[], Result>
-  extends IJoinPoint<ThisType, Args> {
+export interface IAfterJoinPoint<ThisType, Args extends any[], Result> extends IJoinPoint<ThisType, Args> {
   getArgs(): Args;
   getResult(): Result;
   setResult(result: Result): void;
 }
 
-export interface IAroundJoinPoint<ThisType, Args extends any[], Result>
-  extends IJoinPoint<ThisType, Args> {
+export interface IAroundJoinPoint<ThisType, Args extends any[], Result> extends IJoinPoint<ThisType, Args> {
   getArgs(): Args;
   setArgs(args: Args): void;
   getResult(): Result;
@@ -195,25 +198,20 @@ export interface IAroundJoinPoint<ThisType, Args extends any[], Result>
   proceed(): Promise<void> | void;
 }
 
-export interface IAfterReturningJoinPoint<ThisType, Args extends any[], Result>
-  extends IJoinPoint<ThisType, Args> {
-    getArgs(): Args;
-    getResult(): Result;
+export interface IAfterReturningJoinPoint<ThisType, Args extends any[], Result> extends IJoinPoint<ThisType, Args> {
+  getArgs(): Args;
+  getResult(): Result;
 }
 
-export interface IAfterThrowingJoinPoint<ThisType, Args extends any[], Result>
-  extends IJoinPoint<ThisType, Args> {
-    getError(): Error | undefined;
+export interface IAfterThrowingJoinPoint<ThisType, Args extends any[], Result> extends IJoinPoint<ThisType, Args> {
+  getError(): Error | undefined;
 }
 
 export interface IHookStore {
-
   createHooks(hooks: IValidAspectHook[]): IDisposable;
-  createOneHook<ThisType, Args extends any[], Result>(
-    hook: IValidAspectHook<ThisType, Args, Result>): IDisposable;
+  createOneHook<ThisType, Args extends any[], Result>(hook: IValidAspectHook<ThisType, Args, Result>): IDisposable;
   getHooks(token: Token, method: MethodName): IValidAspectHook[];
   hasHooks(token: Token): boolean;
-
 }
 
 export interface IDisposable {
