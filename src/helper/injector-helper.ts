@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { InstanceOpts } from '../declare';
 
-// tslint:disable-next-line
+// eslint-disable-next-line
 const pkg = require('../../package.json');
 
 const INJECTOR_KEY = Symbol('INJECTOR_KEY');

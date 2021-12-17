@@ -4,7 +4,8 @@
   "description": "Dependency injector.",
   "main": "dist/index.js",
   "scripts": {
-    "lint": "tslint -p tsconfig.json -t stylish",
+    "prepare": "husky install",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "tsc": "rm -rf dist && tsc -p tsconfig.prod.json",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch",
@@ -23,15 +24,19 @@
     "@commitlint/config-conventional": "^7.1.2",
     "@types/jest": "^26.0.0",
     "@types/node": "^10.17.26",
+    "@typescript-eslint/eslint-plugin": "^5.7.0",
+    "@typescript-eslint/parser": "^5.7.0",
     "commitizen": "^3.0.5",
     "commitlint": "^7.2.1",
     "cz-conventional-changelog": "^2.1.0",
-    "husky": "^1.2.1",
+    "eslint": "^8.4.1",
+    "eslint-config-prettier": "^8.3.0",
+    "husky": "^7.0.4",
     "jest": "^26.0.0",
-    "lint-staged": "^8.1.0",
+    "lint-staged": "^12.1.2",
+    "prettier": "2.5.1",
     "standard-version": "^4.4.0",
     "ts-jest": "^26.0.0",
-    "tslint": "^5.11.0",
     "typescript": "^3.2.2"
   },
   "repository": {
@@ -52,7 +57,10 @@
     }
   },
   "lint-staged": {
-    "*.ts": "tslint -p tsconfig.json -t stylish"
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "config": {
     "commitizen": {

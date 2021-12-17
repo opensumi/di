@@ -32,7 +32,7 @@ import {
 export class Injector {
   id = Helper.createId('Injector');
   creatorMap = new Map<Token, InstanceCreator>();
-  depth: number = 0;
+  depth = 0;
   tag?: string;
   hookStore: IHookStore;
   parent?: Injector;
@@ -64,7 +64,7 @@ export class Injector {
     const injector = new Injector(providers, { ...this.opts, ...opts }, this);
 
     if (opts.dropdownForTag) {
-      for (const [ token, creator ] of this.creatorMap.entries()) {
+      for (const [token, creator] of this.creatorMap.entries()) {
         if (creator.dropdownForTag && opts.tag === creator.tag && !injector.creatorMap.has(token)) {
           injector.creatorMap.set(token, creator);
 
@@ -109,7 +109,7 @@ export class Injector {
       };
 
       // 尝试直接从当前已有的实现去解析创建器，且 injector 一直使用当前上下文
-      [ creator ] = this.getCreator(token);
+      [creator] = this.getCreator(token);
 
       // FIXME: 下一个大版本 breaking change，不允许非 Injectable 的 Class 当做 Token
       if (!creator) {
@@ -123,18 +123,18 @@ export class Injector {
       // 首先用 Tag 去置换 Token 进行对象实例化
       if (opts && Helper.hasTag(opts)) {
         const tagToken = this.exchangeToken(token, opts.tag);
-        [ creator, injector ] = this.getCreator(tagToken);
+        [creator, injector] = this.getCreator(tagToken);
       }
 
       // 如果没有得到创建器，就从单纯的 Token 去查找创建器
       if (!creator) {
-        [ creator, injector ] = this.getCreator(token);
+        [creator, injector] = this.getCreator(token);
       }
 
       // 非严格模式下，会自动在 get 的时候去解析依赖和 provider
       if (isTypeProvider(token) && !creator && !this.opts.strict) {
         this.parseDependencies(token);
-        [ creator, injector ] = this.getCreator(token);
+        [creator, injector] = this.getCreator(token);
       }
     }
 
@@ -180,10 +180,11 @@ export class Injector {
     const providers = Helper.uniq(allDeps.filter(Helper.isInjectableToken));
     this.setProviders(providers, { deep: true });
 
-    const defaultProviders = Helper
-      .flatten(providers.map((p) => {
+    const defaultProviders = Helper.flatten(
+      providers.map((p) => {
         return Helper.getParameterOpts(p);
-      }))
+      }),
+    )
       .filter((opt) => {
         return opt.hasOwnProperty('default');
       })
@@ -283,7 +284,7 @@ export class Injector {
 
       const isOverride = [
         // 先判断 provider 是否有 override 定义
-        () => Helper.isTypeProvider(provider) ? false : provider.override,
+        () => (Helper.isTypeProvider(provider) ? false : provider.override),
         // 判断这是否是一次 override 强制行为
         () => opts.override,
         // 如果没有当前 provider 或者当前值是默认对象，执行覆盖
@@ -334,14 +335,14 @@ export class Injector {
   private getCreator(token: Token): [InstanceCreator | null, Injector] {
     const creator = this.creatorMap.get(token) || null;
     if (creator) {
-      return [ creator, this ];
+      return [creator, this];
     }
 
     if (this.parent) {
       return this.parent.getCreator(token);
     }
 
-    return [ null, this ];
+    return [null, this];
   }
 
   private createInstance(
@@ -411,7 +412,7 @@ export class Injector {
 
   private getParameters(parameters: ParameterOpts[]) {
     return parameters.map((opts) => {
-      const [ creator, injector ] = this.getCreator(opts.token);
+      const [creator, injector] = this.getCreator(opts.token);
       if (creator) {
         return this.createInstance(creator, opts.token, injector);
       }

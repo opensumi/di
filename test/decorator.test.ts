@@ -1,7 +1,7 @@
 import * as Error from '../src/error';
 import { Autowired, Injectable, Inject, Injector, getInjectableOpts } from '../src';
 
-// tslint:disable-next-line
+// eslint-disable-next-line
 const pkg = require('../package.json');
 
 describe(__filename, () => {
@@ -16,7 +16,9 @@ describe(__filename, () => {
         a!: A;
       }
       return B;
-    }).toThrow('B 的属性 a 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "function Object() { [native code] }"。排查下面三种可能：（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（3）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。');
+    }).toThrow(
+      'B 的属性 a 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "function Object() { [native code] }"。排查下面三种可能：（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（3）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。',
+    );
   });
 
   it('Autowired 使用 null 进行依赖定义，期望报错', () => {
@@ -30,7 +32,9 @@ describe(__filename, () => {
         a!: A;
       }
       return B;
-    }).toThrow('B 的属性 a 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "null"。排查下面三种可能：（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（3）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。');
+    }).toThrow(
+      'B 的属性 a 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "null"。排查下面三种可能：（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（3）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。',
+    );
   });
 
   it('Autowired 使用原始 Number 进行依赖定义，期望报错', () => {
@@ -44,7 +48,9 @@ describe(__filename, () => {
         a!: A;
       }
       return B;
-    }).toThrow('B 的属性 a 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "function Number() { [native code] }"。排查下面三种可能：（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（3）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。');
+    }).toThrow(
+      'B 的属性 a 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "function Number() { [native code] }"。排查下面三种可能：（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（3）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。',
+    );
   });
 
   it('Injectable 的时候允许多次描述', () => {
@@ -104,7 +110,7 @@ describe(__filename, () => {
     class A {}
     class B extends A {}
 
-    const injector = new Injector([ B ]);
+    const injector = new Injector([B]);
     expect(injector.get(B)).toBeInstanceOf(B);
   });
 

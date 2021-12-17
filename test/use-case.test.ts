@@ -1,4 +1,4 @@
-// tslint:disable:no-console
+/* eslint-disable no-console */
 import * as Error from '../src/error';
 import { Autowired, Injectable, Injector, Inject, ClassProvider } from '../src';
 
@@ -42,9 +42,7 @@ describe(__filename, () => {
 
     @Injectable()
     class B {
-      constructor(
-        public a: A,
-      ) {}
+      constructor(public a: A) {}
     }
 
     const injector = new Injector();
@@ -63,7 +61,7 @@ describe(__filename, () => {
     @Injectable({ multiple: true })
     class Multiple {}
 
-    const injector = new Injector([ Single, Multiple ]);
+    const injector = new Injector([Single, Multiple]);
     const single1 = injector.get(Single);
     const single2 = injector.get(Single);
     expect(single1).toBe(single2);
@@ -89,9 +87,7 @@ describe(__filename, () => {
 
     @Injectable()
     class B {
-      constructor(
-        @Inject(AToken) public a: A,
-      ) {}
+      constructor(@Inject(AToken) public a: A) {}
     }
 
     @Injectable()
@@ -100,10 +96,14 @@ describe(__filename, () => {
       a!: A;
     }
 
-    const injector = new Injector([B, C, {
-      token: AToken,
-      useClass: AImpl,
-    }]);
+    const injector = new Injector([
+      B,
+      C,
+      {
+        token: AToken,
+        useClass: AImpl,
+      },
+    ]);
 
     const b = injector.get(B);
     expect(b).toBeInstanceOf(B);

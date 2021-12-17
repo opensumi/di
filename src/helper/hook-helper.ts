@@ -65,9 +65,9 @@ export function applyHooks<T = any>(instance: T, token: Token, hooks: IHookStore
  */
 export function createHookedFunction<ThisType, Args extends any[], Result>(
   methodName: MethodName,
-  rawMethod: ( ...args: Args) => Result,
-  hooks: Array<IValidAspectHook<ThisType, Args, Result>>): (...args: Args) => Result {
-  // tslint:disable-next-line: only-arrow-functions
+  rawMethod: (...args: Args) => Result,
+  hooks: Array<IValidAspectHook<ThisType, Args, Result>>,
+): (...args: Args) => Result {
   const beforeHooks: Array<IBeforeAspectHook<ThisType, Args, Result>> = [];
   const afterHooks: Array<IAfterAspectHook<ThisType, Args, Result>> = [];
   const aroundHooks: Array<IAroundAspectHook<ThisType, Args, Result>> = [];
@@ -84,17 +84,15 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
     } else if (isAroundHook(h)) {
       // around 后来的先执行
       aroundHooks.unshift(h);
-    }  else if (isAfterReturningHook(h)) {
+    } else if (isAfterReturningHook(h)) {
       afterReturningHooks.push(h);
     } else if (isAfterThrowingHook(h)) {
       afterThrowingHooks.push(h);
     }
   });
 
-  // around 在最外层, 后来的先执行
-  // tslint:disable-next-line: only-arrow-functions
-  return function(this: any, ...args: Args) {
-
+  // around 在最外层, 后来的先执行
+  return function (this: any, ...args: Args) {
     let promise: Promise<any> | undefined;
     let ret: Result = undefined as any;
     let error: Error | undefined;
@@ -105,7 +103,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
       runAroundHooks();
 
       if (promise) {
-        promise =  promise.then(() => {
+        promise = promise.then(() => {
           return ret;
         }); // 有一个hook为异步，全部转换为异步
         return promise as any;
@@ -113,7 +111,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
         return ret;
       }
     } catch (e) {
-      error = e;
+      error = e as Error;
       runAfterThrowing();
       throw e;
     } finally {
@@ -130,12 +128,15 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
 
         if (p) {
           // 是异步, 此时使用promise的reject和resolve
-          p.then(() => {
-            runAfterReturning();
-          }, (e) => {
-            error = e;
-            runAfterThrowing();
-          });
+          p.then(
+            () => {
+              runAfterReturning();
+            },
+            (e) => {
+              error = e;
+              runAfterThrowing();
+            },
+          );
         } else {
           runAfterReturning();
         }
@@ -143,7 +144,6 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
     }
 
     function runAroundHooks(): Promise<void> | undefined {
-
       let i = 0;
       const aroundJoinPoint: IAroundJoinPoint<ThisType, Args, Result> = {
         getArgs: () => {
@@ -286,7 +286,6 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
           // no op, 忽略AfterReturning中的错误
         }
       });
-
     }
 
     function runAfterThrowing() {
@@ -309,7 +308,6 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
       };
 
       afterThrowingHooks.forEach((hook) => {
-
         try {
           hook.hook(afterThrowingJoinPoint);
         } catch (e) {
@@ -319,7 +317,6 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
     }
 
     function wrapped(): Result {
-
       promise = runBeforeHooks();
 
       if (promise) {
@@ -348,31 +345,35 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
       }
     }
   };
-
 }
 
-function isBeforeHook<ThisType, Args extends any[], Result>(hook: IValidAspectHook<ThisType, Args, Result>):
-  hook is IBeforeAspectHook<ThisType, Args, Result> {
+function isBeforeHook<ThisType, Args extends any[], Result>(
+  hook: IValidAspectHook<ThisType, Args, Result>,
+): hook is IBeforeAspectHook<ThisType, Args, Result> {
   return hook && hook.type === HookType.Before;
 }
 
-function isAfterHook<ThisType, Args extends any[], Result>(hook: IValidAspectHook<ThisType, Args, Result>):
-  hook is IAfterAspectHook<ThisType, Args, Result> {
+function isAfterHook<ThisType, Args extends any[], Result>(
+  hook: IValidAspectHook<ThisType, Args, Result>,
+): hook is IAfterAspectHook<ThisType, Args, Result> {
   return hook && hook.type === HookType.After;
 }
 
-function isAroundHook<ThisType, Args extends any[], Result>(hook: IValidAspectHook<ThisType, Args, Result>):
-  hook is IAroundAspectHook<ThisType, Args, Result> {
+function isAroundHook<ThisType, Args extends any[], Result>(
+  hook: IValidAspectHook<ThisType, Args, Result>,
+): hook is IAroundAspectHook<ThisType, Args, Result> {
   return hook && hook.type === HookType.Around;
 }
 
-function isAfterReturningHook<ThisType, Args extends any[], Result>(hook: IValidAspectHook<ThisType, Args, Result>):
-  hook is IAfterReturningAspectHook<ThisType, Args, Result> {
+function isAfterReturningHook<ThisType, Args extends any[], Result>(
+  hook: IValidAspectHook<ThisType, Args, Result>,
+): hook is IAfterReturningAspectHook<ThisType, Args, Result> {
   return hook && hook.type === HookType.AfterReturning;
 }
 
-function isAfterThrowingHook<ThisType, Args extends any[], Result>(hook: IValidAspectHook<ThisType, Args, Result>):
-  hook is IAfterThrowingAspectHook<ThisType, Args, Result> {
+function isAfterThrowingHook<ThisType, Args extends any[], Result>(
+  hook: IValidAspectHook<ThisType, Args, Result>,
+): hook is IAfterThrowingAspectHook<ThisType, Args, Result> {
   return hook && hook.type === HookType.AfterThrowing;
 }
 
@@ -380,8 +381,10 @@ function isPromiseLike(thing: any): thing is Promise<any> {
   return !!(thing as Promise<any>).then;
 }
 
-function runHooks<T extends { awaitPromise?: boolean, hook: (joinPoint: P) => Promise<void> | void},
-  P extends IJoinPoint>(hooks: T[], joinPoint: P, then: () => void) {
+function runHooks<
+  T extends { awaitPromise?: boolean; hook: (joinPoint: P) => Promise<void> | void },
+  P extends IJoinPoint,
+>(hooks: T[], joinPoint: P, then: () => void) {
   let promise: Promise<void> | undefined;
   for (const hook of hooks) {
     promise = runOneHook(hook, joinPoint, promise);
@@ -394,8 +397,10 @@ function runHooks<T extends { awaitPromise?: boolean, hook: (joinPoint: P) => Pr
   return promise;
 }
 
-function runOneHook<T extends { awaitPromise?: boolean, hook: (joinPoint: P) => Promise<void> | void},
-P extends IJoinPoint>(hook: T, joinPoint: P, promise: Promise<any> | undefined): Promise<void> | undefined {
+function runOneHook<
+  T extends { awaitPromise?: boolean; hook: (joinPoint: P) => Promise<void> | void },
+  P extends IJoinPoint,
+>(hook: T, joinPoint: P, promise: Promise<any> | undefined): Promise<void> | undefined {
   if (hook.awaitPromise) {
     // 如果要求await hook，如果之前有promise，直接用，不然创建Promise给下一个使用
     promise = promise || Promise.resolve();
@@ -416,12 +421,9 @@ P extends IJoinPoint>(hook: T, joinPoint: P, promise: Promise<any> | undefined):
 }
 
 export class HookStore implements IHookStore {
-
   private hooks: IHookMap = new Map<Token, IInstanceHooks>();
 
-  constructor(private parent?: IHookStore) {
-
-  }
+  constructor(private parent?: IHookStore) {}
 
   createHooks(hooks: IValidAspectHook[]): IDisposable {
     const disposers: IDisposable[] = hooks.map((hook) => {
@@ -491,24 +493,21 @@ export class HookStore implements IHookStore {
       instanceHooks.get(hook.method)!.splice(index, 1);
     }
   }
-
 }
 
 const HOOK_KEY = Symbol('HOOK_KEY');
 const ASPECT_KEY = Symbol('ASPECT_KEY');
 
-export type IHookMetadata = Array<
-  {
-    prop: MethodName,
-    type: HookType,
-    target: Token,
-    targetMethod: MethodName,
-    options: IHookOptions,
-  }
->;
+export type IHookMetadata = Array<{
+  prop: MethodName;
+  type: HookType;
+  target: Token;
+  targetMethod: MethodName;
+  options: IHookOptions;
+}>;
 
 export function makeAsAspect(target: object) {
-  Reflect.defineMetadata(ASPECT_KEY, true,  target);
+  Reflect.defineMetadata(ASPECT_KEY, true, target);
 }
 
 export function makeAsHook(
@@ -517,13 +516,14 @@ export function makeAsHook(
   type: HookType,
   hookTarget: Token,
   targetMethod: MethodName,
-  options: IHookOptions) {
+  options: IHookOptions,
+) {
   let hooks = Reflect.getOwnMetadata(HOOK_KEY, target);
   if (!hooks) {
     hooks = [];
     Reflect.defineMetadata(HOOK_KEY, hooks, target);
   }
-  hooks.push({prop, type, target: hookTarget, targetMethod, options});
+  hooks.push({ prop, type, target: hookTarget, targetMethod, options });
 }
 export function isAspectCreator(target: object) {
   return !!Reflect.getMetadata(ASPECT_KEY, (target as ClassCreator).useClass);
