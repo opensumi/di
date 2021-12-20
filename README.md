@@ -359,3 +359,7 @@ Injector 中是否具备某个对象的单例引用
 - [injection-js](https://github.com/mgechev/injection-js) - 把 Agular 的 DI 抽取出来的单独仓库。
 - [InversifyJS](https://github.com/inversify/InversifyJS) - 目前社区中比较受欢迎的 DI 库，但是感觉用法比较麻烦。
 - [power-di](https://github.com/zhang740/power-di) - 支付宝小程序目前使用的 DI 工具。
+
+### Thank You
+
+- [suyu34](https://github.com/suyu34)
