@@ -17,7 +17,7 @@ describe(__filename, () => {
       }
       return B;
     }).toThrow(
-      'B 的属性 a 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "function Object() { [native code] }"。排查下面三种可能：（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（3）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。',
+      'B 的属性 a 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "function Object() { [native code] }"。排查下面三种可能:（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（2）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。',
     );
   });
 
@@ -33,7 +33,7 @@ describe(__filename, () => {
       }
       return B;
     }).toThrow(
-      'B 的属性 a 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "null"。排查下面三种可能：（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（3）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。',
+      'B 的属性 a 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "null"。排查下面三种可能:（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（2）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。',
     );
   });
 
@@ -49,7 +49,7 @@ describe(__filename, () => {
       }
       return B;
     }).toThrow(
-      'B 的属性 a 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "function Number() { [native code] }"。排查下面三种可能：（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（3）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。',
+      'B 的属性 a 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "function Number() { [native code] }"。排查下面三种可能:（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（2）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。',
     );
   });
 
