@@ -1,21 +1,17 @@
-name: Git Action Test
+name: CI
 
 on: [push]
 
 jobs:
   ci:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v1
-    - name: Use Node.js 10.x
+    - name: Use Node.js 14.x
       uses: actions/setup-node@v1
       with:
-        node-version: 10.x
-    - name: npm install, ci
+        node-version: 14.x
+    - name: Run CI
       run: |
         npm install
         npm run ci
-      env:
-        CI: true
