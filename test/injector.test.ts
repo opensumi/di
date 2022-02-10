@@ -41,16 +41,12 @@ describe(__filename, () => {
 
   @Injectable()
   class D {
-    constructor(
-      @Inject(EToken) public e: any,
-    ) {}
+    constructor(@Inject(EToken) public e: any) {}
   }
 
   @Injectable()
   class E {
-    constructor(
-      @Inject(DToken) public d: any,
-    ) {}
+    constructor(@Inject(DToken) public d: any) {}
   }
 
   it('从静态函数创建 Injector', () => {
@@ -187,7 +183,7 @@ describe(__filename, () => {
       injector.addProviders(A);
       const a1 = injector.get(A);
 
-      injector.addProviders({ token: A, useValue: 'a2'});
+      injector.addProviders({ token: A, useValue: 'a2' });
       const a2 = injector.get(A);
 
       injector.addProviders({ token: A, useValue: 'a3', override: true });
@@ -469,9 +465,7 @@ describe(__filename, () => {
     it('带有默认值的对象', () => {
       @Injectable()
       class T {
-        constructor(
-          @Inject('a', { default: 'aaa' }) public a: string,
-        ) {}
+        constructor(@Inject('a', { default: 'aaa' }) public a: string) {}
       }
 
       const injector = new Injector();
@@ -480,18 +474,15 @@ describe(__filename, () => {
       expect(t.a).toBe('aaa');
 
       injector.addProviders({ token: 'a', useValue: 'bbb' });
-      const childInjector = injector.createChild([ T ]);
+      const childInjector = injector.createChild([T]);
       const t2 = childInjector.get(T);
       expect(t2.a).toBe('bbb');
     });
 
     it('严格模式下，带有默认值的对象', () => {
-
       @Injectable()
       class T {
-        constructor(
-          @Inject('a', { default: 'aaa' }) public a: string,
-        ) {}
+        constructor(@Inject('a', { default: 'aaa' }) public a: string) {}
       }
 
       const injector = new Injector([], { strict: true });
@@ -500,7 +491,7 @@ describe(__filename, () => {
       expect(t.a).toBe('aaa');
 
       injector.addProviders({ token: 'a', useValue: 'bbb' });
-      const childInjector = injector.createChild([ T ]);
+      const childInjector = injector.createChild([T]);
       const t2 = childInjector.get(T);
       expect(t2.a).toBe('bbb');
     });
@@ -508,9 +499,7 @@ describe(__filename, () => {
     it('带有默认赋值的对象', () => {
       @Injectable()
       class T {
-        constructor(
-          @Optional('a') public a: string = 'aaa',
-        ) {}
+        constructor(@Optional('a') public a: string = 'aaa') {}
       }
 
       const injector = new Injector([T]);
@@ -518,7 +507,7 @@ describe(__filename, () => {
       expect(t.a).toBe('aaa');
 
       injector.addProviders({ token: 'a', useValue: 'bbb' });
-      const childInjector = injector.createChild([ T ]);
+      const childInjector = injector.createChild([T]);
       const t2 = childInjector.get(T);
       expect(t2.a).toBe('bbb');
     });
@@ -526,9 +515,7 @@ describe(__filename, () => {
     it('Optional 不传递 Token', () => {
       @Injectable()
       class T {
-        constructor(
-          @Optional() public a: string = 'aaa',
-        ) {}
+        constructor(@Optional() public a: string = 'aaa') {}
       }
 
       const injector = new Injector([T]);
@@ -575,9 +562,7 @@ describe(__filename, () => {
     it('没有提供完整的构造函数依赖，parse 会报错', () => {
       @Injectable()
       class T {
-        constructor(
-          @Inject('a') public a: string,
-        ) {}
+        constructor(@Inject('a') public a: string) {}
       }
 
       const injector = new Injector();
@@ -605,8 +590,8 @@ describe(__filename, () => {
       const injector = new Injector();
       injector.addProviders(A);
 
-      const injector1 = injector.createChild([ C ]);
-      const injector2 = injector.createChild([ C ]);
+      const injector1 = injector.createChild([C]);
+      const injector2 = injector.createChild([C]);
 
       expect(injector1.get(A)).toBe(injector2.get(A));
       expect(injector1.get(C)).not.toBe(injector2.get(C));
@@ -718,9 +703,7 @@ describe(__filename, () => {
 
       @Injectable()
       class T {
-        constructor(
-          @Inject(token) public a: string,
-        ) {}
+        constructor(@Inject(token) public a: string) {}
       }
 
       expect(() => {
@@ -850,8 +833,7 @@ describe(__filename, () => {
   });
 
   describe('hook', () => {
-
-    it('使用代码来创建hook', async (done) => {
+    it('使用代码来创建hook', async () => {
       const injector = new Injector();
       @Injectable()
       class TestClass {
@@ -943,17 +925,15 @@ describe(__filename, () => {
       expect(ret).toBeInstanceOf(Promise);
       expect(await ret).toBe(9);
 
-      injector.createHook<TestClass2, [number, number], number>(
-        {
-          hook: async (joinPoint) => {
-            const result = joinPoint.getResult();
-            joinPoint.setResult(result + 1);
-          },
-          method: 'add',
-          target: TestClass2,
-          type: HookType.After,
+      injector.createHook<TestClass2, [number, number], number>({
+        hook: async (joinPoint) => {
+          const result = joinPoint.getResult();
+          joinPoint.setResult(result + 1);
         },
-      );
+        method: 'add',
+        target: TestClass2,
+        type: HookType.After,
+      });
       const testClass2 = injector.get(TestClass2);
       expect(testClass2.add(1, 2)).toBe(4);
 
@@ -1007,17 +987,14 @@ describe(__filename, () => {
       });
       const testClass5 = injector.get(TestClass5);
       expect(await testClass5.add(1, 2)).toBe(5);
-
-      done();
     });
 
-    it('使用注解来创建hook', async (done) => {
+    it('使用注解来创建hook', async () => {
       const TestClassToken = Symbol();
 
       const pendings: Array<Promise<any>> = [];
       @Injectable()
       class TestClass {
-
         exp = 1;
 
         add(a: number, b: number): number {
@@ -1057,13 +1034,12 @@ describe(__filename, () => {
         // 不会被成功拦截
         bindedAdd = (a: number, b: number) => {
           return this.add(a, b);
-        }
+        };
       }
 
       @Aspect()
       @Injectable()
       class TestAspect {
-
         record = 2;
 
         multipleTime = 0;
@@ -1079,16 +1055,18 @@ describe(__filename, () => {
           expect(joinPoint.getOriginalArgs()).toBeInstanceOf(Array);
           expect(joinPoint.getThis()).toBeInstanceOf(TestClass);
           joinPoint.setArgs([a * 10, b * 10]);
-          pendings.push(new Promise((resolve, reject) => {
-            setTimeout(() => {
-              try {
-                expect(() => joinPoint.setArgs([1, 0])).toThrowError();
-                resolve();
-              } catch (e) {
-                reject(e);
-              }
-            }, 100);
-          }));
+          pendings.push(
+            new Promise<void>((resolve, reject) => {
+              setTimeout(() => {
+                try {
+                  expect(() => joinPoint.setArgs([1, 0])).toThrowError();
+                  resolve();
+                } catch (e) {
+                  reject(e);
+                }
+              }, 100);
+            }),
+          );
         }
 
         @Before<TestClass, [number, number], Promise<number>>(TestClass, 'addPromise')
@@ -1100,7 +1078,7 @@ describe(__filename, () => {
           joinPoint.setArgs([a * 10, b * 10]);
         }
 
-        @After<TestClass, [number, number], Promise<number>>(TestClass, 'addPromise', {await: true})
+        @After<TestClass, [number, number], Promise<number>>(TestClass, 'addPromise', { await: true })
         async interceptAddPromiseAfter(joinPoint: IAfterJoinPoint<TestClass, [number, number], Promise<number>>) {
           const result = await joinPoint.getResult();
           expect(joinPoint.getMethodName()).toBe('addPromise');
@@ -1120,16 +1098,18 @@ describe(__filename, () => {
           expect(joinPoint.getThis()).toBeInstanceOf(TestClass);
           const result = joinPoint.getResult();
           joinPoint.setResult(result * 20);
-          pendings.push(new Promise((resolve, reject) => {
-            setTimeout(() => {
-              try {
-                expect(() => joinPoint.setResult(100)).toThrowError();
-                resolve();
-              } catch (e) {
-                reject(e);
-              }
-            }, 100);
-          }));
+          pendings.push(
+            new Promise<void>((resolve, reject) => {
+              setTimeout(() => {
+                try {
+                  expect(() => joinPoint.setResult(100)).toThrowError();
+                  resolve();
+                } catch (e) {
+                  reject(e);
+                }
+              }, 100);
+            }),
+          );
         }
 
         @Around<TestClass, [number, number], number>(TestClass, 'multiple')
@@ -1150,7 +1130,7 @@ describe(__filename, () => {
           expect(joinPoint.getArgs()).toBeInstanceOf(Array);
           expect(joinPoint.getThis()).toBeInstanceOf(TestClass);
           expect(joinPoint.getResult()).toBe(this.record);
-          this.multipleTime ++;
+          this.multipleTime++;
         }
 
         @AfterReturning(TestClass, 'multiple')
@@ -1188,16 +1168,14 @@ describe(__filename, () => {
           expect(joinPoint.getThis()).toBeInstanceOf(TestClass);
           this.thrownRejection = joinPoint.getError();
         }
-
       }
 
       @Aspect()
       @Injectable()
-      class EmptyTestAspect {
-      }
+      class EmptyTestAspect {}
 
       const injector = new Injector();
-      injector.addProviders({token: TestClassToken, useClass: TestClass});
+      injector.addProviders({ token: TestClassToken, useClass: TestClass });
       injector.addProviders(TestAspect);
       injector.addProviders(EmptyTestAspect);
       const testClass = injector.get(TestClass);
@@ -1231,7 +1209,6 @@ describe(__filename, () => {
       expect(() => testClass.throwError2()).toThrowError();
 
       await Promise.all(pendings);
-      done();
     });
 
     it('子injector应该正确拦截', () => {
@@ -1267,7 +1244,6 @@ describe(__filename, () => {
       @Aspect()
       @Injectable()
       class TestAspect {
-
         @Before(TestClass, 'add')
         interceptAdd(joinPoint: IBeforeJoinPoint<TestClass, [number, number], number>) {
           const [a, b] = joinPoint.getArgs();
@@ -1279,13 +1255,11 @@ describe(__filename, () => {
           const [a, b] = joinPoint.getArgs();
           joinPoint.setArgs([a * 10, b * 10]);
         }
-
       }
 
       @Aspect()
       @Injectable()
       class TestAspect2 {
-
         @Before(TestClass, 'add')
         interceptAdd(joinPoint: IBeforeJoinPoint<TestClass, [number, number], number>) {
           const [a, b] = joinPoint.getArgs();
@@ -1296,10 +1270,9 @@ describe(__filename, () => {
           const [a, b] = joinPoint.getArgs();
           joinPoint.setArgs([a * 20, b * 20]);
         }
-
       }
 
-      const injector = new Injector([TestClass], {strict: true});
+      const injector = new Injector([TestClass], { strict: true });
       const injector2 = injector.createChild();
       injector.addProviders(TestAspect);
       injector2.addProviders(TestAspect2);
@@ -1311,7 +1284,6 @@ describe(__filename, () => {
       expect(testClassChild.add(1, 2)).toBe(30); // 仅仅命中parent中的Hook
       expect(testClassChild2.add(1, 2)).toBe(600); // 两边的hook都会命中
     });
-
   });
 
   describe('动态多例创建', () => {
