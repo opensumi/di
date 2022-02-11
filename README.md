@@ -124,7 +124,7 @@ npm install @opensumi/di --save
 
 ## Usage
 
-### 对 Construtor 进行构造注入
+### 对 Constructor 进行构造注入
 
 ```ts
 @Injectable()

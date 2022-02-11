@@ -141,7 +141,7 @@ export class Injector {
     if (!creator) {
       throw InjectorError.noProviderError(token);
     }
-    return this.createInstance(creator, token, injector, opts, args);
+    return this.createInstance(creator, token, injector, opts, args as ConstructorParameters<any>);
   }
 
   getFromDomain(...domains: Domain[]) {
