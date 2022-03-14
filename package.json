@@ -46,16 +46,6 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "ci": {
-    "type": "aci",
-    "version": "10"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
-  },
   "lint-staged": {
     "*.ts": [
       "eslint --fix",
