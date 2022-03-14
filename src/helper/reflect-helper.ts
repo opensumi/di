@@ -4,11 +4,7 @@ function findConstructor(target: object) {
   return typeof target === 'object' ? target.constructor : target;
 }
 
-function getConstructorMetadata(
-  metadataKey: any,
-  target: object,
-  propertyKey?: string | symbol,
-) {
+function getConstructorMetadata(metadataKey: any, target: object, propertyKey?: string | symbol) {
   const constructor = findConstructor(target);
   if (propertyKey == null) {
     return Reflect.getMetadata(metadataKey, constructor);

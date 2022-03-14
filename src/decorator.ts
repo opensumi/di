@@ -79,8 +79,8 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
   return (target: object, propertyKey: string | symbol) => {
     const INSTANCE_KEY = Symbol('INSTANCE_KEY');
 
-    let dependency = token;
-    if (token === undefined) {
+    let dependency = token as Token;
+    if (dependency === undefined) {
       dependency = Reflect.getMetadata('design:type', target, propertyKey);
     }
 
@@ -103,7 +103,7 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
             throw Error.noInjectorError(this);
           }
 
-          this[INSTANCE_KEY] = injector.get(dependency!, opts);
+          this[INSTANCE_KEY] = injector.get(dependency, opts);
         }
 
         return this[INSTANCE_KEY];

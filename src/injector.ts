@@ -278,18 +278,17 @@ export class Injector {
   private setProviders(providers: Provider[], opts: AddProvidersOpts = {}) {
     for (const provider of providers) {
       const originToken = Helper.parseTokenFromProvider(provider);
-      const tag = Helper.parseTagFromProvider(provider);
       const token = Helper.hasTag(provider) ? this.exchangeToken(originToken, provider.tag) : originToken;
       const current = opts.deep ? this.getCreator(token)[0] : this.creatorMap.get(token);
 
       const isOverride = [
         // 先判断 provider 是否有 override 定义
-        () => (Helper.isTypeProvider(provider) ? false : provider.override),
+        Helper.isTypeProvider(provider) ? false : provider.override,
         // 判断这是否是一次 override 强制行为
-        () => opts.override,
+        opts.override,
         // 如果没有当前 provider 或者当前值是默认对象，执行覆盖
-        () => !current || current.isDefault,
-      ].some((fn) => fn());
+        !current || current.isDefault,
+      ].some(Boolean);
 
       if (isOverride) {
         const creator = Helper.parseCreatorFromProvider(provider);
