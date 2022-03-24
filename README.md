@@ -33,10 +33,10 @@ export type Token = string | symbol | Function;
 为 Token 提供实例的定义，一共有四种类型的 Provider 定义：
 
 ```ts
-export type Provider = 
-  ClassProvider | 
-  TypeProvider | 
-  ValueProvider | 
+export type Provider =
+  ClassProvider |
+  TypeProvider |
+  ValueProvider |
   FactoryProvider;
 ```
 
@@ -54,14 +54,14 @@ export interface ClassProvider {
 在依赖反转之后，构造函数都依赖抽象而不依赖实例的时候会非常有效。比如下面的例子：
 
 ```ts
-interface Driveable {
+interface Derivable {
   drive(): void;
 }
 
 @Injectable()
 class Student {
-  @Autowired('Driveable')
-  mBike: Driveable;
+  @Autowired('Derivable')
+  mBike: Derivable;
 
   goToSchool() {
     console.log('go to school');
@@ -74,7 +74,7 @@ class Student {
 
 ```ts
 @Injectable()
-class Car implements Driveable {
+class Car implements Derivable {
   drive() {
     console.log('by car')
   }
@@ -82,12 +82,12 @@ class Car implements Driveable {
 
 injector.addProviders(Student)
 injector.addProviders({
-  token: 'Driveable',
+  token: 'Derivable',
   useClass: Car,
 })
 
 const student = injector.get(Student);
-student.goToSchool(); // print 'go to school by car' 
+student.goToSchool(); // print 'go to school by car'
 ```
 
 #### TypeProvider
@@ -356,7 +356,7 @@ Injector 中是否具备某个对象的单例引用
 ## Related Efforts
 
 - [Angular](https://angular.io/guide/dependency-injection) - Angular 的 DI 工具使用文档
-- [injection-js](https://github.com/mgechev/injection-js) - 把 Agular 的 DI 抽取出来的单独仓库。
+- [injection-js](https://github.com/mgechev/injection-js) - 把 Angular 的 DI 抽取出来的单独仓库。
 - [InversifyJS](https://github.com/inversify/InversifyJS) - 目前社区中比较受欢迎的 DI 库，但是感觉用法比较麻烦。
 - [power-di](https://github.com/zhang740/power-di) - 支付宝小程序目前使用的 DI 工具。
 
