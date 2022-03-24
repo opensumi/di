@@ -91,5 +91,8 @@
   "keywords": [
     "di",
     "injector"
+  ],
+  "files": [
+    "dist"
   ]
 }
