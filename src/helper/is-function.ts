@@ -33,18 +33,9 @@ export function isInjectableToken(token: Token): token is TypeProvider {
   return typeof token === 'function' && isInjectable(token);
 }
 
-const errorConstructors = new Set([
-  Object,
-  String,
-  Number,
-  Boolean,
-]);
+const errorConstructors = new Set([Object, String, Number, Boolean]);
 
-const tokenTypes = new Set([
-  'function',
-  'string',
-  'symbol',
-]);
+const tokenTypes = new Set(['function', 'string', 'symbol']);
 export function isToken(token: any): token is Token {
   if (typeof token === 'function') {
     return !errorConstructors.has(token);

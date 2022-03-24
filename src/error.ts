@@ -23,15 +23,13 @@ export function tagOnlyError(expectTag: string, currentTag: string) {
 }
 
 export function noInjectableError(target: object) {
-  return new Error(
-    `需要保证 ${stringify(
-      target,
-    )} 必须是被 Injectable 装饰过的，可能是安装了多个版本导致的，可以 tnpm update 彻底重装依赖解决。`,
-  );
+  return new Error(`需要保证 ${stringify(target)} 必须是被 Injectable 装饰过的，可能是安装了多个版本导致的。`);
 }
 
 export function notInjectError(target: object, index: number) {
-  return new Error(`${stringify(target)} 的构造函数第 ${index} 个参数是不支持的依赖, 非构造函数需要使用 Inject 装饰`);
+  return new Error(
+    `单例模式下 ${stringify(target)} 的构造函数第 ${index} 个参数是不可被 Inject 的，请使用 Inject 装饰或改成多例。`,
+  );
 }
 
 export function notSupportTokenError(target: object, key: string | symbol, token: any) {
@@ -46,7 +44,7 @@ export function notSupportTokenError(target: object, key: string | symbol, token
 }
 
 export function noInjectorError(target: object) {
-  return new Error(`没有找到 ${stringify(target)} 应该存在的注册器`);
+  return new Error(`没有找到 ${stringify(target)} 对应的 Injector`);
 }
 
 export function circularError(target: object) {

@@ -16,9 +16,7 @@ describe(__filename, () => {
         a!: A;
       }
       return B;
-    }).toThrow(
-      'B 的属性 a 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "function Object() { [native code] }"。排查下面三种可能:（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（2）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。',
-    );
+    }).toThrow(Error.notSupportTokenError(class B {}, 'a', Object));
   });
 
   it('Autowired 使用 null 进行依赖定义，期望报错', () => {
@@ -32,9 +30,7 @@ describe(__filename, () => {
         a!: A;
       }
       return B;
-    }).toThrow(
-      'B 的属性 a 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "null"。排查下面三种可能:（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（2）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。',
-    );
+    }).toThrow();
   });
 
   it('Autowired 使用原始 Number 进行依赖定义，期望报错', () => {
@@ -48,9 +44,7 @@ describe(__filename, () => {
         a!: A;
       }
       return B;
-    }).toThrow(
-      'B 的属性 a 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "function Number() { [native code] }"。排查下面三种可能:（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（2）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。',
-    );
+    }).toThrow();
   });
 
   it('Injectable 的时候允许多次描述', () => {
@@ -176,7 +170,7 @@ describe(__filename, () => {
       class InjectError {
         constructor(public a: string) {}
       }
-    }).toThrow('InjectError 的构造函数第 0 个参数是不支持的依赖, 非构造函数需要使用 Inject 装饰');
+    }).toThrow(Error.notInjectError(class InjectError {}, 0));
 
     expect(() => {
       @Injectable({ multiple: true })
@@ -194,7 +188,7 @@ describe(__filename, () => {
       class InjectError {
         constructor(public a: AA) {}
       }
-    }).toThrow('InjectError 的构造函数第 0 个参数是不支持的依赖, 非构造函数需要使用 Inject 装饰');
+    }).toThrow(Error.notInjectError(class InjectError {}, 0));
 
     expect(() => {
       enum AAEnum {
@@ -205,27 +199,27 @@ describe(__filename, () => {
       class InjectError {
         constructor(public aa: AAEnum) {}
       }
-    }).toThrow('InjectError 的构造函数第 0 个参数是不支持的依赖, 非构造函数需要使用 Inject 装饰');
+    }).toThrow(Error.notInjectError(class InjectError {}, 0));
 
     expect(() => {
       @Injectable()
       class InjectError {
         constructor(public a: number) {}
       }
-    }).toThrow('InjectError 的构造函数第 0 个参数是不支持的依赖, 非构造函数需要使用 Inject 装饰');
+    }).toThrow(Error.notInjectError(class InjectError {}, 0));
 
     expect(() => {
       @Injectable()
       class InjectError {
         constructor(public a: 1) {}
       }
-    }).toThrow('InjectError 的构造函数第 0 个参数是不支持的依赖, 非构造函数需要使用 Inject 装饰');
+    }).toThrow(Error.notInjectError(class InjectError {}, 0));
 
     expect(() => {
       @Injectable()
       class InjectError {
         constructor(public a: boolean) {}
       }
-    }).toThrow('InjectError 的构造函数第 0 个参数是不支持的依赖, 非构造函数需要使用 Inject 装饰');
+    }).toThrow(Error.notInjectError(class InjectError {}, 0));
   });
 });

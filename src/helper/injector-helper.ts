@@ -1,8 +1,7 @@
 import 'reflect-metadata';
 import { InstanceOpts } from '../declare';
 
-// eslint-disable-next-line
-const pkg = require('../../package.json');
+import { version } from '../../package.json';
 
 const INJECTOR_KEY = Symbol('INJECTOR_KEY');
 export function getInjectorOfInstance(instance: object) {
@@ -23,7 +22,7 @@ const defaultInstanceOpts: InstanceOpts = {};
 export function markInjectable(target: object, opts: InstanceOpts = defaultInstanceOpts) {
   // 合并的时候只合并当前对象的数据
   const currentOpts = Reflect.getOwnMetadata(INJECTABLE_KEY, target);
-  Reflect.defineMetadata(INJECTABLE_KEY, { ...opts, ...currentOpts, version: pkg.version }, target);
+  Reflect.defineMetadata(INJECTABLE_KEY, { ...opts, ...currentOpts, version }, target);
 }
 
 export function getInjectableOpts(target: object): InstanceOpts | undefined {

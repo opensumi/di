@@ -470,7 +470,7 @@ export class HookStore implements IHookStore {
     if (!instanceHooks.has(hook.method)) {
       instanceHooks.set(hook.method, []);
     }
-    // TODO 支持order
+    // TODO: 支持order
     instanceHooks.get(hook.method)!.push(hook);
     return {
       dispose: () => {

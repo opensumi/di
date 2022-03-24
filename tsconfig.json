@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es2017",
     "module": "commonjs",
-    "lib": [ "es2017" ],
+    "lib": ["es2017"],
     "strict": true,
     "declaration": true,
     "experimentalDecorators": true,
@@ -14,11 +14,9 @@
     "downlevelIteration": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "resolveJsonModule": true,
     "importHelpers": true,
     "outDir": "dist"
   },
-  "include": [
-    "src",
-    "test"
-  ]
+  "include": ["src", "test"]
 }
