@@ -9,5 +9,6 @@ module.exports = {
   rules: {
     '@typescript-eslint/no-this-alias': 'warn',
     'no-prototype-builtins': 'warn',
+    '@typescript-eslint/ban-types': 'warn',
   },
 };

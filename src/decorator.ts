@@ -21,7 +21,6 @@ import { makeAsAspect, makeAsHook } from './helper';
  * @param opts
  */
 export function Injectable(opts?: InstanceOpts): ClassDecorator {
-  // eslint-disable-next-line @typescript-eslint/ban-types
   return <T extends Function>(target: T) => {
     Helper.markInjectable(target, opts);
 
@@ -54,7 +53,6 @@ interface InjectOpts {
  * @param token
  */
 export function Inject(token: string | symbol, opts: InjectOpts = {}) {
-  // eslint-disable-next-line @typescript-eslint/ban-types
   return <T extends Function>(target: T, _: string | symbol, index: number) => {
     Helper.setParameterIn(target, { ...opts, token }, index);
   };
@@ -65,7 +63,6 @@ export function Inject(token: string | symbol, opts: InjectOpts = {}) {
  * @param token
  */
 export function Optional(token: string | symbol = Symbol()) {
-  // eslint-disable-next-line @typescript-eslint/ban-types
   return <T extends Function>(target: T, _: string | symbol, index: number) => {
     Helper.setParameterIn(target, { default: undefined, token }, index);
   };
