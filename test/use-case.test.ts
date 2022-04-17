@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
+import { Autowired, Inject, Injectable, Injector } from '../src';
 import * as Error from '../src/error';
-import { Autowired, Injectable, Injector, Inject, ClassProvider } from '../src';
 
 describe(__filename, () => {
   it('使用 Autowired 动态注入依赖', () => {
@@ -112,9 +112,10 @@ describe(__filename, () => {
     const c = injector.get(C);
     expect(c).toBeInstanceOf(C);
     expect(c.a).toBeInstanceOf(AImpl);
+    expect(b.a).toBe(c.a);
   });
 
-  it('使用 TypeProvier 创建实例', () => {
+  it('使用 TypeProvider 创建实例', () => {
     @Injectable()
     class A {}
 
@@ -123,7 +124,7 @@ describe(__filename, () => {
     expect(a).toBeInstanceOf(A);
   });
 
-  it('使用 ClassProvier 创建实例', () => {
+  it('使用 ClassProvider 创建实例', () => {
     const token = 'Token';
 
     @Injectable()
