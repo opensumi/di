@@ -54,14 +54,14 @@ export interface ClassProvider {
 在依赖反转之后，构造函数都依赖抽象而不依赖实例的时候会非常有效。比如下面的例子：
 
 ```ts
-interface Derivable {
+interface Drivable {
   drive(): void;
 }
 
 @Injectable()
 class Student {
-  @Autowired('Derivable')
-  mBike: Derivable;
+  @Autowired('Drivable')
+  mBike: Drivable;
 
   goToSchool() {
     console.log('go to school');
@@ -74,7 +74,7 @@ class Student {
 
 ```ts
 @Injectable()
-class Car implements Derivable {
+class Car implements Drivable {
   drive() {
     console.log('by car')
   }
@@ -82,7 +82,7 @@ class Car implements Derivable {
 
 injector.addProviders(Student)
 injector.addProviders({
-  token: 'Derivable',
+  token: 'Drivable',
   useClass: Car,
 })
 
