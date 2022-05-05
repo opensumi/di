@@ -113,7 +113,8 @@ export class Injector {
 
       if (!creator) {
         // 如果没有找到 Creator，那么：
-        // 1. 该 Class 没有使用 Injectable 注解，那么在当前的逻辑中，也允许创建
+        // 1. 该 Class 没有使用 Injectable 注解
+        //    我们也允许非 Injectable 的 Class 当做 Token，直接实例化该 Class
         if (isTypeProvider(token)) {
           creator = {
             opts: {},
@@ -146,7 +147,7 @@ export class Injector {
     if (!creator) {
       throw InjectorError.noProviderError(token);
     }
-    return this.createInstance(creator, token, injector, opts, args as ConstructorParameters<any>);
+    return this.createInstance(creator, token, injector, opts, args as ConstructorParameters<K>);
   }
 
   getFromDomain(...domains: Domain[]) {
