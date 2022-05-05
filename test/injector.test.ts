@@ -107,7 +107,7 @@ describe(__filename, () => {
 
   it('添加一个没有提供 Provider 的依赖', () => {
     const injector = new Injector();
-    expect(() => injector.get('noop')).toThrow('没有找到 noop 的 Provider');
+    expect(() => injector.get('noop')).toThrow(InjectorError.noProviderError('noop'));
   });
 
   it('有循环依赖的对象创建的时候会报错', () => {
@@ -320,7 +320,7 @@ describe(__filename, () => {
 
       expect(() => {
         injector.get(token);
-      }).toThrow('没有找到 Symbol(token) 的 Provider');
+      }).toThrow(InjectorError.noProviderError(token));
     });
 
     it('空字符串能够作为 Tag 正常创建对象', () => {
@@ -339,7 +339,7 @@ describe(__filename, () => {
 
       expect(() => {
         injector.get(token);
-      }).toThrow('没有找到 Symbol(token) 的 Provider');
+      }).toThrow(InjectorError.noProviderError(token));
     });
 
     it('数字 0 能够作为 Tag 正常创建对象', () => {
@@ -358,7 +358,7 @@ describe(__filename, () => {
 
       expect(() => {
         injector.get(token);
-      }).toThrow('没有找到 Symbol(token) 的 Provider');
+      }).toThrow(InjectorError.noProviderError(token));
     });
 
     it('数字 1 能够作为 Tag 正常创建对象', () => {
@@ -377,7 +377,7 @@ describe(__filename, () => {
 
       expect(() => {
         injector.get(token);
-      }).toThrow('没有找到 Symbol(token) 的 Provider');
+      }).toThrow(InjectorError.noProviderError(token));
     });
 
     it('没有定义 Tag Provider 的时候会获取默认值', () => {

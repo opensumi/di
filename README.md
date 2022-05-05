@@ -1,5 +1,20 @@
 # @opensumi/di
 
+[![CI](https://github.com/opensumi/di/actions/workflows/ci.yml/badge.svg)](https://github.com/opensumi/di/actions/workflows/ci.yml)
+[![NPM Version][npm-image]][npm-url]
+[![NPM downloads][download-image]][download-url]
+[![Test Coverage][test-image]][test-url]
+[![License][license-image]][license-url]
+
+[npm-image]: https://img.shields.io/npm/v/@opensumi/di.svg
+[npm-url]: https://www.npmjs.com/package/@opensumi/di
+[download-image]: https://img.shields.io/npm/dm/@opensumi/di.svg
+[download-url]: https://npmjs.org/package/@opensumi/di
+[license-image]: https://img.shields.io/npm/l/@opensumi/di.svg
+[license-url]: https://github.com/opensumi/di/blob/main/LICENSE
+[test-image]: https://codecov.io/gh/opensumi/di/branch/main/graph/badge.svg?token=07JAPLU957
+[test-url]: https://codecov.io/gh/opensumi/di
+
 > 基于 [Angular DI](https://angular.io/guide/dependency-injection) 的设计实现的依赖注入工具。
 
 如果你想在项目中使用工厂模式或者依赖反转，那么必不可少的需要一个依赖注入的工具。这个工具将会帮助你很好的帮助你实现依赖反转，而不在关系那些对象实例化的细节。同时，因为对象的实例化在注册器中进行创建，所以单例模式也很容易在这里实现。
