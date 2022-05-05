@@ -83,9 +83,13 @@ export class Injector {
 
   get<T extends ConstructorOf<any>>(token: T, args?: ConstructorParameters<T>, opts?: InstanceOpts): TokenResult<T>;
   get<T extends Token>(token: T, opts?: InstanceOpts): TokenResult<T>;
-  get<T extends Token>(
+  get<T extends Token, K extends ConstructorOf<any> = ConstructorOf<any>>(
     token: T,
-    args?: InstanceOpts | ConstructorParameters<any>,
+    opts?: ConstructorParameters<K>,
+  ): TokenResult<T>;
+  get<T extends Token, K extends ConstructorOf<any> = ConstructorOf<any>>(
+    token: T,
+    args?: InstanceOpts | ConstructorParameters<K>,
     opts?: InstanceOpts,
   ): TokenResult<T> {
     if (!Array.isArray(args)) {
@@ -98,10 +102,6 @@ export class Injector {
 
     // 如果传递了 args 参数，一定是对 class 进行多例创建
     if (args) {
-      if (!isTypeProvider(token)) {
-        throw InjectorError.classTokenOnly(token);
-      }
-
       // 此时一定是使用多例配置
       opts = {
         ...opts,
@@ -111,13 +111,18 @@ export class Injector {
       // 尝试直接从当前已有的实现去解析创建器，且 injector 一直使用当前上下文
       [creator] = this.getCreator(token);
 
-      // FIXME: 下一个大版本 breaking change，不允许非 Injectable 的 Class 当做 Token
       if (!creator) {
-        creator = {
-          opts: {},
-          parameters: [],
-          useClass: token,
-        };
+        // 如果没有找到 Creator，那么：
+        // 1. 该 Class 没有使用 Injectable 注解，那么在当前的逻辑中，也允许创建
+        if (isTypeProvider(token)) {
+          creator = {
+            opts: {},
+            parameters: [],
+            useClass: token,
+          };
+        } else {
+          throw InjectorError.onMultipleCaseNoCreatorFound(token);
+        }
       }
     } else {
       // 首先用 Tag 去置换 Token 进行对象实例化

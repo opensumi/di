@@ -14,8 +14,8 @@ export function noProviderError(...tokens: Token[]) {
   return new Error(`没有找到 ${tokens.map((t) => stringify(t)).join(', ')} 的 Provider`);
 }
 
-export function classTokenOnly(token: Token) {
-  return new Error(`直接进行多例数据创建的时候，只支持 class，而不是 "${stringify(token)}"`);
+export function onMultipleCaseNoCreatorFound(token: Token) {
+  return new Error(`在进行多例数据创建的时候，没有找到该 Token（"${stringify(token)}"）对应的 Provider。`);
 }
 
 export function tagOnlyError(expectTag: string, currentTag: string) {
@@ -28,7 +28,9 @@ export function noInjectableError(target: object) {
 
 export function notInjectError(target: object, index: number) {
   return new Error(
-    `单例模式下 ${stringify(target)} 的构造函数第 ${index} 个参数是不可被 Inject 的，请使用 Inject 装饰或改成多例。`,
+    `单例模式下 ${stringify(
+      target,
+    )} 的构造函数第 ${index} 个参数是不可被 Inject 的，请使用 Inject 装饰或改成多例（修改 Injectable 的参数）。`,
   );
 }
 

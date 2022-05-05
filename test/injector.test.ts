@@ -13,7 +13,6 @@ import {
   HookType,
   IBeforeJoinPoint,
   IAfterJoinPoint,
-  IBeforeAspectHook,
   IAroundJoinPoint,
   AfterReturning,
   IAfterReturningJoinPoint,
@@ -21,7 +20,6 @@ import {
   IAfterThrowingJoinPoint,
 } from '../src';
 import * as InjectorError from '../src/error';
-import { HOOKED_SYMBOL } from '../src/helper';
 
 describe(__filename, () => {
   @Injectable()
@@ -1368,15 +1366,37 @@ describe(__filename, () => {
       expect(instance.d).toBe(dynamic);
     });
 
-    it('强行传递错误的 Token', () => {
+    it('传递创建多例的参数到错误的 Token 中，会创建不了多例', () => {
       @Injectable()
       class AClass {}
 
+      const dynamic = Symbol('dynamic');
       expect(() => {
         const injector = new Injector([AClass]);
-        const dynamic = Symbol('dynamic');
-        const t = injector.get('Token' as any, [dynamic]);
-      }).toThrow('直接进行多例数据创建的时候，只支持 class，而不是 "Token"');
+        injector.get('Token' as any, [dynamic]);
+      }).toThrow(InjectorError.onMultipleCaseNoCreatorFound('Token'));
+    });
+    it('支持使用 token 来创建多例', () => {
+      @Injectable({ multiple: true })
+      class MultipleCase {
+        constructor(public d: number) {}
+        getNumber() {
+          return this.d;
+        }
+      }
+
+      const token = Symbol('token');
+      const injector = new Injector([
+        {
+          token,
+          useClass: MultipleCase,
+        },
+      ]);
+
+      const a1 = injector.get(token, [1]);
+      const a2 = injector.get(token, [2]);
+      expect(a1.getNumber()).toBe(1);
+      expect(a2.getNumber()).toBe(2);
     });
   });
 });
