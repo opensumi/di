@@ -15,3 +15,8 @@ jobs:
       run: |
         npm install
         npm run ci
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        token: ${{ secrets.CORE_CODECOV_TOKEN }}
+        directory: ./coverage
