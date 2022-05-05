@@ -1,6 +1,3 @@
-import type { Domain } from './domain';
-export { Domain };
-
 // 构造函数类型
 export type ConstructorOf<T = any> = new (...args: any[]) => T;
 export type TokenResult<T extends Token> = T extends ConstructorOf<infer R> ? R : any;
@@ -9,6 +6,7 @@ export type TokenResult<T extends Token> = T extends ConstructorOf<infer R> ? R 
 // eslint-disable-next-line
 export type Token = string | symbol | Function;
 export type Tag = string | number;
+export type Domain = string | symbol;
 
 // 获取注射器自身的 Token
 export const INJECTOR_TOKEN: Token = Symbol('INJECTOR_TOKEN');
