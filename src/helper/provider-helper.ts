@@ -22,7 +22,7 @@ export function parseTokenFromProvider(provider: Provider): Token {
   }
 }
 
-export function hasTag<T extends Provider | InstanceCreator | InstanceOpts>(target: T): target is (T & { tag: Tag }) {
+export function hasTag<T extends Provider | InstanceCreator | InstanceOpts>(target: T): target is T & { tag: Tag } {
   if (typeof target === 'function') {
     return false;
   } else {
@@ -30,19 +30,13 @@ export function hasTag<T extends Provider | InstanceCreator | InstanceOpts>(targ
   }
 }
 
-export function parseTagFromProvider(provider: Provider): Tag | null {
-  if (isTypeProvider(provider)) {
-    return null;
-  } else {
-    return hasTag(provider) ? provider.tag : null;
-  }
-}
-
 export function parseCreatorFromProvider(provider: Provider): InstanceCreator {
-  const basicObj = isTypeProvider(provider) ? {} : {
-    dropdownForTag: provider.dropdownForTag,
-    tag: provider.tag,
-  };
+  const basicObj = isTypeProvider(provider)
+    ? {}
+    : {
+        dropdownForTag: provider.dropdownForTag,
+        tag: provider.tag,
+      };
 
   if (isValueProvider(provider)) {
     return {
