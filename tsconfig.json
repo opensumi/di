@@ -14,7 +14,6 @@
     "downlevelIteration": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "importHelpers": true,
     "outDir": "dist"
   },
   "include": ["src", "test"]
