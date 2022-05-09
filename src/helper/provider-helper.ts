@@ -26,7 +26,7 @@ export function hasTag<T extends Provider | InstanceCreator | InstanceOpts>(targ
   if (typeof target === 'function') {
     return false;
   } else {
-    return target.hasOwnProperty('tag');
+    return Object.prototype.hasOwnProperty.call(target, 'tag');
   }
 }
 

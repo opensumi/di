@@ -3,7 +3,6 @@ export type ConstructorOf<T = any> = new (...args: any[]) => T;
 export type TokenResult<T extends Token> = T extends ConstructorOf<infer R> ? R : any;
 
 // 注入对象的标记
-// eslint-disable-next-line
 export type Token = string | symbol | Function;
 export type Tag = string | number;
 export type Domain = string | symbol;

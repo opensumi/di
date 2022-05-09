@@ -7,8 +7,22 @@ module.exports = {
   plugins: ['@typescript-eslint'],
   extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
   rules: {
-    '@typescript-eslint/no-this-alias': 'warn',
     'no-prototype-builtins': 'warn',
-    '@typescript-eslint/ban-types': 'warn',
+    '@typescript-eslint/no-explicit-any': 0,
+    '@typescript-eslint/ban-types': [
+      'warn',
+      {
+        types: {
+          Function: false,
+        },
+      },
+    ],
+    '@typescript-eslint/no-this-alias': [
+      'error',
+      {
+        allowDestructuring: false,
+        allowedNames: ['self', 'injector'],
+      },
+    ],
   },
 };

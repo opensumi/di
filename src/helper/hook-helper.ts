@@ -96,7 +96,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
     let promise: Promise<any> | undefined;
     let ret: Result = undefined as any;
     let error: Error | undefined;
-    const _this: any = this;
+    const self = this;
     const originalArgs: Args = args;
 
     try {
@@ -159,7 +159,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
           return ret;
         },
         getThis: () => {
-          return _this;
+          return self;
         },
         proceed: () => {
           i++;
@@ -208,7 +208,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
           return originalArgs;
         },
         getThis: () => {
-          return _this;
+          return self;
         },
         setArgs: (_args: Args) => {
           if (!_inThisHook) {
@@ -242,7 +242,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
           return ret;
         },
         getThis: () => {
-          return _this;
+          return self;
         },
         setResult: (_ret: Result) => {
           if (!_inThisHook) {
@@ -275,7 +275,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
           return ret;
         },
         getThis: () => {
-          return _this;
+          return self;
         },
       };
 
@@ -303,7 +303,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
           return originalArgs;
         },
         getThis: () => {
-          return _this;
+          return self;
         },
       };
 
@@ -321,11 +321,11 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
 
       if (promise) {
         promise = promise.then(() => {
-          ret = rawMethod.apply(_this, args);
+          ret = rawMethod.apply(self, args);
           return;
         });
       } else {
-        ret = rawMethod.apply(_this, args);
+        ret = rawMethod.apply(self, args);
       }
 
       if (promise) {

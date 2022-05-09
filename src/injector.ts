@@ -192,7 +192,7 @@ export class Injector {
       }),
     )
       .filter((opt) => {
-        return opt.hasOwnProperty('default');
+        return Object.prototype.hasOwnProperty.call(opt, 'default');
       })
       .map((opt) => ({
         isDefault: true,
@@ -421,11 +421,9 @@ export class Injector {
       if (creator) {
         return this.createInstance(creator, opts.token, injector);
       }
-
-      if (!creator && opts.hasOwnProperty('default')) {
+      if (!creator && Object.prototype.hasOwnProperty.call(opts, 'default')) {
         return opts.default;
       }
-
       throw InjectorError.noProviderError(opts.token);
     });
   }

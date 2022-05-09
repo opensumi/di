@@ -26,7 +26,7 @@ export function isFactoryProvider(provider: Provider): provider is FactoryProvid
 }
 
 export function isValueProvider(provider: Provider): provider is ValueProvider {
-  return provider.hasOwnProperty('useValue');
+  return Object.prototype.hasOwnProperty.call(provider, 'useValue');
 }
 
 export function isInjectableToken(token: Token): token is TypeProvider {
