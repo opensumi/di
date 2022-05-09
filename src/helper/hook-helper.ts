@@ -47,7 +47,7 @@ export function applyHooks<T = any>(instance: T, token: Token, hooks: IHookStore
       const raw = target[prop];
       if (typeof raw === 'function' && hooks.getHooks(token, prop).length > 0) {
         if (!hookedCache.has(prop)) {
-          hookedCache.set(prop, createHookedFunction(prop, raw, hooks.getHooks(token, prop)!));
+          hookedCache.set(prop, createHookedFunction(prop, raw, hooks.getHooks(token, prop)));
         }
         return hookedCache.get(prop);
       }
@@ -455,7 +455,7 @@ export class HookStore implements IHookStore {
     if (this.parent) {
       hooks = this.parent.getHooks(token, method);
     }
-    if (this.hooks.has(token) && this.hooks.get(token)!.has(method)) {
+    if (this.hooks.get(token)?.has(method)) {
       hooks = hooks.concat(this.hooks.get(token)!.get(method)!);
     }
     return hooks;

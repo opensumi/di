@@ -65,15 +65,17 @@ export class Injector {
 
     if (opts.dropdownForTag) {
       for (const [token, creator] of this.creatorMap.entries()) {
-        if (creator.dropdownForTag && opts.tag === creator.tag && !injector.creatorMap.has(token)) {
+        if (creator.dropdownForTag && creator.tag && opts.tag === creator.tag && !injector.creatorMap.has(token)) {
           injector.creatorMap.set(token, creator);
 
-          const targetTokenMap = injector.tagMatrix.get(creator.tag!) || new Map<Token, Token>();
-          const currentTokenMap = this.tagMatrix.get(creator.tag!);
-          for (const [key, value] of currentTokenMap!.entries()) {
-            targetTokenMap.set(key, value);
+          const targetTokenMap = injector.tagMatrix.get(creator.tag) || new Map<Token, Token>();
+          const currentTokenMap = this.tagMatrix.get(creator.tag);
+          if (currentTokenMap) {
+            for (const [key, value] of currentTokenMap.entries()) {
+              targetTokenMap.set(key, value);
+            }
           }
-          injector.tagMatrix.set(creator.tag!, targetTokenMap);
+          injector.tagMatrix.set(creator.tag, targetTokenMap);
         }
       }
     }
