@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { InstanceOpts } from '../declare';
+import type { Injector } from '../injector';
 
 // 如果使用 import 的方式，会导致 tsc 编译过不了
 // 原因：import json 需要开启 resolveJsonModule，然后 tsc 会把 package.json 也放到产物中，导致产物目录结构有问题
@@ -8,7 +9,7 @@ const { version } = require('../../package.json');
 
 const INJECTOR_KEY = Symbol('INJECTOR_KEY');
 
-export function getInjectorOfInstance(instance: object) {
+export function getInjectorOfInstance(instance: object): Injector | null {
   return (instance as any)[INJECTOR_KEY] || null;
 }
 

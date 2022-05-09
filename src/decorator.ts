@@ -13,11 +13,10 @@ import {
   IAfterReturningAspectHookFunction,
   IAfterThrowingAspectHookFunction,
 } from './declare';
-import { Injector } from './injector';
 import { makeAsAspect, makeAsHook } from './helper';
 
 /**
- * 装饰一个构造函数是否是可以被依赖注入的构造函数
+ * 装饰一个 Class 是否是可以被依赖注入
  * @param opts
  */
 export function Injectable(opts?: InstanceOpts): ClassDecorator {
@@ -55,8 +54,8 @@ interface InjectOpts {
  * 把构造函数的参数和一个特定的注入标记关联起来
  * @param token
  */
-export function Inject(token: string | symbol, opts: InjectOpts = {}) {
-  return <T extends Function>(target: T, _: string | symbol, index: number) => {
+export function Inject(token: string | symbol, opts: InjectOpts = {}): ParameterDecorator {
+  return (target, _: string | symbol, index: number) => {
     Helper.setParameterIn(target, { ...opts, token }, index);
   };
 }
@@ -65,8 +64,8 @@ export function Inject(token: string | symbol, opts: InjectOpts = {}) {
  * 构造函数可选依赖的装饰器
  * @param token
  */
-export function Optional(token: string | symbol = Symbol()) {
-  return <T extends Function>(target: T, _: string | symbol, index: number) => {
+export function Optional(token: string | symbol = Symbol()): ParameterDecorator {
+  return (target, _: string | symbol, index: number) => {
     Helper.setParameterIn(target, { default: undefined, token }, index);
   };
 }
@@ -79,17 +78,17 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
   return (target: object, propertyKey: string | symbol) => {
     const INSTANCE_KEY = Symbol('INSTANCE_KEY');
 
-    let dependency = token as Token;
-    if (dependency === undefined) {
-      dependency = Reflect.getMetadata('design:type', target, propertyKey);
+    let realToken = token as Token;
+    if (realToken === undefined) {
+      realToken = Reflect.getMetadata('design:type', target, propertyKey);
     }
 
-    if (!Helper.isToken(dependency)) {
-      throw Error.notSupportTokenError(target, propertyKey, dependency);
+    if (!Helper.isToken(realToken)) {
+      throw Error.notSupportTokenError(target, propertyKey, realToken);
     }
 
     // 添加构造函数的依赖
-    Helper.addDeps(target, dependency);
+    Helper.addDeps(target, realToken);
 
     const descriptor: PropertyDescriptor = {
       configurable: true,
@@ -97,13 +96,13 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
       get(this: any) {
         // 每个对象的依赖只创建一次
         if (!this[INSTANCE_KEY]) {
-          const injector: Injector | null = Helper.getInjectorOfInstance(this);
+          const injector = Helper.getInjectorOfInstance(this);
 
           if (!injector) {
             throw Error.noInjectorError(this);
           }
 
-          this[INSTANCE_KEY] = injector.get(dependency, opts);
+          this[INSTANCE_KEY] = injector.get(realToken, opts);
         }
 
         return this[INSTANCE_KEY];
