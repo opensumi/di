@@ -24,18 +24,18 @@ export function Injectable(opts?: InstanceOpts): ClassDecorator {
   return <T extends Function>(target: T) => {
     Helper.markInjectable(target, opts);
 
-    const designParams = Reflect.getMetadata('design:paramtypes', target);
-    if (Array.isArray(designParams)) {
-      Helper.setParameters(target, designParams);
+    const params = Reflect.getMetadata('design:paramtypes', target);
+    if (Array.isArray(params)) {
+      Helper.setParameters(target, params);
 
-      // 如果是多例的对象，就不去检查构造依赖的可注入性
+      // 如果支持多例创建，就不检查构造函数依赖的可注入性
       if (opts && opts.multiple) {
         return;
       }
 
       // 检查依赖的可注入性
-      const deps = Helper.getParameterDeps(target);
-      deps.forEach((item, index) => {
+      const depTokens = Helper.getParameterDeps(target);
+      depTokens.forEach((item, index) => {
         if (!Helper.isToken(item)) {
           throw Error.notInjectError(target, index);
         }
@@ -45,6 +45,9 @@ export function Injectable(opts?: InstanceOpts): ClassDecorator {
 }
 
 interface InjectOpts {
+  /**
+   * 默认值
+   */
   default?: any;
 }
 
