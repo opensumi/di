@@ -10,6 +10,7 @@ export type Domain = string | symbol;
 // 获取注射器自身的 Token
 export const INJECTOR_TOKEN: Token = Symbol('INJECTOR_TOKEN');
 
+// 一个可以直接被实例化的 Provider
 export type TypeProvider = ConstructorOf<any>;
 
 interface BasicProvider {
@@ -20,10 +21,16 @@ interface BasicProvider {
   override?: boolean;
 }
 
+/**
+ * 提供一个用来进行实例化的 Class
+ */
 export interface ClassProvider extends BasicProvider {
   useClass: ConstructorOf<any>;
 }
 
+/**
+ * 直接提供一个 Value 的 Provider
+ */
 export interface ValueProvider extends BasicProvider {
   useValue: any;
 }
