@@ -189,7 +189,7 @@ describe(__filename, () => {
     expect(a === b).toBeFalsy();
   });
 
-  it('提供了 asSingleton 来实现单例', () => {
+  it('提供了 asSingleton 来实现工厂模式的单例', () => {
     const token = 'Token';
 
     @Injectable()
