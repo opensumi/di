@@ -121,7 +121,7 @@ describe('dispose asynchronous', () => {
   });
 
   it('销毁不存在的对象不会出错', async () => {
-    await injector.disposeOneAsync('noop');
+    await injector.disposeOne('noop');
   });
 
   it('销毁没有初始化的 Provider ', async () => {
@@ -135,8 +135,8 @@ describe('dispose asynchronous', () => {
     }
 
     injector.addProviders(DisposeCls);
-    await injector.disposeOneAsync(DisposeCls);
-    await injector.disposeAllAsync();
+    await injector.disposeOne(DisposeCls);
+    await injector.disposeAll();
 
     expect(spy).toBeCalledTimes(0);
   });
@@ -145,7 +145,7 @@ describe('dispose asynchronous', () => {
     const a = injector.get(A);
     expect(injector.hasInstance(a)).toBeTruthy();
 
-    await injector.disposeOneAsync(A);
+    await injector.disposeOne(A);
     expect(injector.hasInstance(a)).toBeFalsy();
 
     const creator = injector.creatorMap.get(A);
@@ -162,7 +162,7 @@ describe('dispose asynchronous', () => {
     expect(injector.hasInstance(a)).toBeTruthy();
     expect(injector.hasInstance(b)).toBeTruthy();
 
-    await injector.disposeAllAsync();
+    await injector.disposeAll();
     expect(injector.hasInstance(a)).toBeFalsy();
     expect(injector.hasInstance(b)).toBeFalsy();
 
@@ -190,11 +190,11 @@ describe('dispose asynchronous', () => {
     expect(injector.hasInstance(instance)).toBeTruthy();
     expect(instance).toBeInstanceOf(DisposeCls);
 
-    await injector.disposeOneAsync(DisposeCls);
+    await injector.disposeOne(DisposeCls);
     expect(injector.hasInstance(instance)).toBeFalsy();
     expect(spy).toBeCalledTimes(1);
 
-    await injector.disposeOneAsync(DisposeCls);
+    await injector.disposeOne(DisposeCls);
     expect(spy).toBeCalledTimes(1);
   });
 
@@ -211,11 +211,11 @@ describe('dispose asynchronous', () => {
     expect(injector.hasInstance(instance)).toBeTruthy();
     expect(instance).toBeInstanceOf(DisposeCls);
 
-    await injector.disposeAllAsync();
+    await injector.disposeAll();
     expect(injector.hasInstance(instance)).toBeFalsy();
     expect(spy).toBeCalledTimes(1);
 
-    await injector.disposeOneAsync(DisposeCls);
+    await injector.disposeOne(DisposeCls);
     expect(spy).toBeCalledTimes(1);
   });
 });
