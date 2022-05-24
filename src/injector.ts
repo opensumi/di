@@ -239,56 +239,20 @@ export class Injector {
     }
 
     const instance = creator.instance;
+    let maybePromise: Promise<unknown> | undefined;
     if (instance && typeof instance[key] === 'function') {
-      instance[key]();
+      maybePromise = instance[key]();
     }
 
     creator.instance = undefined;
     creator.status = CreatorStatus.init;
-  }
-
-  async disposeOneAsync(token: Token, key = 'dispose') {
-    const creator = this.creatorMap.get(token);
-    if (!creator || creator.status === CreatorStatus.init) {
-      return;
-    }
-
-    const instance = creator.instance;
-    if (instance && typeof instance[key] === 'function') {
-      await instance[key]();
-    }
-
-    creator.instance = undefined;
-    creator.status = CreatorStatus.init;
+    return maybePromise;
   }
 
   disposeAll(key = 'dispose') {
     const creatorMap = this.creatorMap;
     const toDisposeInstances = new Set<any>();
 
-    // 还原对象状态
-    for (const creator of creatorMap.values()) {
-      const instance = creator.instance;
-
-      if (creator.status === CreatorStatus.done) {
-        if (instance && typeof instance[key] === 'function') {
-          toDisposeInstances.add(instance);
-        }
-
-        creator.instance = undefined;
-        creator.status = CreatorStatus.init;
-      }
-    }
-
-    // 执行销毁函数
-    for (const instance of toDisposeInstances) {
-      instance[key]();
-    }
-  }
-
-  async disposeAllAsync(key = 'dispose') {
-    const creatorMap = this.creatorMap;
-    const toDisposeInstances = new Set<any>();
     const promises: Promise<unknown>[] = [];
 
     // 还原对象状态
@@ -313,7 +277,7 @@ export class Injector {
       }
     }
 
-    await Promise.all(promises);
+    return Promise.all(promises);
   }
 
   protected getTagToken(token: Token, tag: Tag): Token | undefined | null {
