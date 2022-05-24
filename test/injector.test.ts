@@ -5,7 +5,6 @@ import {
   INJECTOR_TOKEN,
   Inject,
   Optional,
-  CreatorStatus,
   Aspect,
   Before,
   After,
@@ -21,7 +20,7 @@ import {
 } from '../src';
 import * as InjectorError from '../src/error';
 
-describe(__filename, () => {
+describe('test injector work', () => {
   @Injectable()
   class A {}
 
@@ -190,110 +189,6 @@ describe(__filename, () => {
       expect(a1).toBeInstanceOf(A);
       expect(a2).toBeInstanceOf(A);
       expect(a3).toBe('a3');
-    });
-  });
-
-  describe('dispose', () => {
-    let injector: Injector;
-
-    beforeEach(() => {
-      injector = new Injector();
-    });
-
-    it('销毁不存在的对象不会出错', () => {
-      injector.disposeOne('noop');
-    });
-
-    it('销毁没有初始化的 Provider ', () => {
-      const spy = jest.fn();
-
-      @Injectable()
-      class DisposeCls {
-        dispose = spy;
-      }
-
-      injector.addProviders(DisposeCls);
-      injector.disposeOne(DisposeCls);
-      injector.disposeAll();
-
-      expect(spy).toBeCalledTimes(0);
-    });
-
-    it('成功销毁单个对象', () => {
-      const a = injector.get(A);
-      expect(injector.hasInstance(a)).toBeTruthy();
-
-      injector.disposeOne(A);
-      expect(injector.hasInstance(a)).toBeFalsy();
-
-      const creator = injector.creatorMap.get(A);
-      expect(creator!.status).toBe(CreatorStatus.init);
-      expect(creator!.instance).toBeUndefined();
-
-      const a2 = injector.get(A);
-      expect(a).not.toBe(a2);
-    });
-
-    it('成功进行批量对象销毁', () => {
-      const a = injector.get(A);
-      const b = injector.get(B);
-      expect(injector.hasInstance(a)).toBeTruthy();
-      expect(injector.hasInstance(b)).toBeTruthy();
-
-      injector.disposeAll();
-      expect(injector.hasInstance(a)).toBeFalsy();
-      expect(injector.hasInstance(b)).toBeFalsy();
-
-      const creatorA = injector.creatorMap.get(A);
-      expect(creatorA!.status).toBe(CreatorStatus.init);
-      expect(creatorA!.instance).toBeUndefined();
-
-      const creatorB = injector.creatorMap.get(B);
-      expect(creatorB!.status).toBe(CreatorStatus.init);
-      expect(creatorB!.instance).toBeUndefined();
-
-      const a2 = injector.get(A);
-      expect(a).not.toBe(a2);
-    });
-
-    it('销毁单个对象的时候成功调用对象的 dsipose 函数', () => {
-      const spy = jest.fn();
-
-      @Injectable()
-      class DisposeCls {
-        dispose = spy;
-      }
-
-      const instance = injector.get(DisposeCls);
-      expect(injector.hasInstance(instance)).toBeTruthy();
-      expect(instance).toBeInstanceOf(DisposeCls);
-
-      injector.disposeOne(DisposeCls);
-      expect(injector.hasInstance(instance)).toBeFalsy();
-      expect(spy).toBeCalledTimes(1);
-
-      injector.disposeOne(DisposeCls);
-      expect(spy).toBeCalledTimes(1);
-    });
-
-    it('销毁全部的时候成功调用对象的 dsipose 函数', () => {
-      const spy = jest.fn();
-
-      @Injectable()
-      class DisposeCls {
-        dispose = spy;
-      }
-
-      const instance = injector.get(DisposeCls);
-      expect(injector.hasInstance(instance)).toBeTruthy();
-      expect(instance).toBeInstanceOf(DisposeCls);
-
-      injector.disposeAll();
-      expect(injector.hasInstance(instance)).toBeFalsy();
-      expect(spy).toBeCalledTimes(1);
-
-      injector.disposeOne(DisposeCls);
-      expect(spy).toBeCalledTimes(1);
     });
   });
 
