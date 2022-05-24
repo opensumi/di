@@ -239,17 +239,21 @@ export class Injector {
     }
 
     const instance = creator.instance;
+    let maybePromise: Promise<unknown> | undefined;
     if (instance && typeof instance[key] === 'function') {
-      instance[key]();
+      maybePromise = instance[key]();
     }
 
     creator.instance = undefined;
     creator.status = CreatorStatus.init;
+    return maybePromise;
   }
 
   disposeAll(key = 'dispose') {
     const creatorMap = this.creatorMap;
     const toDisposeInstances = new Set<any>();
+
+    const promises: Promise<unknown>[] = [];
 
     // 还原对象状态
     for (const creator of creatorMap.values()) {
@@ -267,8 +271,13 @@ export class Injector {
 
     // 执行销毁函数
     for (const instance of toDisposeInstances) {
-      instance[key]();
+      const maybePromise = instance[key]();
+      if (maybePromise) {
+        promises.push(maybePromise);
+      }
     }
+
+    return Promise.all(promises);
   }
 
   protected getTagToken(token: Token, tag: Tag): Token | undefined | null {
