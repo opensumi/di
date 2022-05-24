@@ -232,7 +232,7 @@ export class Injector {
     return this.hookStore.createOneHook(hook);
   }
 
-  disposeOne(token: Token, key = 'dispose') {
+  async disposeOne(token: Token, key = 'dispose') {
     const creator = this.creatorMap.get(token);
     if (!creator || creator.status === CreatorStatus.init) {
       return;
@@ -240,16 +240,17 @@ export class Injector {
 
     const instance = creator.instance;
     if (instance && typeof instance[key] === 'function') {
-      instance[key]();
+      await instance[key]();
     }
 
     creator.instance = undefined;
     creator.status = CreatorStatus.init;
   }
 
-  disposeAll(key = 'dispose') {
+  async disposeAll(key = 'dispose') {
     const creatorMap = this.creatorMap;
     const toDisposeInstances = new Set<any>();
+    const promises: Promise<unknown>[] = [];
 
     // 还原对象状态
     for (const creator of creatorMap.values()) {
@@ -267,8 +268,13 @@ export class Injector {
 
     // 执行销毁函数
     for (const instance of toDisposeInstances) {
-      instance[key]();
+      const maybePromise = instance[key]();
+      if (maybePromise) {
+        promises.push(maybePromise);
+      }
     }
+
+    await Promise.all(promises);
   }
 
   protected getTagToken(token: Token, tag: Tag): Token | undefined | null {
