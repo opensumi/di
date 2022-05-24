@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { Autowired, Inject, Injectable, Injector } from '../src';
+import { asSingleton, Autowired, Inject, Injectable, Injector } from '../src';
 import * as Error from '../src/error';
 
 describe(__filename, () => {
@@ -187,6 +187,23 @@ describe(__filename, () => {
     const a = injector.get(token);
     const b = injector.get(token);
     expect(a === b).toBeFalsy();
+  });
+
+  it('提供了 asSingleton 来实现单例', () => {
+    const token = 'Token';
+
+    @Injectable()
+    class A {}
+
+    const provider = {
+      token,
+      useFactory: asSingleton(() => new A()),
+    };
+
+    const injector = new Injector([provider]);
+    const a = injector.get(token);
+    const b = injector.get(token);
+    expect(a === b).toBeTruthy();
   });
 
   it('使用抽象函数作为 Token', () => {
