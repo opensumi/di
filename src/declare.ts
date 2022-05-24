@@ -1,3 +1,4 @@
+import type { Injector } from './injector';
 // 构造函数类型
 export type ConstructorOf<T = any> = new (...args: any[]) => T;
 export type TokenResult<T extends Token> = T extends ConstructorOf<infer R> ? R : any;
@@ -35,11 +36,15 @@ export interface ValueProvider extends BasicProvider {
   useValue: any;
 }
 
-export interface FactoryProvider extends BasicProvider {
-  useFactory: (injector: any) => any;
+export interface FactoryFunction<T = any> {
+  (injector: Injector): T;
 }
 
-export type Provider = ClassProvider | TypeProvider | ValueProvider | FactoryProvider;
+export interface FactoryProvider<T = any> extends BasicProvider {
+  useFactory: FactoryFunction<T>;
+}
+
+export type Provider = ClassProvider | TypeProvider | ValueProvider | FactoryProvider<any>;
 
 export enum CreatorStatus {
   init = 'init',
@@ -71,8 +76,8 @@ export interface ClassCreator extends BasicCreator {
   useClass: ConstructorOf<any>;
 }
 
-export interface FactoryCreator extends BasicCreator {
-  useFactory: (injector: any) => any;
+export interface FactoryCreator<T = any> extends BasicCreator {
+  useFactory: FactoryFunction<T>;
 }
 
 export type InstanceCreator = ValueCreator | ClassCreator | FactoryCreator;

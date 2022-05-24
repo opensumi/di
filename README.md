@@ -125,16 +125,33 @@ export interface ValueProvider {
 和 ClassProvider 一样作用，但是提供一个函数进行对象实例创建的 Provider。
 
 ```ts
+export interface FactoryFunction<T = any> {
+  (injector: Injector): T;
+}
 export interface FactoryProvider {
   token: Token;
-  useFactory: () => any;
+  useFactory: FactoryFunction<T>;
 }
+```
+
+同时也提供了一些工厂模式的帮助函数：
+
+1. `asSingleton`
+
+可以实现工厂单例：
+
+```ts
+const provider = {
+  token,
+  useFactory: asSingleton(() => new A()),
+};
 ```
 
 ## Install
 
 ```sh
 npm install @opensumi/di --save
+yarn add @opensumi/di
 ```
 
 ## Usage
