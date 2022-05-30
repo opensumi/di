@@ -186,7 +186,7 @@ describe(__filename, () => {
     const injector = new Injector([provider]);
     const a = injector.get(token);
     const b = injector.get(token);
-    expect(a === b).toBeFalsy();
+    expect(a).not.toBe(b);
   });
 
   it('提供了 asSingleton 来实现工厂模式的单例', () => {
@@ -203,7 +203,7 @@ describe(__filename, () => {
     const injector = new Injector([provider]);
     const a = injector.get(token);
     const b = injector.get(token);
-    expect(a === b).toBeTruthy();
+    expect(a).toBe(b);
   });
 
   it('使用抽象函数作为 Token', () => {

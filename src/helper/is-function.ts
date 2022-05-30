@@ -10,6 +10,8 @@ import {
   ClassCreator,
   FactoryCreator,
   CreatorStatus,
+  AliasProvider,
+  AliasCreator,
 } from '../declare';
 import { isInjectable } from './injector-helper';
 
@@ -27,6 +29,10 @@ export function isFactoryProvider(provider: Provider): provider is FactoryProvid
 
 export function isValueProvider(provider: Provider): provider is ValueProvider {
   return Object.prototype.hasOwnProperty.call(provider, 'useValue');
+}
+
+export function isAliasProvider(provider: Provider): provider is AliasProvider {
+  return Object.prototype.hasOwnProperty.call(provider, 'useAlias');
 }
 
 export function isInjectableToken(token: Token): token is TypeProvider {
@@ -54,4 +60,10 @@ export function isClassCreator(creator: InstanceCreator): creator is ClassCreato
 
 export function isFactoryCreator(creator: InstanceCreator): creator is FactoryCreator {
   return !!(creator as FactoryCreator).useFactory;
+}
+
+export function isAliasCreator(creator: InstanceCreator): creator is AliasCreator {
+  return (
+    Object.prototype.hasOwnProperty.call(creator, 'original') && Object.prototype.hasOwnProperty.call(creator, 'target')
+  );
 }

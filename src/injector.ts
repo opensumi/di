@@ -27,6 +27,7 @@ import {
   HookStore,
   isAspectCreator,
   getHookMeta,
+  isAliasCreator,
 } from './helper';
 
 export class Injector {
@@ -97,6 +98,12 @@ export class Injector {
     if (!Array.isArray(args)) {
       opts = args;
       args = undefined;
+    }
+
+    // 如果是 AliasCreator，将 Token 换成新的即可
+    const [mayAlias] = this.getCreator(token);
+    if (mayAlias && isAliasCreator(mayAlias)) {
+      token = mayAlias.target as T;
     }
 
     let creator: InstanceCreator | null = null;
@@ -309,6 +316,7 @@ export class Injector {
 
       if (isOverride) {
         const creator = Helper.parseCreatorFromProvider(provider);
+
         this.creatorMap.set(token, creator);
 
         if (isClassCreator(creator)) {
