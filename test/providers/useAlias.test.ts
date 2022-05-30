@@ -18,7 +18,7 @@ describe('useAlias is work', () => {
     );
     const aa = injector.get(tokenA);
     const bb = injector.get(tokenB);
-    expect(aa === bb).toBeTruthy();
+    expect(aa).toBe(bb);
   });
   it('can alias useClass', () => {
     const injector = new Injector();
@@ -39,7 +39,7 @@ describe('useAlias is work', () => {
     );
     const aa = injector.get(tokenA);
     const bb = injector.get(tokenB);
-    expect(aa === bb).toBeTruthy();
+    expect(aa).toBe(bb);
   });
   it('can alias useFactory', () => {
     const injector = new Injector();
@@ -57,6 +57,6 @@ describe('useAlias is work', () => {
     );
     const aa = injector.get(tokenA);
     const bb = injector.get(tokenB);
-    expect(aa() === bb()).toBeTruthy();
+    expect(aa()).toEqual(bb());
   });
 });
