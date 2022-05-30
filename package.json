@@ -76,5 +76,17 @@
   ],
   "files": [
     "dist"
-  ]
+  ],
+  "standard-version": {
+    "bumpFiles": [
+      {
+        "filename": "./src/constants.ts",
+        "updater": "./scripts/versionUpdater.js"
+      },
+      {
+        "filename": "package.json",
+        "type": "json"
+      }
+    ]
+  }
 }

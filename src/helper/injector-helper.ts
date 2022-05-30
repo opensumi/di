@@ -1,11 +1,7 @@
 import 'reflect-metadata';
 import { InstanceOpts } from '../declare';
 import type { Injector } from '../injector';
-
-// 如果使用 import 的方式，会导致 tsc 编译过不了
-// 原因：import json 需要开启 resolveJsonModule，然后 tsc 会把 package.json 也放到产物中，导致产物目录结构有问题
-// eslint-disable-next-line
-const { version } = require('../../package.json');
+import { VERSION } from '../constants';
 
 const INJECTOR_KEY = Symbol('INJECTOR_KEY');
 
@@ -27,7 +23,7 @@ const defaultInstanceOpts: InstanceOpts = {};
 export function markInjectable(target: object, opts: InstanceOpts = defaultInstanceOpts) {
   // 合并的时候只合并当前对象的数据
   const currentOpts = Reflect.getOwnMetadata(INJECTABLE_KEY, target);
-  Reflect.defineMetadata(INJECTABLE_KEY, { ...opts, ...currentOpts, version }, target);
+  Reflect.defineMetadata(INJECTABLE_KEY, { ...opts, ...currentOpts, version: VERSION }, target);
 }
 
 export function getInjectableOpts(target: object): InstanceOpts | undefined {
