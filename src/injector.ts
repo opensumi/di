@@ -100,15 +100,14 @@ export class Injector {
       args = undefined;
     }
 
+    // 如果是 AliasCreator，将 Token 换成新的即可
+    const [mayAlias] = this.getCreator(token);
+    if (mayAlias && isAliasCreator(mayAlias)) {
+      token = mayAlias.target as T;
+    }
+
     let creator: InstanceCreator | null = null;
     let injector: Injector = this;
-
-    // 如果是 AliasCreator，将 Token 换成新的即可
-    [creator] = this.getCreator(token);
-    if (creator && isAliasCreator(creator)) {
-      token = creator.target as T;
-      creator = null;
-    }
 
     // 如果传递了 args 参数，一定是对 class 进行多例创建
     if (args) {

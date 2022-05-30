@@ -60,7 +60,6 @@ export function parseCreatorFromProvider(provider: Provider): InstanceCreator {
     };
   } else if (isAliasProvider(provider)) {
     return {
-      isDefault: provider.isDefault,
       original: provider.token,
       target: provider.useAlias,
       ...basicObj,

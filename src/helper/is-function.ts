@@ -32,7 +32,7 @@ export function isValueProvider(provider: Provider): provider is ValueProvider {
 }
 
 export function isAliasProvider(provider: Provider): provider is AliasProvider {
-  return !!(provider as AliasProvider).useAlias;
+  return Object.prototype.hasOwnProperty.call(provider, 'useAlias');
 }
 
 export function isInjectableToken(token: Token): token is TypeProvider {
@@ -63,5 +63,7 @@ export function isFactoryCreator(creator: InstanceCreator): creator is FactoryCr
 }
 
 export function isAliasCreator(creator: InstanceCreator): creator is AliasCreator {
-  return !!(creator as AliasCreator).original && !!(creator as AliasCreator).target;
+  return (
+    Object.prototype.hasOwnProperty.call(creator, 'original') && Object.prototype.hasOwnProperty.call(creator, 'target')
+  );
 }
