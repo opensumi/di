@@ -28,7 +28,7 @@ export function isFactoryProvider(provider: Provider): provider is FactoryProvid
 }
 
 export function isValueProvider(provider: Provider): provider is ValueProvider {
-  return !!(provider as ValueProvider).useValue;
+  return Object.prototype.hasOwnProperty.call(provider, 'useValue');
 }
 
 export function isAliasProvider(provider: Provider): provider is AliasProvider {

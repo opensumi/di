@@ -27,7 +27,6 @@ import {
   HookStore,
   isAspectCreator,
   getHookMeta,
-  isAliasProvider,
   isAliasCreator,
 } from './helper';
 
