@@ -36,6 +36,10 @@ export interface ValueProvider extends BasicProvider {
   useValue: any;
 }
 
+export interface AliasProvider extends BasicProvider {
+  useAlias: Token;
+}
+
 export interface FactoryFunction<T = any> {
   (injector: Injector): T;
 }
@@ -44,7 +48,7 @@ export interface FactoryProvider<T = any> extends BasicProvider {
   useFactory: FactoryFunction<T>;
 }
 
-export type Provider = ClassProvider | TypeProvider | ValueProvider | FactoryProvider<any>;
+export type Provider = ClassProvider | TypeProvider | ValueProvider | AliasProvider | FactoryProvider<any>;
 
 export enum CreatorStatus {
   init = 'init',
@@ -57,6 +61,9 @@ interface BasicCreator {
   dropdownForTag?: boolean;
   status?: CreatorStatus;
   instance?: any;
+  /**
+   * 代表当前 Creator 是从 Parameter 解析出来的，并且该 Inject 设置了 `default` 属性
+   */
   isDefault?: boolean;
 }
 
@@ -80,7 +87,12 @@ export interface FactoryCreator<T = any> extends BasicCreator {
   useFactory: FactoryFunction<T>;
 }
 
-export type InstanceCreator = ValueCreator | ClassCreator | FactoryCreator;
+export interface AliasCreator extends BasicCreator {
+  original: Token;
+  target: Token;
+}
+
+export type InstanceCreator = ValueCreator | ClassCreator | FactoryCreator | AliasCreator;
 
 export interface InstanceOpts {
   version?: string;

@@ -1,6 +1,13 @@
 import * as Error from '../error';
 import { Provider, Token, Tag, InstanceCreator, CreatorStatus, InstanceOpts } from '../declare';
-import { isValueProvider, isClassProvider, isTypeProvider, isFactoryProvider, isInjectableToken } from './is-function';
+import {
+  isValueProvider,
+  isClassProvider,
+  isTypeProvider,
+  isFactoryProvider,
+  isInjectableToken,
+  isAliasProvider,
+} from './is-function';
 import { getParameterOpts } from './parameter-helper';
 import { getAllDeps } from './dep-helper';
 import { getInjectableOpts } from './injector-helper';
@@ -49,6 +56,13 @@ export function parseCreatorFromProvider(provider: Provider): InstanceCreator {
     return {
       isDefault: provider.isDefault,
       useFactory: provider.useFactory,
+      ...basicObj,
+    };
+  } else if (isAliasProvider(provider)) {
+    return {
+      isDefault: provider.isDefault,
+      original: provider.token,
+      target: provider.useAlias,
       ...basicObj,
     };
   } else {
