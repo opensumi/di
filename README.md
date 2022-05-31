@@ -45,14 +45,15 @@ export type Token = string | symbol | Function;
 
 ### Provider
 
-为 Token 提供实例的定义，一共有四种类型的 Provider 定义：
+为 Token 提供实例的定义，一共有五种类型的 Provider 定义：
 
 ```ts
 export type Provider =
   ClassProvider |
   TypeProvider |
   ValueProvider |
-  FactoryProvider;
+  FactoryProvider |
+  AliasProvider;
 ```
 
 #### ClassProvider
@@ -145,6 +146,19 @@ const provider = {
   token,
   useFactory: asSingleton(() => new A()),
 };
+```
+
+#### AliasProvider
+
+将一个 token 设为已存在的一个 token 的 alias。
+
+```ts
+export interface ValueProvider {
+  // 新的 Token
+  token: Token;
+  // 已添加的 Token
+  useAlias: Token;
+}
 ```
 
 ## Install
