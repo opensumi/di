@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/opensumi/di/compare/v1.4.0-beta.2...v1.4.0) (2022-06-09)
+
 ## [1.4.0-beta.2](https://github.com/opensumi/di/compare/v1.4.0-beta.1...v1.4.0-beta.2) (2022-05-30)
 
 ## [1.4.0-beta.1](https://github.com/opensumi/di/compare/v1.4.0-beta.0...v1.4.0-beta.1) (2022-05-30)
