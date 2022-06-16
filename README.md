@@ -15,7 +15,8 @@
 [test-image]: https://codecov.io/gh/opensumi/di/branch/main/graph/badge.svg?token=07JAPLU957
 [test-url]: https://codecov.io/gh/opensumi/di
 
-> 基于 [Angular DI](https://angular.io/guide/dependency-injection) 的设计实现的依赖注入工具。
+> 可能是西湖区最好用的依赖注入工具。
+> Inspired By  [Angular](https://angular.io/guide/dependency-injection)
 
 如果你想在项目中使用工厂模式或者依赖反转，那么必不可少的需要一个依赖注入的工具。这个工具将会帮助你很好的帮助你实现依赖反转，而不在关系那些对象实例化的细节。同时，因为对象的实例化在注册器中进行创建，所以单例模式也很容易在这里实现。
 
@@ -405,7 +406,3 @@ Injector 中是否具备某个对象的单例引用
 - [injection-js](https://github.com/mgechev/injection-js) - 把 Angular 的 DI 抽取出来的单独仓库。
 - [InversifyJS](https://github.com/inversify/InversifyJS) - 目前社区中比较受欢迎的 DI 库，但是感觉用法比较麻烦。
 - [power-di](https://github.com/zhang740/power-di) - 支付宝小程序目前使用的 DI 工具。
-
-### Thank You
-
-- [suyu34](https://github.com/suyu34)
