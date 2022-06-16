@@ -63,7 +63,7 @@ export class Injector {
     );
   }
 
-  createChild(providers: Provider[] = [], opts: InjectorOpts = {}): this {
+  createChild(providers: Provider[] = [], opts: InjectorOpts = {}): InstanceType<ConstructorOf<this>> {
     const injector = new (this.constructor as ConstructorOf<this>)(providers, { ...this.opts, ...opts }, this);
 
     if (opts.dropdownForTag) {
