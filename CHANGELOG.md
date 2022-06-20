@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/opensumi/di/compare/v1.4.0...v1.5.0) (2022-06-20)
+
+
+### Features
+
+* create child by `this.constructor` ([#18](https://github.com/opensumi/di/issues/18)) ([11aab50](https://github.com/opensumi/di/commit/11aab503b6679f0d04e4b288304a1112519afc8a))
+
 ## [1.4.0](https://github.com/opensumi/di/compare/v1.4.0-beta.2...v1.4.0) (2022-06-09)
 
 ## [1.4.0-beta.2](https://github.com/opensumi/di/compare/v1.4.0-beta.1...v1.4.0-beta.2) (2022-05-30)
