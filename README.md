@@ -16,7 +16,7 @@
 [test-url]: https://codecov.io/gh/opensumi/di
 
 > 可能是西湖区最好用的依赖注入工具。
-> Inspired By  [Angular](https://angular.io/guide/dependency-injection)
+> Inspired By [Angular](https://angular.io/guide/dependency-injection)
 
 如果你想在项目中使用工厂模式或者依赖反转，那么必不可少的需要一个依赖注入的工具。这个工具将会帮助你很好的帮助你实现依赖反转，而不在关系那些对象实例化的细节。同时，因为对象的实例化在注册器中进行创建，所以单例模式也很容易在这里实现。
 
