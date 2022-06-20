@@ -1294,4 +1294,29 @@ describe('test injector work', () => {
       expect(a2.getNumber()).toBe(2);
     });
   });
+  describe('extends class should also support createChild', () => {
+    class NewInjector extends Injector {
+      funcForNew() {
+        return 1;
+      }
+    }
+    const tokenA = Symbol('A');
+    const injector = new NewInjector();
+    injector.addProviders({
+      token: tokenA,
+      useValue: 'A',
+    });
+
+    expect(injector.get(tokenA)).toBe('A');
+    expect(injector.funcForNew()).toBe(1);
+    const child = injector.createChild([
+      {
+        token: tokenA,
+        useValue: 'B',
+      },
+    ]);
+
+    expect(child.get(tokenA)).toBe('B');
+    expect(child.funcForNew()).toBe(1);
+  });
 });

@@ -54,15 +54,17 @@ export class Injector {
       this.hookStore = new HookStore();
     }
 
-    const selfProvider = {
-      token: INJECTOR_TOKEN,
-      useValue: this,
-    };
-    this.addProviders(selfProvider, ...providers);
+    this.addProviders(
+      {
+        token: INJECTOR_TOKEN,
+        useValue: this,
+      },
+      ...providers,
+    );
   }
 
-  createChild(providers: Provider[] = [], opts: InjectorOpts = {}) {
-    const injector = new Injector(providers, { ...this.opts, ...opts }, this);
+  createChild(providers: Provider[] = [], opts: InjectorOpts = {}): InstanceType<ConstructorOf<this>> {
+    const injector = new (this.constructor as ConstructorOf<this>)(providers, { ...this.opts, ...opts }, this);
 
     if (opts.dropdownForTag) {
       for (const [token, creator] of this.creatorMap.entries()) {
