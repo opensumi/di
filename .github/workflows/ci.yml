@@ -1,22 +1,24 @@
 name: CI
 
-on: [push]
+on:
+  - push
+  - pull_request
 
 jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js 14.x
-      uses: actions/setup-node@v1
-      with:
-        node-version: 14.x
-    - name: Run CI
-      run: |
-        npm install
-        npm run ci
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
-      with:
-        token: ${{ secrets.CORE_CODECOV_TOKEN }}
-        directory: ./coverage
+      - uses: actions/checkout@v1
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+      - name: Run CI
+        run: |
+          npm install
+          npm run ci
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CORE_CODECOV_TOKEN }}
+          directory: ./coverage
