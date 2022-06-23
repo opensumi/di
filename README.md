@@ -15,26 +15,26 @@
 [test-image]: https://codecov.io/gh/opensumi/di/branch/main/graph/badge.svg?token=07JAPLU957
 [test-url]: https://codecov.io/gh/opensumi/di
 
-> 可能是西湖区最好用的依赖注入工具。
-> Inspired By [Angular](https://angular.io/guide/dependency-injection)
+> Inspired By [Angular](https://angular.io/guide/dependency-injection).
 
-如果你想在项目中使用工厂模式或者依赖反转，那么必不可少的需要一个依赖注入的工具。这个工具将会帮助你很好的帮助你实现依赖反转，而不在关系那些对象实例化的细节。同时，因为对象的实例化在注册器中进行创建，所以单例模式也很容易在这里实现。
+这个工具将会帮助你很好的帮助你实现依赖反转，而不在关系那些对象实例化的细节。同时，因为对象的实例化在注册器中进行创建，所以工厂模式和单例模式都很容易实现。
 
 ## Table of Contents
 
-- [Background](#background)
 - [Install](#install)
 - [Usage](#usage)
 - [API](#API)
 - [Example Readmes](#example-readmes)
 - [Related Efforts](#related-efforts)
 
-## Background
+## Install
 
-出于对于 DI 的需要，并且调研市场上的 DI 工具，都有一些不太满意的地方，所以写了一个工具来实现 Angular 定义的 DI 模式。
+```sh
+npm install @opensumi/di --save
+yarn add @opensumi/di
+```
 
-- Inversify.Js 用法太过于死板，显示的 Token 模式，导致要写很多代码，相较于 API 还是 Angular 的 Token 和 Provider 的设计更容易理解。
-- injection-js 从 Angular 抽离出来的 DI 工具，因为具有 Angular 的 Module 设计，一般的 DI 是不需要要的。
+## Usage
 
 ### Token
 
@@ -162,14 +162,6 @@ export interface ValueProvider {
 }
 ```
 
-## Install
-
-```sh
-npm install @opensumi/di --save
-yarn add @opensumi/di
-```
-
-## Usage
 
 ### 对 Constructor 进行构造注入
 
@@ -404,5 +396,5 @@ Injector 中是否具备某个对象的单例引用
 
 - [Angular](https://angular.io/guide/dependency-injection) - Angular 的 DI 工具使用文档
 - [injection-js](https://github.com/mgechev/injection-js) - 把 Angular 的 DI 抽取出来的单独仓库。
-- [InversifyJS](https://github.com/inversify/InversifyJS) - 目前社区中比较受欢迎的 DI 库，但是感觉用法比较麻烦。
-- [power-di](https://github.com/zhang740/power-di) - 支付宝小程序目前使用的 DI 工具。
+- [InversifyJS](https://github.com/inversify/InversifyJS) - 目前社区中比较受欢迎的 DI 库
+- [power-di](https://github.com/zhang740/power-di) - A lightweight Dependency Injection library.
