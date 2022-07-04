@@ -52,3 +52,7 @@ export function noInjectorError(target: object) {
 export function circularError(target: object) {
   return new Error(`在创建 ${stringify(target)} 的时候遇见了循环依赖`);
 }
+
+export function cannotSetPropertyOnAutowired(target: object, key: string | symbol) {
+  return `Cannot set property ${String(key)} of ${stringify(target)} which was decorated by AutoWired.`;
+}

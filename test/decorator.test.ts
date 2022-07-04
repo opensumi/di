@@ -222,4 +222,24 @@ describe(__filename, () => {
       }
     }).toThrow(Error.notInjectError(class InjectError {}, 0));
   });
+  it('can avoid runtime error with `Cannot set property on getter`', () => {
+    expect.assertions(1);
+    @Injectable()
+    class A {}
+
+    @Injectable()
+    class B {
+      @Autowired(A)
+      a1!: A | null;
+
+      trySet() {
+        this.a1 = null;
+      }
+    }
+
+    const injector = new Injector();
+    const b = injector.get(B);
+    b.trySet();
+    expect(b.a1).toBeDefined();
+  });
 });

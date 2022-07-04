@@ -107,6 +107,10 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
 
         return this[INSTANCE_KEY];
       },
+      set() {
+        // avoid runtime error: Cannot set property xxx of xxx
+        console.warn(Error.cannotSetPropertyOnAutowired(target, propertyKey));
+      },
     };
 
     // 返回 descriptor，编译工具会自动进行 define
