@@ -67,6 +67,12 @@ interface BasicCreator {
   isDefault?: boolean;
 }
 
+export interface Chain {
+  token: Token;
+  creator: InstanceCreator;
+  from?: Chain;
+}
+
 export interface ValueCreator extends BasicCreator {
   instance: any;
   status: CreatorStatus.done;

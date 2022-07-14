@@ -115,7 +115,23 @@ describe('test injector work', () => {
       { token: DToken, useClass: D },
     ]);
 
-    expect(() => injector.get(DToken)).toThrow(InjectorError.circularError(D));
+    try {
+      injector.get(DToken);
+    } catch (error) {
+      console.log(`🚀 ~ file: injector.test.ts ~ line 121 ~ it ~ error`, error);
+    }
+
+    expect(() => injector.get(DToken)).toThrow(
+      InjectorError.circularError(D, {
+        token: DToken,
+        from: {
+          token: EToken,
+          from: {
+            token: DToken,
+          },
+        },
+      } as any),
+    );
   });
 
   it('没有定义 Injectable 的依赖', () => {

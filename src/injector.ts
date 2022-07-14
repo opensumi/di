@@ -17,6 +17,7 @@ import {
   Tag,
   IHookStore,
   IValidAspectHook,
+  Chain,
 } from './declare';
 import {
   isClassCreator,
@@ -158,7 +159,17 @@ export class Injector {
     if (!creator) {
       throw InjectorError.noProviderError(token);
     }
-    return this.createInstance(creator, token, injector, opts, args as ConstructorParameters<K>);
+    return this.createInstance(
+      creator,
+      token,
+      injector,
+      {
+        token,
+        creator,
+      },
+      opts,
+      args as ConstructorParameters<K>,
+    );
   }
 
   getFromDomain(...domains: Domain[]) {
@@ -375,6 +386,7 @@ export class Injector {
     creator: InstanceCreator,
     token: Token,
     ctx: Injector,
+    chain: Chain,
     defaultOpts?: InstanceOpts,
     args?: any[],
   ) {
@@ -389,7 +401,7 @@ export class Injector {
         return creator.instance;
       }
 
-      return this.createInstanceFromClassCreator(creator, token, ctx, opts, args);
+      return this.createInstanceFromClassCreator(creator, token, ctx, chain, opts, args);
     }
 
     if (Helper.isFactoryCreator(creator)) {
@@ -404,6 +416,7 @@ export class Injector {
     creator: ClassCreator,
     token: Token,
     injector: Injector,
+    chain: Chain,
     opts: InstanceOpts,
     defaultArgs?: any[],
   ) {
@@ -412,13 +425,13 @@ export class Injector {
 
     // 如果尝试去创建一个正在创建的对象，一定是循环依赖导致的
     if (currentStatus === CreatorStatus.creating) {
-      throw InjectorError.circularError(cls);
+      throw InjectorError.circularError(cls, chain);
     }
 
     creator.status = CreatorStatus.creating;
 
     try {
-      const args = defaultArgs ?? this.getParameters(creator.parameters);
+      const args = defaultArgs ?? this.getParameters(creator, chain);
       const instance = this.createInstanceWithInjector(cls, token, injector, args);
       creator.status = CreatorStatus.init;
 
@@ -436,11 +449,24 @@ export class Injector {
     }
   }
 
-  private getParameters(parameters: ParameterOpts[]) {
+  private getParameters(creator: ClassCreator, chain: Chain) {
+    const { parameters } = creator;
+
     return parameters.map((opts) => {
       const [creator, injector] = this.getCreator(opts.token);
+
       if (creator) {
-        return this.createInstance(creator, opts.token, injector);
+        return this.createInstance(
+          creator,
+          opts.token,
+          injector,
+          {
+            from: chain,
+            token: opts.token,
+            creator,
+          },
+          undefined,
+        );
       }
       if (!creator && Object.prototype.hasOwnProperty.call(opts, 'default')) {
         return opts.default;

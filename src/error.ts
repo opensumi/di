@@ -1,4 +1,4 @@
-import { Token } from './declare';
+import { Chain, Token } from './declare';
 
 function stringify(target: object | Token) {
   if (typeof target === 'object') {
@@ -49,6 +49,18 @@ export function noInjectorError(target: object) {
   return new Error(`Cannot find the Injector of ${stringify(target)}`);
 }
 
-export function circularError(target: object) {
-  return new Error(`在创建 ${stringify(target)} 的时候遇见了循环依赖`);
+export function circularError(target: object, chain: Chain) {
+  const creatorChain = [];
+  let current: Chain | undefined = chain;
+  while (current) {
+    creatorChain.push(current.token);
+    current = current.from;
+  }
+
+  const chainResult = creatorChain
+    .reverse()
+    .map((v) => stringify(v))
+    .join(' > ');
+
+  return new Error(`Detected circular dependencies when creating ${stringify(target)}. ` + chainResult);
 }
