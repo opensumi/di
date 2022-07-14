@@ -272,7 +272,7 @@ describe(__filename, () => {
     expect(t.d).toBe(dynamic);
   });
 
-  it('can create class which not decorate with `Injectable` by createThisClass', () => {
+  it('can create class which not decorate with `Injectable` by `createThisClass` with constructor params', () => {
     class HaveConstructor {
       constructor(public a: number) {}
     }
@@ -286,5 +286,43 @@ describe(__filename, () => {
 
     const data = injector.get(HaveConstructor, [123]);
     expect(data.a === 123);
+    const data2 = injector.get(HaveConstructor, [321]);
+    expect(data2.a === 321);
+  });
+  it('can create class which not decorate with `Injectable` by `createThisClass`', () => {
+    class HaveConstructor {
+      constructor() {
+        //
+      }
+    }
+
+    const injector = new Injector([
+      {
+        token: HaveConstructor,
+        useFactory: createThisClass(HaveConstructor),
+      },
+    ]);
+
+    const data = injector.get(HaveConstructor);
+    const data2 = injector.get(HaveConstructor);
+    expect(data2).not.toBe(data);
+  });
+  it('use `asSingleton` and `createThisClass`', () => {
+    class HaveConstructor {
+      constructor() {
+        //
+      }
+    }
+
+    const injector = new Injector([
+      {
+        token: HaveConstructor,
+        useFactory: asSingleton(createThisClass(HaveConstructor)),
+      },
+    ]);
+
+    const data = injector.get(HaveConstructor);
+    const data2 = injector.get(HaveConstructor);
+    expect(data2).toBe(data);
   });
 });

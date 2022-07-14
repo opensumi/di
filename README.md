@@ -1,10 +1,6 @@
 # @opensumi/di
 
-[![CI](https://github.com/opensumi/di/actions/workflows/ci.yml/badge.svg)](https://github.com/opensumi/di/actions/workflows/ci.yml)
-[![NPM Version][npm-image]][npm-url]
-[![NPM downloads][download-image]][download-url]
-[![Test Coverage][test-image]][test-url]
-[![License][license-image]][license-url]
+[![CI](https://github.com/opensumi/di/actions/workflows/ci.yml/badge.svg)](https://github.com/opensumi/di/actions/workflows/ci.yml) [![NPM Version][npm-image]][npm-url] [![NPM downloads][download-image]][download-url] [![Test Coverage][test-image]][test-url] [![License][license-image]][license-url]
 
 [npm-image]: https://img.shields.io/npm/v/@opensumi/di.svg
 [npm-url]: https://www.npmjs.com/package/@opensumi/di
@@ -49,12 +45,7 @@ export type Token = string | symbol | Function;
 为 Token 提供实例的定义，一共有五种类型的 Provider 定义：
 
 ```ts
-export type Provider =
-  ClassProvider |
-  TypeProvider |
-  ValueProvider |
-  FactoryProvider |
-  AliasProvider;
+export type Provider = ClassProvider | TypeProvider | ValueProvider | FactoryProvider | AliasProvider;
 ```
 
 #### ClassProvider
@@ -93,15 +84,15 @@ class Student {
 @Injectable()
 class Car implements Drivable {
   drive() {
-    console.log('by car')
+    console.log('by car');
   }
 }
 
-injector.addProviders(Student)
+injector.addProviders(Student);
 injector.addProviders({
   token: 'Drivable',
   useClass: Car,
-})
+});
 
 const student = injector.get(Student);
 student.goToSchool(); // print 'go to school by car'
@@ -149,6 +140,27 @@ const provider = {
 };
 ```
 
+2. `createThisClass`
+
+可以将没有进行 Injectable 装饰的 class 纳入 IoC 容器统一管理。
+
+```ts
+class HaveConstructor {
+  constructor() {
+    //
+  }
+}
+
+const injector = new Injector([
+  {
+    token: HaveConstructor,
+    useFactory: asSingleton(createThisClass(HaveConstructor)),
+  },
+]);
+
+injector.get(HaveConstructor) === injector.get(HaveConstructor); // true
+```
+
 #### AliasProvider
 
 将一个 token 设为已存在的一个 token 的 alias。
@@ -162,7 +174,6 @@ export interface ValueProvider {
 }
 ```
 
-
 ### 对 Constructor 进行构造注入
 
 ```ts
@@ -175,14 +186,14 @@ class A {
 
 @Injectable()
 class B {
-  constructor(public a: A){}
+  constructor(public a: A) {}
 }
 
 const injector = new Injector();
 injector.addProviders(A, B);
 
 const b = injector.get(B); // print 'Create A'
-console.log(b.a instanceof A) // print 'true'
+console.log(b.a instanceof A); // print 'true'
 ```
 
 ### 使用 Autowired 进行动态注入
@@ -313,7 +324,7 @@ class A {}
 const injector = new Injector([A]);
 
 const a = injector.get(A);
-console.log(injector.hasInstance(a)) // print 'false'
+console.log(injector.hasInstance(a)); // print 'false'
 ```
 
 所有需要被 Injector 创建的构造函数都应该使用这个装饰器修饰才可以正常使用，否则会报错
@@ -365,7 +376,6 @@ interface Injector<T extends Token> {
   get(token: ConstructorOf<any>, args?: ConstructorParameters<T>, opts?: InstanceOpts): TokenResult<T>;
   get(token: T, opts?: InstanceOpts): TokenResult<T>;
 }
-
 ```
 
 从 Injector 获取一个对象实例的方法，如果传递的是一个构造函数，第二个参数可以传递构造函数 Arguments 数据，此时将会直接将构造函数创建实例返回，并附加依赖注入的功能，此时的构造函数不需要被 Injectable 装饰也能正常创建对象。例如下面这样：
@@ -379,7 +389,7 @@ class B {
   a: A;
 }
 
-const injector = new Injector([A])
+const injector = new Injector([A]);
 const b = injector.get(B, []);
 console.log(b.a instanceof A); // print 'true'
 ```
