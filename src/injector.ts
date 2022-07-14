@@ -12,12 +12,11 @@ import {
   ClassCreator,
   InjectorOpts,
   AddProvidersOpts,
-  ParameterOpts,
   Domain,
   Tag,
   IHookStore,
   IValidAspectHook,
-  Chain,
+  CreateState,
 } from './declare';
 import {
   isClassCreator,
@@ -159,17 +158,7 @@ export class Injector {
     if (!creator) {
       throw InjectorError.noProviderError(token);
     }
-    return this.createInstance(
-      creator,
-      token,
-      injector,
-      {
-        token,
-        creator,
-      },
-      opts,
-      args as ConstructorParameters<K>,
-    );
+    return this.createInstance(creator, token, injector, opts, args as ConstructorParameters<K>);
   }
 
   getFromDomain(...domains: Domain[]) {
@@ -386,10 +375,17 @@ export class Injector {
     creator: InstanceCreator,
     token: Token,
     ctx: Injector,
-    chain: Chain,
     defaultOpts?: InstanceOpts,
     args?: any[],
+    state?: CreateState,
   ) {
+    if (typeof state === 'undefined') {
+      state = {
+        token,
+        creator,
+      };
+    }
+
     if (creator.dropdownForTag && creator.tag !== this.tag) {
       throw InjectorError.tagOnlyError(String(creator.tag), String(this.tag));
     }
@@ -401,7 +397,7 @@ export class Injector {
         return creator.instance;
       }
 
-      return this.createInstanceFromClassCreator(creator, token, ctx, chain, opts, args);
+      return this.createInstanceFromClassCreator(creator, token, ctx, opts, args, state);
     }
 
     if (Helper.isFactoryCreator(creator)) {
@@ -416,22 +412,29 @@ export class Injector {
     creator: ClassCreator,
     token: Token,
     injector: Injector,
-    chain: Chain,
     opts: InstanceOpts,
     defaultArgs?: any[],
+    state?: CreateState,
   ) {
+    if (typeof state === 'undefined') {
+      state = {
+        token,
+        creator,
+      };
+    }
+
     const cls = creator.useClass;
     const currentStatus = creator.status;
 
     // 如果尝试去创建一个正在创建的对象，一定是循环依赖导致的
     if (currentStatus === CreatorStatus.creating) {
-      throw InjectorError.circularError(cls, chain);
+      throw InjectorError.circularError(cls, state);
     }
 
     creator.status = CreatorStatus.creating;
 
     try {
-      const args = defaultArgs ?? this.getParameters(creator, chain);
+      const args = defaultArgs ?? this.getParameters(creator, state);
       const instance = this.createInstanceWithInjector(cls, token, injector, args);
       creator.status = CreatorStatus.init;
 
@@ -449,25 +452,20 @@ export class Injector {
     }
   }
 
-  private getParameters(creator: ClassCreator, chain: Chain) {
+  private getParameters(creator: ClassCreator, state: CreateState) {
     const { parameters } = creator;
 
     return parameters.map((opts) => {
       const [creator, injector] = this.getCreator(opts.token);
 
       if (creator) {
-        return this.createInstance(
+        return this.createInstance(creator, opts.token, injector, undefined, undefined, {
+          parent: state,
+          token: opts.token,
           creator,
-          opts.token,
-          injector,
-          {
-            from: chain,
-            token: opts.token,
-            creator,
-          },
-          undefined,
-        );
+        });
       }
+
       if (!creator && Object.prototype.hasOwnProperty.call(opts, 'default')) {
         return opts.default;
       }

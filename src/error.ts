@@ -1,4 +1,4 @@
-import { Chain, Token } from './declare';
+import { CreateState, Token } from './declare';
 
 function stringify(target: object | Token) {
   if (typeof target === 'object') {
@@ -49,18 +49,18 @@ export function noInjectorError(target: object) {
   return new Error(`Cannot find the Injector of ${stringify(target)}`);
 }
 
-export function circularError(target: object, chain: Chain) {
-  const creatorChain = [];
-  let current: Chain | undefined = chain;
+export function circularError(target: object, state: CreateState) {
+  const tokenTrace = [];
+  let current: CreateState | undefined = state;
   while (current) {
-    creatorChain.push(current.token);
-    current = current.from;
+    tokenTrace.push(current.token);
+    current = current.parent;
   }
 
-  const chainResult = creatorChain
+  const traceResult = tokenTrace
     .reverse()
     .map((v) => stringify(v))
     .join(' > ');
 
-  return new Error(`Detected circular dependencies when creating ${stringify(target)}. ` + chainResult);
+  return new Error(`Detected circular dependencies when creating ${stringify(target)}. ` + traceResult);
 }
