@@ -12,11 +12,11 @@ import {
   ClassCreator,
   InjectorOpts,
   AddProvidersOpts,
-  ParameterOpts,
   Domain,
   Tag,
   IHookStore,
   IValidAspectHook,
+  CreateState,
 } from './declare';
 import {
   isClassCreator,
@@ -377,7 +377,15 @@ export class Injector {
     ctx: Injector,
     defaultOpts?: InstanceOpts,
     args?: any[],
+    state?: CreateState,
   ) {
+    if (typeof state === 'undefined') {
+      state = {
+        token,
+        creator,
+      };
+    }
+
     if (creator.dropdownForTag && creator.tag !== this.tag) {
       throw InjectorError.tagOnlyError(String(creator.tag), String(this.tag));
     }
@@ -389,7 +397,7 @@ export class Injector {
         return creator.instance;
       }
 
-      return this.createInstanceFromClassCreator(creator, token, ctx, opts, args);
+      return this.createInstanceFromClassCreator(creator, token, ctx, opts, args, state);
     }
 
     if (Helper.isFactoryCreator(creator)) {
@@ -406,19 +414,27 @@ export class Injector {
     injector: Injector,
     opts: InstanceOpts,
     defaultArgs?: any[],
+    state?: CreateState,
   ) {
+    if (typeof state === 'undefined') {
+      state = {
+        token,
+        creator,
+      };
+    }
+
     const cls = creator.useClass;
     const currentStatus = creator.status;
 
     // 如果尝试去创建一个正在创建的对象，一定是循环依赖导致的
     if (currentStatus === CreatorStatus.creating) {
-      throw InjectorError.circularError(cls);
+      throw InjectorError.circularError(cls, state);
     }
 
     creator.status = CreatorStatus.creating;
 
     try {
-      const args = defaultArgs ?? this.getParameters(creator.parameters);
+      const args = defaultArgs ?? this.getParameters(creator, state);
       const instance = this.createInstanceWithInjector(cls, token, injector, args);
       creator.status = CreatorStatus.init;
 
@@ -436,12 +452,20 @@ export class Injector {
     }
   }
 
-  private getParameters(parameters: ParameterOpts[]) {
+  private getParameters(creator: ClassCreator, state: CreateState) {
+    const { parameters } = creator;
+
     return parameters.map((opts) => {
       const [creator, injector] = this.getCreator(opts.token);
+
       if (creator) {
-        return this.createInstance(creator, opts.token, injector);
+        return this.createInstance(creator, opts.token, injector, undefined, undefined, {
+          parent: state,
+          token: opts.token,
+          creator,
+        });
       }
+
       if (!creator && Object.prototype.hasOwnProperty.call(opts, 'default')) {
         return opts.default;
       }

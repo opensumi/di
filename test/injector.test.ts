@@ -115,12 +115,22 @@ describe('test injector work', () => {
       { token: DToken, useClass: D },
     ]);
 
-    expect(() => injector.get(DToken)).toThrow('在创建 D 的时候遇见了循环依赖');
+    expect(() => injector.get(DToken)).toThrow(
+      InjectorError.circularError(D, {
+        token: DToken,
+        parent: {
+          token: EToken,
+          parent: {
+            token: DToken,
+          },
+        },
+      } as any),
+    );
   });
 
   it('没有定义 Injectable 的依赖', () => {
     class T {}
-    expect(() => new Injector([T])).toThrow('需要保证 T 必须是被 Injectable 装饰过的');
+    expect(() => new Injector([T])).toThrow(InjectorError.noInjectableError(T));
   });
 
   describe('hasInstance', () => {

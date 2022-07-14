@@ -11,6 +11,18 @@ export type Domain = string | symbol;
 // 获取注射器自身的 Token
 export const INJECTOR_TOKEN: Token = Symbol('INJECTOR_TOKEN');
 
+/**
+ * 代表本次创建 instance 过程中的状态
+ */
+export interface CreateState {
+  token: Token;
+  creator: InstanceCreator;
+  /**
+   * 指在递归创建过程中上一次的状态
+   */
+  parent?: CreateState;
+}
+
 // 一个可以直接被实例化的 Provider
 export type TypeProvider = ConstructorOf<any>;
 

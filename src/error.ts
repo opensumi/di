@@ -1,4 +1,4 @@
-import { Token } from './declare';
+import { CreateState, Token } from './declare';
 
 function stringify(target: object | Token) {
   if (typeof target === 'object') {
@@ -11,7 +11,7 @@ function stringify(target: object | Token) {
 }
 
 export function noProviderError(...tokens: Token[]) {
-  return new Error(`没有找到 ${tokens.map((t) => stringify(t)).join(', ')} 的 Provider`);
+  return new Error(`Cannot find Provider of ${tokens.map((t) => stringify(t)).join(', ')}`);
 }
 
 export function onMultipleCaseNoCreatorFound(token: Token) {
@@ -46,9 +46,21 @@ export function notSupportTokenError(target: object, key: string | symbol, token
 }
 
 export function noInjectorError(target: object) {
-  return new Error(`没有找到 ${stringify(target)} 对应的 Injector`);
+  return new Error(`Cannot find the Injector of ${stringify(target)}`);
 }
 
-export function circularError(target: object) {
-  return new Error(`在创建 ${stringify(target)} 的时候遇见了循环依赖`);
+export function circularError(target: object, state: CreateState) {
+  const tokenTrace = [];
+  let current: CreateState | undefined = state;
+  while (current) {
+    tokenTrace.push(current.token);
+    current = current.parent;
+  }
+
+  const traceResult = tokenTrace
+    .reverse()
+    .map((v) => stringify(v))
+    .join(' > ');
+
+  return new Error(`Detected circular dependencies when creating ${stringify(target)}. ` + traceResult);
 }

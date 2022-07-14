@@ -7,11 +7,11 @@
   "scripts": {
     "prepare": "husky install",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "tsc": "rm -rf dist && tsc -p tsconfig.prod.json",
+    "build": "rm -rf dist && tsc -p tsconfig.prod.json",
     "test": "jest --coverage test/**",
     "test:watch": "yarn test --watch",
     "ci": "npm run lint && npm run test",
-    "prerelease": "npm run lint && npm run test && npm run tsc ",
+    "prerelease": "npm run lint && npm run test && npm run build",
     "release": "standard-version",
     "release:beta": "npm run release -- --prerelease beta"
   },
