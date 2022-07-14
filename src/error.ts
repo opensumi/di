@@ -46,7 +46,7 @@ export function notSupportTokenError(target: object, key: string | symbol, token
 }
 
 export function noInjectorError(target: object) {
-  return new Error(`没有找到 ${stringify(target)} 对应的 Injector`);
+  return new Error(`Cannot find the Injector of ${stringify(target)}`);
 }
 
 export function circularError(target: object) {
