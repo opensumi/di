@@ -118,9 +118,9 @@ describe('test injector work', () => {
     expect(() => injector.get(DToken)).toThrow(
       InjectorError.circularError(D, {
         token: DToken,
-        from: {
+        parent: {
           token: EToken,
-          from: {
+          parent: {
             token: DToken,
           },
         },
