@@ -119,7 +119,7 @@ export interface ValueProvider {
 
 ```ts
 export interface FactoryFunction<T = any> {
-  (injector: Injector): T;
+  (injector: Injector, ...args: any[]): T;
 }
 export interface FactoryProvider {
   token: Token;
