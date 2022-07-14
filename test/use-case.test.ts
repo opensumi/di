@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { asSingleton, Autowired, Inject, Injectable, Injector } from '../src';
+import { asSingleton, Autowired, Inject, Injectable, Injector, createThisClass, FactoryProvider } from '../src';
 import * as Error from '../src/error';
 
 describe(__filename, () => {
@@ -189,6 +189,23 @@ describe(__filename, () => {
     expect(a).not.toBe(b);
   });
 
+  it('FactoryProvider 支持入参', () => {
+    const token = 'Token';
+
+    class A {
+      constructor(public a: number) {}
+    }
+
+    const provider: FactoryProvider<A> = {
+      token,
+      useFactory: (injector: Injector, num: number) => new A(num),
+    };
+
+    const injector = new Injector([provider]);
+    const a = injector.get(token, [1]);
+    expect(a.a).toEqual(1);
+  });
+
   it('提供了 asSingleton 来实现工厂模式的单例', () => {
     const token = 'Token';
 
@@ -253,5 +270,21 @@ describe(__filename, () => {
     const t = injector.get(T, [dynamic]);
     expect(t.a).toBeInstanceOf(A);
     expect(t.d).toBe(dynamic);
+  });
+
+  it('can create class which not decorate with `Injectable` by createThisClass', () => {
+    class HaveConstructor {
+      constructor(public a: number) {}
+    }
+
+    const injector = new Injector([
+      {
+        token: HaveConstructor,
+        useFactory: createThisClass(HaveConstructor),
+      },
+    ]);
+
+    const data = injector.get(HaveConstructor, [123]);
+    expect(data.a === 123);
   });
 });

@@ -53,7 +53,7 @@ export interface AliasProvider extends BasicProvider {
 }
 
 export interface FactoryFunction<T = any> {
-  (injector: Injector): T;
+  (injector: Injector, ...args: any[]): T;
 }
 
 export interface FactoryProvider<T = any> extends BasicProvider {

@@ -401,7 +401,11 @@ export class Injector {
     }
 
     if (Helper.isFactoryCreator(creator)) {
-      return applyHooks(creator.useFactory(this), token, this.hookStore);
+      if (!args) {
+        args = [];
+      }
+
+      return applyHooks(creator.useFactory(this, ...args), token, this.hookStore);
     }
 
     // 此时一定是 ValueCreator，不适用 Hook
