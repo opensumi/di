@@ -115,12 +115,6 @@ describe('test injector work', () => {
       { token: DToken, useClass: D },
     ]);
 
-    try {
-      injector.get(DToken);
-    } catch (error) {
-      console.log(`🚀 ~ file: injector.test.ts ~ line 121 ~ it ~ error`, error);
-    }
-
     expect(() => injector.get(DToken)).toThrow(
       InjectorError.circularError(D, {
         token: DToken,
