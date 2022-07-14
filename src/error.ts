@@ -11,7 +11,7 @@ function stringify(target: object | Token) {
 }
 
 export function noProviderError(...tokens: Token[]) {
-  return new Error(`没有找到 ${tokens.map((t) => stringify(t)).join(', ')} 的 Provider`);
+  return new Error(`Cannot find Provider of ${tokens.map((t) => stringify(t)).join(', ')}`);
 }
 
 export function onMultipleCaseNoCreatorFound(token: Token) {
