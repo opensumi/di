@@ -161,7 +161,7 @@ export class Injector {
     return this.createInstance(creator, token, injector, opts, args as ConstructorParameters<K>);
   }
 
-  getFromDomain(...domains: Domain[]) {
+  getFromDomain<T = any>(...domains: Domain[]): Array<T> {
     const tokenSet = new Set<any>();
 
     for (const domain of domains) {
