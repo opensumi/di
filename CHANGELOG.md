@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0-beta.0](https://github.com/opensumi/di/compare/v1.5.1...v1.6.0-beta.0) (2022-07-15)
+
+
+### Features
+
+* annotate the return type of `getFromDomain` ([#41](https://github.com/opensumi/di/issues/41)) ([8ed2853](https://github.com/opensumi/di/commit/8ed2853c3ab17c78574ee316a1f12841b44a0753))
+* support detecting circular dependencies ([#38](https://github.com/opensumi/di/issues/38)) ([a44ec02](https://github.com/opensumi/di/commit/a44ec02796481680b732075f1de60d4f1bff9a4c))
+
 ## [1.5.0](https://github.com/opensumi/di/compare/v1.4.0...v1.5.0) (2022-06-20)
 
 
