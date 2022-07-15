@@ -94,7 +94,6 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
       configurable: true,
       enumerable: true,
       get(this: any) {
-        // 每个对象的依赖只创建一次
         if (!this[INSTANCE_KEY]) {
           const injector = Helper.getInjectorOfInstance(this);
 

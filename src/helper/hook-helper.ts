@@ -27,7 +27,8 @@ export const HOOKED_SYMBOL = Symbol('COMMON_DI_HOOKED');
 
 export function applyHooks<T = any>(instance: T, token: Token, hooks: IHookStore): T {
   if (typeof instance !== 'object') {
-    return instance; // 只有 object 能被 hook
+    // Only object can be hook.
+    return instance;
   }
   if (!hooks.hasHooks(token)) {
     // fallback
@@ -73,7 +74,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
   const aroundHooks: Array<IAroundAspectHook<ThisType, Args, Result>> = [];
   const afterReturningHooks: Array<IAfterReturningAspectHook<ThisType, Args, Result>> = [];
   const afterThrowingHooks: Array<IAfterThrowingAspectHook<ThisType, Args, Result>> = [];
-  // 洋葱模型
+  // Onion model
   hooks.forEach((h) => {
     if (isBeforeHook(h)) {
       // 对于 before hook ，先来的先执行

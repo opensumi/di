@@ -19,7 +19,7 @@ function getAllDepsWithScanned(targets: Token[], scanned: Token[]): Token[] {
   const deps: Token[] = [];
 
   for (const target of targets) {
-    // 只有函数对象才有依赖
+    // only function types has dependency
     if (typeof target !== 'function' || scanned.includes(target)) {
       continue;
     } else {
@@ -31,7 +31,6 @@ function getAllDepsWithScanned(targets: Token[], scanned: Token[]): Token[] {
     const parameters = getParameterDeps(target);
     const spreadDeeps = getAllDepsWithScanned(targetDeps, scanned);
 
-    // 把结果推入最终结果中
     deps.push(...targetDeps, ...parameters, ...spreadDeeps);
   }
 
@@ -52,11 +51,10 @@ function getDepsWithCache(target: Token, cache: Map<any, Token[]>): Token[] {
 const allDepsCache = new Map<any, Token[]>();
 
 /**
- * 查询对象的所有依赖
- * @param targets
- * @param scanned
+ * get all dependencies of input tokens.
+ * @param tokens
  */
-export function getAllDeps(...targets: Token[]): Token[] {
-  const depsArr = targets.map((item) => getDepsWithCache(item, allDepsCache));
+export function getAllDeps(...tokens: Token[]): Token[] {
+  const depsArr = tokens.map((item) => getDepsWithCache(item, allDepsCache));
   return uniq(flatten(depsArr));
 }

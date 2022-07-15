@@ -160,7 +160,7 @@ export type IInstanceHooks = Map<MethodName, IValidAspectHook[]>;
 export type IHookMap = Map<Token, IInstanceHooks>;
 
 /**
- * 对一个方法的hook描述
+ * Describe how to hook a method
  */
 export interface IAspectHook<ThisType = any, Args extends any[] = any[], Result = any> {
   target: Token;

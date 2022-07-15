@@ -13,11 +13,9 @@ import { getAllDeps } from './dep-helper';
 import { getInjectableOpts } from './injector-helper';
 
 export function getProvidersFromTokens(targets: Token[]) {
-  // 得到所有的依赖
   const spreadDeps: Token[] = getAllDeps(...targets);
   const allDeps = targets.concat(spreadDeps);
 
-  // 得到所有的 providers
   return allDeps.filter(isInjectableToken);
 }
 
