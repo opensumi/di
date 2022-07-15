@@ -1279,7 +1279,7 @@ describe('test injector work', () => {
       expect(() => {
         const injector = new Injector([AClass]);
         injector.get('Token' as any, [dynamic]);
-      }).toThrow(InjectorError.onMultipleCaseNoCreatorFound('Token'));
+      }).toThrow(InjectorError.noProviderError('Token'));
     });
     it('支持使用 token 来创建多例', () => {
       @Injectable({ multiple: true })

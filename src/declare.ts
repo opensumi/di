@@ -1,29 +1,28 @@
 import type { Injector } from './injector';
-// 构造函数类型
+
 export type ConstructorOf<T = any> = new (...args: any[]) => T;
 export type TokenResult<T extends Token> = T extends ConstructorOf<infer R> ? R : any;
 
-// 注入对象的标记
 export type Token = string | symbol | Function;
 export type Tag = string | number;
 export type Domain = string | symbol;
 
-// 获取注射器自身的 Token
+// An identifier to get the Injector.
 export const INJECTOR_TOKEN: Token = Symbol('INJECTOR_TOKEN');
 
 /**
- * 代表本次创建 instance 过程中的状态
+ * Represents the state in this round of creating.
  */
 export interface CreateState {
   token: Token;
   creator: InstanceCreator;
   /**
-   * 指在递归创建过程中上一次的状态
+   * Refers to the state of the last time in the recursive creation process
    */
   parent?: CreateState;
 }
 
-// 一个可以直接被实例化的 Provider
+// A Provider that can be directly instantiated.
 export type TypeProvider = ConstructorOf<any>;
 
 interface BasicProvider {
@@ -35,14 +34,14 @@ interface BasicProvider {
 }
 
 /**
- * 提供一个用来进行实例化的 Class
+ * Provide a `class` that is used to instantiated
  */
 export interface ClassProvider extends BasicProvider {
   useClass: ConstructorOf<any>;
 }
 
 /**
- * 直接提供一个 Value 的 Provider
+ * Provide a `value` that is used to get
  */
 export interface ValueProvider extends BasicProvider {
   useValue: any;
@@ -63,9 +62,9 @@ export interface FactoryProvider<T = any> extends BasicProvider {
 export type Provider = ClassProvider | TypeProvider | ValueProvider | AliasProvider | FactoryProvider<any>;
 
 export enum CreatorStatus {
-  init = 'init',
-  creating = 'creating',
-  done = 'done',
+  init,
+  creating,
+  done,
 }
 
 interface BasicCreator {
@@ -74,7 +73,7 @@ interface BasicCreator {
   status?: CreatorStatus;
   instance?: any;
   /**
-   * 代表当前 Creator 是从 Parameter 解析出来的，并且该 Inject 设置了 `default` 属性
+   * Represent this creator is parsed from `Parameter`. and the params of Inject has set `default` attribution.
    */
   isDefault?: boolean;
 }
@@ -254,6 +253,6 @@ export interface IDisposable {
 }
 
 export interface IHookOptions {
-  // 是否等待该hook（如果该hook的返回值是个promise）
+  // Whether to wait for the hook (if the return value of the hook is a promise)
   await?: boolean;
 }

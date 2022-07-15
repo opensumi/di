@@ -14,10 +14,6 @@ export function noProviderError(...tokens: Token[]) {
   return new Error(`Cannot find Provider of ${tokens.map((t) => stringify(t)).join(', ')}`);
 }
 
-export function onMultipleCaseNoCreatorFound(token: Token) {
-  return new Error(`在进行多例数据创建的时候，没有找到该 Token（"${stringify(token)}"）对应的 Provider。`);
-}
-
 export function tagOnlyError(expectTag: string, currentTag: string) {
   return new Error(`期望在 ${expectTag} 的注册器中创建对象，但是当前是 ${currentTag}`);
 }
@@ -37,11 +33,11 @@ export function notInjectError(target: object, index: number) {
 export function notSupportTokenError(target: object, key: string | symbol, token: any) {
   const tokenType = String(token);
   const reason =
-    '排查下面三种可能:（1）ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。（2）没有定义 token 对象导致 TS 编译成 Object。（3）循环依赖导致读取对象失败。';
+    'Please check: (1) ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。 (2) 没有定义 token 对象导致 TS 编译成 Object。 (3) 循环依赖导致读取对象失败。';
   return new Error(
-    `${stringify(target)} 的属性 ${stringify(
-      key,
-    )} 是不支持的依赖类型。只支持 string、number、function 类型，但是当前是 "${tokenType}"。${reason}`,
+    `The type of property ${String(key)} of ${stringify(
+      target,
+    )} is unsupported. Allowed type: string/number/function, but received "${tokenType}". ${reason}`,
   );
 }
 

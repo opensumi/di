@@ -133,7 +133,7 @@ export class Injector {
             useClass: token,
           };
         } else {
-          throw InjectorError.onMultipleCaseNoCreatorFound(token);
+          throw InjectorError.noProviderError(token);
         }
       }
     } else {
