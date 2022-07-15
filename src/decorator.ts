@@ -84,7 +84,7 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
     }
 
     if (!Helper.isToken(realToken)) {
-      throw Error.notSupportTokenError(target, propertyKey, realToken);
+      throw Error.tokenInvalidError(target, propertyKey, realToken);
     }
 
     // 添加构造函数的依赖

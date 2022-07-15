@@ -16,7 +16,7 @@ describe(__filename, () => {
         a!: A;
       }
       return B;
-    }).toThrow(Error.notSupportTokenError(class B {}, 'a', Object));
+    }).toThrow(Error.tokenInvalidError(class B {}, 'a', Object));
   });
 
   it('Autowired 使用 null 进行依赖定义，期望报错', () => {
