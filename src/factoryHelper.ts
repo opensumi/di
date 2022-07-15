@@ -20,15 +20,16 @@ export function createClassAsFactory<T, C extends ConstructorOf<T> = Constructor
   ctor: C,
   opts?: ICreateAsFactoryOptions,
 ): FactoryProvider<T> {
-  let factory = (injector: Injector, ...moreArgs: any[]) => {
+  let factory = ((injector: Injector, ...moreArgs: ConstructorParameters<C>) => {
     return new ctor(...moreArgs);
-  };
+  }) as unknown as FactoryFunction<T>;
+
   if (opts?.singleton) {
-    factory = asSingleton(factory);
+    factory = asSingleton<T>(factory);
   }
 
   return {
     token: ctor,
-    useFactory: factory as unknown as FactoryFunction<T>,
+    useFactory: factory,
   };
 }
