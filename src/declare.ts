@@ -13,7 +13,8 @@ export const INJECTOR_TOKEN: Token = Symbol('INJECTOR_TOKEN');
 /**
  * Represents the state in this round of creating.
  */
-export interface CreateState<T extends BasicCreator = BasicCreator> {
+export interface CreateState<T extends BasicCreator = InstanceCreator> {
+  injector: Injector;
   token: Token;
   creator: T;
   /**

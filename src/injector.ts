@@ -17,6 +17,7 @@ import {
   IHookStore,
   IValidAspectHook,
   CreateState,
+  ParameterOpts,
 } from './declare';
 import {
   isClassCreator,
@@ -158,7 +159,14 @@ export class Injector {
     if (!creator) {
       throw InjectorError.noProviderError(token);
     }
-    return this.createInstance(creator, token, injector, opts, args as ConstructorParameters<K>);
+
+    const state = {
+      token,
+      creator,
+      injector,
+    } as CreateState<InstanceCreator>;
+
+    return this.createInstance(state, opts, args as ConstructorParameters<K>);
   }
 
   getFromDomain<T = any>(...domains: Domain[]): Array<T> {
@@ -371,20 +379,8 @@ export class Injector {
     return [null, this];
   }
 
-  private createInstance(
-    creator: InstanceCreator,
-    token: Token,
-    ctx: Injector,
-    defaultOpts?: InstanceOpts,
-    args?: any[],
-    state?: CreateState,
-  ) {
-    if (typeof state === 'undefined') {
-      state = {
-        token,
-        creator,
-      };
-    }
+  private createInstance(state: CreateState, defaultOpts?: InstanceOpts, args?: any[]) {
+    const { creator, token } = state;
 
     if (creator.dropdownForTag && creator.tag !== this.tag) {
       throw InjectorError.tagOnlyError(String(creator.tag), String(this.tag));
@@ -397,29 +393,24 @@ export class Injector {
         return creator.instance;
       }
 
-      return this.createInstanceFromClassCreator(state as CreateState<ClassCreator>, ctx, opts, args);
+      return this.createInstanceFromClassCreator(state as CreateState<ClassCreator>, opts, args);
     }
 
     if (Helper.isFactoryCreator(creator)) {
       return applyHooks(creator.useFactory(this), token, this.hookStore);
     }
 
-    // 此时一定是 ValueCreator，不适用 Hook
+    // must be ValueCreator, no need to hook.
     return creator.instance;
   }
 
-  private createInstanceFromClassCreator(
-    state: CreateState<ClassCreator>,
-    injector: Injector,
-    opts: InstanceOpts,
-    defaultArgs?: any[],
-  ) {
-    const { creator, token } = state;
+  private createInstanceFromClassCreator(state: CreateState<ClassCreator>, opts: InstanceOpts, defaultArgs?: any[]) {
+    const { creator, token, injector } = state;
 
     const cls = creator.useClass;
     const currentStatus = creator.status;
 
-    // 如果尝试去创建一个正在创建的对象，一定是循环依赖导致的
+    // If you try to create an instance whose status is creating, it must be caused by circular dependencies.
     if (currentStatus === CreatorStatus.creating) {
       throw InjectorError.circularError(cls, state);
     }
@@ -427,11 +418,11 @@ export class Injector {
     creator.status = CreatorStatus.creating;
 
     try {
-      const args = defaultArgs ?? this.getParameters(creator, state);
+      const args = defaultArgs ?? this.getParameters(creator.parameters, state);
       const instance = this.createInstanceWithInjector(cls, token, injector, args);
       creator.status = CreatorStatus.init;
 
-      // 如果不是多例配置，那么默认是单例配置
+      // if not allow multiple, save the instance in creator.
       if (!opts.multiple) {
         creator.status = CreatorStatus.done;
         creator.instance = instance;
@@ -439,24 +430,27 @@ export class Injector {
 
       return instance;
     } catch (e) {
-      // 如果创建对象的过程中发生了异常，把状态回滚
+      // rollback the status if exception occurs
       creator.status = currentStatus;
       throw e;
     }
   }
 
-  private getParameters(creator: ClassCreator, state: CreateState) {
-    const { parameters } = creator;
-
+  private getParameters(parameters: ParameterOpts[], state: CreateState<InstanceCreator>) {
     return parameters.map((opts) => {
       const [creator, injector] = this.getCreator(opts.token);
 
       if (creator) {
-        return this.createInstance(creator, opts.token, injector, undefined, undefined, {
-          parent: state,
-          token: opts.token,
-          creator,
-        });
+        return this.createInstance(
+          {
+            injector,
+            creator,
+            token: opts.token,
+            parent: state,
+          },
+          undefined,
+          undefined,
+        );
       }
 
       if (!creator && Object.prototype.hasOwnProperty.call(opts, 'default')) {
