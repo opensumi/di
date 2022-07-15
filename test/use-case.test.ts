@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { asSingleton, Autowired, Inject, Injectable, Injector, createThisClass, FactoryProvider } from '../src';
+import { asSingleton, Autowired, Inject, Injectable, Injector, createClassAsFactory, FactoryProvider } from '../src';
 import * as Error from '../src/error';
 
 describe(__filename, () => {
@@ -272,54 +272,39 @@ describe(__filename, () => {
     expect(t.d).toBe(dynamic);
   });
 
-  it('can create class which not decorate with `Injectable` by `createThisClass` with constructor params', () => {
+  it('can create class which not decorate with `Injectable` by `createClassAsFactory` with constructor params', () => {
     class HaveConstructor {
       constructor(public a: number) {}
     }
 
-    const injector = new Injector([
-      {
-        token: HaveConstructor,
-        useFactory: createThisClass(HaveConstructor),
-      },
-    ]);
+    const injector = new Injector([createClassAsFactory(HaveConstructor)]);
 
     const data = injector.get(HaveConstructor, [123]);
     expect(data.a === 123);
     const data2 = injector.get(HaveConstructor, [321]);
     expect(data2.a === 321);
   });
-  it('can create class which not decorate with `Injectable` by `createThisClass`', () => {
+  it('can create class which not decorate with `Injectable` by `createClassAsFactory`', () => {
     class HaveConstructor {
       constructor() {
         //
       }
     }
 
-    const injector = new Injector([
-      {
-        token: HaveConstructor,
-        useFactory: createThisClass(HaveConstructor),
-      },
-    ]);
+    const injector = new Injector([createClassAsFactory(HaveConstructor)]);
 
     const data = injector.get(HaveConstructor);
     const data2 = injector.get(HaveConstructor);
     expect(data2).not.toBe(data);
   });
-  it('use `asSingleton` and `createThisClass`', () => {
+  it('`createClassAsFactory` support singleton', () => {
     class HaveConstructor {
       constructor() {
         //
       }
     }
 
-    const injector = new Injector([
-      {
-        token: HaveConstructor,
-        useFactory: asSingleton(createThisClass(HaveConstructor)),
-      },
-    ]);
+    const injector = new Injector([createClassAsFactory(HaveConstructor, { singleton: true })]);
 
     const data = injector.get(HaveConstructor);
     const data2 = injector.get(HaveConstructor);

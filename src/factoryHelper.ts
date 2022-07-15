@@ -1,4 +1,4 @@
-import { ConstructorOf, FactoryFunction } from './declare';
+import { ConstructorOf, FactoryFunction, FactoryProvider } from './declare';
 
 import type { Injector } from './injector';
 
@@ -12,8 +12,23 @@ export function asSingleton<T>(func: FactoryFunction<T>): FactoryFunction<T> {
   };
 }
 
-export function createThisClass<T, C extends ConstructorOf<T> = ConstructorOf<T>>(ctor: C) {
-  return (injector: Injector, ...moreArgs: ConstructorParameters<C>) => {
+export interface ICreateAsFactoryOptions {
+  singleton?: boolean;
+}
+
+export function createClassAsFactory<T, C extends ConstructorOf<T> = ConstructorOf<T>>(
+  ctor: C,
+  opts?: ICreateAsFactoryOptions,
+): FactoryProvider<T> {
+  let factory = (injector: Injector, ...moreArgs: any[]) => {
     return new ctor(...moreArgs);
+  };
+  if (opts?.singleton) {
+    factory = asSingleton(factory);
+  }
+
+  return {
+    token: ctor,
+    useFactory: factory as unknown as FactoryFunction<T>,
   };
 }

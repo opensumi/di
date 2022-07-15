@@ -140,23 +140,16 @@ const provider = {
 };
 ```
 
-2. `createThisClass`
+2. `createClassAsFactory`
 
 可以将没有进行 Injectable 装饰的 class 纳入 IoC 容器统一管理。
 
 ```ts
 class HaveConstructor {
-  constructor() {
-    //
-  }
+  constructor() {}
 }
 
-const injector = new Injector([
-  {
-    token: HaveConstructor,
-    useFactory: asSingleton(createThisClass(HaveConstructor)),
-  },
-]);
+const injector = new Injector([createClassAsFactory(HaveConstructor, { singleton: true })]);
 
 injector.get(HaveConstructor) === injector.get(HaveConstructor); // true
 ```
