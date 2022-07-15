@@ -15,27 +15,29 @@ export function noProviderError(...tokens: Token[]) {
 }
 
 export function tagOnlyError(expectTag: string, currentTag: string) {
-  return new Error(`期望在 ${expectTag} 的注册器中创建对象，但是当前是 ${currentTag}`);
+  return new Error(`Expect creating class in Injector with tag: ${expectTag}, but current: ${currentTag}.`);
 }
 
 export function noInjectableError(target: object) {
-  return new Error(`需要保证 ${stringify(target)} 必须是被 Injectable 装饰过的，可能是安装了多个版本导致的。`);
+  return new Error(
+    `Target ${stringify(target)} has not decorated by Injectable. Maybe you have multiple packages installed.`,
+  );
 }
 
 export function notInjectError(target: object, index: number) {
   return new Error(
-    `单例模式下 ${stringify(
+    `The ${index}th constructor parameter of ${stringify(
       target,
-    )} 的构造函数第 ${index} 个参数是不可被 Inject 的，请使用 Inject 装饰或改成多例（修改 Injectable 的参数）。`,
+    )} has not decorated by \`Inject\`, or maybe you want to set \`multiple\` in the Injectable decorator.`,
   );
 }
 
 export function notSupportTokenError(target: object, key: string | symbol, token: any) {
   const tokenType = String(token);
   const reason =
-    'Please check: (1) ts 的配置里面没有开启 experimentalDecorators 和 emitDecoratorMetadata。 (2) 没有定义 token 对象导致 TS 编译成 Object。 (3) 循环依赖导致读取对象失败。';
+    '(1) Please check your `tsconfig.json` to enable `emitDecoratorMetadata` and `experimentalDecorators`. (2) Has not defined token cause TS compiled to Object. (3) Has circular dependencies cause reading property error.';
   return new Error(
-    `The type of property ${String(key)} of ${stringify(
+    `Autowired error: The type of property ${String(key)} of ${stringify(
       target,
     )} is unsupported. Allowed type: string/number/function, but received "${tokenType}". ${reason}`,
   );
