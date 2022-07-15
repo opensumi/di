@@ -16,7 +16,7 @@ import {
   Tag,
   IHookStore,
   IValidAspectHook,
-  CreateState,
+  Context,
   ParameterOpts,
 } from './declare';
 import {
@@ -160,13 +160,13 @@ export class Injector {
       throw InjectorError.noProviderError(token);
     }
 
-    const state = {
+    const ctx = {
       token,
       creator,
       injector,
-    } as CreateState<InstanceCreator>;
+    } as Context<InstanceCreator>;
 
-    return this.createInstance(state, opts, args as ConstructorParameters<K>);
+    return this.createInstance(ctx, opts, args as ConstructorParameters<K>);
   }
 
   getFromDomain<T = any>(...domains: Domain[]): Array<T> {
@@ -379,8 +379,8 @@ export class Injector {
     return [null, this];
   }
 
-  private createInstance(state: CreateState, defaultOpts?: InstanceOpts, args?: any[]) {
-    const { creator, token } = state;
+  private createInstance(ctx: Context, defaultOpts?: InstanceOpts, args?: any[]) {
+    const { creator, token } = ctx;
 
     if (creator.dropdownForTag && creator.tag !== this.tag) {
       throw InjectorError.tagOnlyError(String(creator.tag), String(this.tag));
@@ -393,7 +393,7 @@ export class Injector {
         return creator.instance;
       }
 
-      return this.createInstanceFromClassCreator(state as CreateState<ClassCreator>, opts, args);
+      return this.createInstanceFromClassCreator(ctx as Context<ClassCreator>, opts, args);
     }
 
     if (Helper.isFactoryCreator(creator)) {
@@ -404,21 +404,21 @@ export class Injector {
     return creator.instance;
   }
 
-  private createInstanceFromClassCreator(state: CreateState<ClassCreator>, opts: InstanceOpts, defaultArgs?: any[]) {
-    const { creator, token, injector } = state;
+  private createInstanceFromClassCreator(ctx: Context<ClassCreator>, opts: InstanceOpts, defaultArgs?: any[]) {
+    const { creator, token, injector } = ctx;
 
     const cls = creator.useClass;
     const currentStatus = creator.status;
 
     // If you try to create an instance whose status is creating, it must be caused by circular dependencies.
     if (currentStatus === CreatorStatus.creating) {
-      throw InjectorError.circularError(cls, state);
+      throw InjectorError.circularError(cls, ctx);
     }
 
     creator.status = CreatorStatus.creating;
 
     try {
-      const args = defaultArgs ?? this.getParameters(creator.parameters, state);
+      const args = defaultArgs ?? this.getParameters(creator.parameters, ctx);
       const instance = this.createInstanceWithInjector(cls, token, injector, args);
       creator.status = CreatorStatus.init;
 
@@ -436,7 +436,7 @@ export class Injector {
     }
   }
 
-  private getParameters(parameters: ParameterOpts[], state: CreateState<InstanceCreator>) {
+  private getParameters(parameters: ParameterOpts[], state: Context<InstanceCreator>) {
     return parameters.map((opts) => {
       const [creator, injector] = this.getCreator(opts.token);
 

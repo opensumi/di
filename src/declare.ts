@@ -13,14 +13,14 @@ export const INJECTOR_TOKEN: Token = Symbol('INJECTOR_TOKEN');
 /**
  * Represents the state in this round of creating.
  */
-export interface CreateState<T extends BasicCreator = InstanceCreator> {
+export interface Context<T extends BasicCreator = InstanceCreator> {
   injector: Injector;
   token: Token;
   creator: T;
   /**
    * Refers to the state of the last time in the recursive creation process
    */
-  parent?: CreateState<T>;
+  parent?: Context<T>;
 }
 
 // A Provider that can be directly instantiated.
