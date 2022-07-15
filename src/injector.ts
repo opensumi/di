@@ -397,7 +397,7 @@ export class Injector {
         return creator.instance;
       }
 
-      return this.createInstanceFromClassCreator(creator, token, ctx, opts, args, state);
+      return this.createInstanceFromClassCreator(state as CreateState<ClassCreator>, ctx, opts, args);
     }
 
     if (Helper.isFactoryCreator(creator)) {
@@ -409,19 +409,12 @@ export class Injector {
   }
 
   private createInstanceFromClassCreator(
-    creator: ClassCreator,
-    token: Token,
+    state: CreateState<ClassCreator>,
     injector: Injector,
     opts: InstanceOpts,
     defaultArgs?: any[],
-    state?: CreateState,
   ) {
-    if (typeof state === 'undefined') {
-      state = {
-        token,
-        creator,
-      };
-    }
+    const { creator, token } = state;
 
     const cls = creator.useClass;
     const currentStatus = creator.status;
