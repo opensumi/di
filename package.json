@@ -1,6 +1,6 @@
 {
   "name": "@opensumi/di",
-  "version": "1.6.0-beta.0",
+  "version": "1.6.0",
   "description": "A dependency injection tool for Javascript.",
   "license": "MIT",
   "main": "dist/index.js",
@@ -12,7 +12,7 @@
     "test:watch": "yarn test --watch",
     "ci": "npm run lint && npm run test",
     "prerelease": "npm run lint && npm run test && npm run build",
-    "release": "standard-version",
+    "release": "standard-version --silent",
     "release:beta": "npm run release -- --prerelease beta"
   },
   "dependencies": {
