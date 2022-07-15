@@ -1,10 +1,6 @@
 # @opensumi/di
 
-[![CI](https://github.com/opensumi/di/actions/workflows/ci.yml/badge.svg)](https://github.com/opensumi/di/actions/workflows/ci.yml)
-[![NPM Version][npm-image]][npm-url]
-[![NPM downloads][download-image]][download-url]
-[![Test Coverage][test-image]][test-url]
-[![License][license-image]][license-url]
+[![CI](https://github.com/opensumi/di/actions/workflows/ci.yml/badge.svg)](https://github.com/opensumi/di/actions/workflows/ci.yml) [![NPM Version][npm-image]][npm-url] [![NPM downloads][download-image]][download-url] [![Test Coverage][test-image]][test-url] [![License][license-image]][license-url]
 
 [npm-image]: https://img.shields.io/npm/v/@opensumi/di.svg
 [npm-url]: https://www.npmjs.com/package/@opensumi/di
@@ -49,12 +45,7 @@ export type Token = string | symbol | Function;
 为 Token 提供实例的定义，一共有五种类型的 Provider 定义：
 
 ```ts
-export type Provider =
-  ClassProvider |
-  TypeProvider |
-  ValueProvider |
-  FactoryProvider |
-  AliasProvider;
+export type Provider = ClassProvider | TypeProvider | ValueProvider | FactoryProvider | AliasProvider;
 ```
 
 #### ClassProvider
@@ -82,7 +73,7 @@ class Student {
 
   goToSchool() {
     console.log('go to school');
-    mBike.drive();
+    this.mBike.drive();
   }
 }
 ```
@@ -93,15 +84,15 @@ class Student {
 @Injectable()
 class Car implements Drivable {
   drive() {
-    console.log('by car')
+    console.log('by car');
   }
 }
 
-injector.addProviders(Student)
+injector.addProviders(Student);
 injector.addProviders({
   token: 'Drivable',
   useClass: Car,
-})
+});
 
 const student = injector.get(Student);
 student.goToSchool(); // print 'go to school by car'
@@ -162,7 +153,6 @@ export interface ValueProvider {
 }
 ```
 
-
 ### 对 Constructor 进行构造注入
 
 ```ts
@@ -175,14 +165,14 @@ class A {
 
 @Injectable()
 class B {
-  constructor(public a: A){}
+  constructor(public a: A) {}
 }
 
 const injector = new Injector();
 injector.addProviders(A, B);
 
 const b = injector.get(B); // print 'Create A'
-console.log(b.a instanceof A) // print 'true'
+console.log(b.a instanceof A); // print 'true'
 ```
 
 ### 使用 Autowired 进行动态注入
@@ -313,7 +303,7 @@ class A {}
 const injector = new Injector([A]);
 
 const a = injector.get(A);
-console.log(injector.hasInstance(a)) // print 'false'
+console.log(injector.hasInstance(a)); // print 'false'
 ```
 
 所有需要被 Injector 创建的构造函数都应该使用这个装饰器修饰才可以正常使用，否则会报错
@@ -365,7 +355,6 @@ interface Injector<T extends Token> {
   get(token: ConstructorOf<any>, args?: ConstructorParameters<T>, opts?: InstanceOpts): TokenResult<T>;
   get(token: T, opts?: InstanceOpts): TokenResult<T>;
 }
-
 ```
 
 从 Injector 获取一个对象实例的方法，如果传递的是一个构造函数，第二个参数可以传递构造函数 Arguments 数据，此时将会直接将构造函数创建实例返回，并附加依赖注入的功能，此时的构造函数不需要被 Injectable 装饰也能正常创建对象。例如下面这样：
@@ -379,7 +368,7 @@ class B {
   a: A;
 }
 
-const injector = new Injector([A])
+const injector = new Injector([A]);
 const b = injector.get(B, []);
 console.log(b.a instanceof A); // print 'true'
 ```
@@ -388,13 +377,17 @@ console.log(b.a instanceof A); // print 'true'
 
 Injector 中是否具备某个对象的单例引用
 
+### markInjectable
+
+You can use this function mark some Class as Injectable.
+
 ## Example Readmes
 
-更多的用例可以 [点击查看](test/use-case.test.ts).
+More Example [you can see here](test/use-case.test.ts).
 
 ## Related Efforts
 
-- [Angular](https://angular.io/guide/dependency-injection) - Angular 的 DI 工具使用文档
-- [injection-js](https://github.com/mgechev/injection-js) - 把 Angular 的 DI 抽取出来的单独仓库。
-- [InversifyJS](https://github.com/inversify/InversifyJS) - 目前社区中比较受欢迎的 DI 库
-- [power-di](https://github.com/zhang740/power-di) - A lightweight Dependency Injection library.
+- [Angular](https://angular.io/guide/dependency-injection) Dependency injection in Angular
+- [injection-js](https://github.com/mgechev/injection-js) It is an extraction of the Angular's ReflectiveInjector.
+- [InversifyJS](https://github.com/inversify/InversifyJS) A powerful and lightweight inversion of control container for JavaScript & Node.js apps powered by TypeScript.
+- [power-di](https://github.com/zhang740/power-di) A lightweight Dependency Injection library.
