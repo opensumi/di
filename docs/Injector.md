@@ -1,4 +1,14 @@
-# 多例模式
+# Injector
+
+The `Injector` is where we used to get instance, register provider.
+
+## Example
+
+```ts
+
+```
+
+## Use multiple
 
 ```ts
 import { Injectable, Injector } from '../src';

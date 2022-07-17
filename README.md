@@ -32,28 +32,69 @@ yarn add @opensumi/di
 
 ## Usage
 
-### Token
-
-查找实例的唯一标记，类型描述如下：
+Let's start with a simple example:
 
 ```ts
-export type Token = string | symbol | Function;
+import { Injector } from '@opensumi/di';
+
+const injector = new Injector();
+
+const TokenA = Symbol('TokenA');
+injector.addProviders({
+  token: TokenA,
+  useValue: 1,
+});
+injector.get(TokenA) === 1; // true
 ```
 
-### Provider
-
-为 Token 提供实例的定义，一共有五种类型的 Provider 定义：
+The `Injector` class is the starting point of all things. We create a `injector`, and we add a provider into it:
 
 ```ts
-export type Provider = ClassProvider | TypeProvider | ValueProvider | FactoryProvider | AliasProvider;
+injector.addProviders({
+  token: TokenA,
+  useValue: 1,
+});
 ```
+
+Here we use a `ValueProvider`, and its role is to provide a value:
+
+```ts
+interface ValueProvider {
+  token: Token;
+  useValue: any;
+}
+```
+
+We have the following several kinds of the provider.
+
+According to the different Provider kinds, Injector will use different logic to provide the value that you need.
+
+```ts
+type Provider = ClassProvider | TypeProvider | ValueProvider | FactoryProvider | AliasProvider;
+```
+
+A token is used to exchange the real value in the IoC container, so it should be a global unique value.
+
+```ts
+type Token = string | symbol | Function;
+```
+
+and now we want get value from the `Injector`, just use `Injector.get`:
+
+```ts
+injector.get(TokenA) === 1;
+```
+
+### Providers
+
+Here are all the providers we have:
 
 #### ClassProvider
 
 定义一个 Token 使用某个特定的构造函数的时候会用到的 Provider。
 
 ```ts
-export interface ClassProvider {
+interface ClassProvider {
   token: Token;
   useClass: ConstructorOf<any>;
 }
@@ -88,8 +129,7 @@ class Car implements Drivable {
   }
 }
 
-injector.addProviders(Student);
-injector.addProviders({
+injector.addProviders(Student, {
   token: 'Drivable',
   useClass: Car,
 });
@@ -100,28 +140,37 @@ student.goToSchool(); // print 'go to school by car'
 
 #### TypeProvider
 
-token 和 useClass 都是一样的 ClassProvider，一般不会直接用到，使用 Autowired 如果是一个 Function，就会转换成这个类型。
+不会直接用到，如果你 get 的入参是一个 Function，就会转换成这个类型。
 
 #### ValueProvider
 
-和 ClassProvider 一样作用，但是直接提供一个对象实例的 Provider。
+This provider is used to provide a value:
 
 ```ts
-export interface ValueProvider {
+interface ValueProvider {
   token: Token;
   useValue: any;
 }
 ```
 
+```ts
+const TokenA = Symbol('TokenA');
+injector.addProviders({
+  token: TokenA,
+  useValue: 1,
+});
+injector.get(TokenA) === 1; // true
+```
+
 #### FactoryProvider
 
-和 ClassProvider 一样作用，但是提供一个函数进行对象实例创建的 Provider。
+提供一个函数进行对象实例创建的 Provider。
 
 ```ts
-export interface FactoryFunction<T = any> {
+interface FactoryFunction<T = any> {
   (injector: Injector): T;
 }
-export interface FactoryProvider {
+interface FactoryProvider {
   token: Token;
   useFactory: FactoryFunction<T>;
 }
@@ -131,7 +180,7 @@ export interface FactoryProvider {
 
 1. `asSingleton`
 
-可以实现工厂单例：
+You can implement a singleton factory by using this helper:
 
 ```ts
 const provider = {
@@ -145,10 +194,10 @@ const provider = {
 Sets a token to the alias of an existing token.
 
 ```ts
-export interface AliasProvider {
-  // 新的 Token
+interface AliasProvider {
+  // New Token
   token: Token;
-  // 已添加的 Token
+  // Existing Token
   useAlias: Token;
 }
 ```
@@ -156,20 +205,20 @@ export interface AliasProvider {
 and then you can use:
 
 ```ts
-const tokenA = Symbol('tokenA');
-const tokenB = Symbol('tokenB');
+const TokenA = Symbol('TokenA');
+const TokenB = Symbol('TokenB');
 injector.addProviders(
   {
-    token: tokenA,
+    token: TokenA,
     useValue: 1,
   },
   {
-    token: tokenB,
-    useAlias: tokenA,
+    token: TokenB,
+    useAlias: TokenA,
   },
 );
-injector.get(tokenA) === 1; // true
-injector.get(tokenB) === 1; // true
+injector.get(TokenA) === 1; // true
+injector.get(TokenB) === 1; // true
 ```
 
 ### 对 Constructor 进行构造注入
