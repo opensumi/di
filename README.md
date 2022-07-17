@@ -142,15 +142,34 @@ const provider = {
 
 #### AliasProvider
 
-将一个 token 设为已存在的一个 token 的 alias。
+Sets a token to the alias of an existing token.
 
 ```ts
-export interface ValueProvider {
+export interface AliasProvider {
   // 新的 Token
   token: Token;
   // 已添加的 Token
   useAlias: Token;
 }
+```
+
+and then you can use:
+
+```ts
+const tokenA = Symbol('tokenA');
+const tokenB = Symbol('tokenB');
+injector.addProviders(
+  {
+    token: tokenA,
+    useValue: 1,
+  },
+  {
+    token: tokenB,
+    useAlias: tokenA,
+  },
+);
+injector.get(tokenA) === 1; // true
+injector.get(tokenB) === 1; // true
 ```
 
 ### 对 Constructor 进行构造注入
