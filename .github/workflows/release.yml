@@ -44,3 +44,4 @@ jobs:
         with:
           bodyFile: 'RELEASE_BODY.md'
           token: ${{ secrets.GITHUB_TOKEN }}
+          draft: true
