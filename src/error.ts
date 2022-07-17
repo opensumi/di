@@ -39,7 +39,7 @@ export function tokenInvalidError(target: object, key: string | symbol, token: a
   return new Error(
     `Autowired error: The type of property ${String(key)} of ${stringify(
       target,
-    )} is unsupported. Allowed type: string/number/function, but received "${tokenType}". ${reason}`,
+    )} is unsupported. Allowed type: string/symbol/function, but received "${tokenType}". ${reason}`,
   );
 }
 
