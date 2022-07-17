@@ -65,15 +65,13 @@ interface ValueProvider {
 }
 ```
 
-We have the following several kinds of the provider.
-
-According to the different Provider kinds, Injector will use different logic to provide the value that you need.
+We have the following several kinds of the provider. According to the different Provider kinds, Injector will use different logic to provide the value that you need.
 
 ```ts
 type Provider = ClassProvider | TypeProvider | ValueProvider | FactoryProvider | AliasProvider;
 ```
 
-A token is used to exchange the real value in the IoC container, so it should be a global unique value.
+A token is used to find the real value in the Injector, so token should be a global unique value.
 
 ```ts
 type Token = string | symbol | Function;
@@ -357,7 +355,7 @@ console.log(app.logger instanceof LoggerImpl); // print 'true'
 
 ## API
 
-### @Injectable
+### decorator: @Injectable
 
 ```ts
 interface InstanceOpts {
@@ -378,7 +376,7 @@ console.log(injector.hasInstance(a)); // print 'false'
 
 - multiple: 是否启用多例模式，一旦启用了多例模式之后，Injector 将不会持有实例对象的引用。
 
-### @Autowired
+### decorator: @Autowired
 
 ```ts
 function Autowired(token?: Token): PropertyDecorator;
@@ -397,7 +395,7 @@ class B {
 
 > 需要注意的是，因为 Autowired 依赖着 Injector 的实例，所以只有从 Injector 创建出来的对象可以使用这个装饰器
 
-### @Inject
+### decorator: @Inject
 
 ```ts
 function Inject(token: string | symbol): ParameterDecorator;
@@ -415,8 +413,6 @@ class B {
 在构造函数进行依赖注入的时候，需要特别指定依赖 Token 的时候的装饰器。当一个构造函数依赖某个抽象，并且这个抽象是在构造函数中传递进来的时候，会需要使用这个装饰器。
 
 ### Injector.get
-
-多态实现：
 
 ```ts
 interface Injector<T extends Token> {
@@ -443,15 +439,22 @@ console.log(b.a instanceof A); // print 'true'
 
 ### Injector.hasInstance
 
-Injector 中是否具备某个对象的单例引用
+Whether have an instantiated object in the Injector.
 
 ### markInjectable
 
-You can use this function mark some Class as Injectable.
+```ts
+import { markInjectable } from '@opensumi/di';
+import { Editor } from 'path/to/package';
+
+markInjectable(Editor);
+```
+
+You can use this function to mark some Class as Injectable.
 
 ## Example Readmes
 
-More Example [you can see here](test/use-case.test.ts).
+See More Examples [in the test case](test/use-case.test.ts).
 
 ## Related Efforts
 
