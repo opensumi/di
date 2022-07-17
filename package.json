@@ -1,6 +1,6 @@
 {
   "name": "@opensumi/di",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "A dependency injection tool for Javascript.",
   "license": "MIT",
   "main": "dist/index.js",
