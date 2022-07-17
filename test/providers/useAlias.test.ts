@@ -59,4 +59,30 @@ describe('useAlias is work', () => {
     const bb = injector.get(tokenB);
     expect(aa()).toEqual(bb());
   });
+  it('can resolve multilayer alias', () => {
+    const injector = new Injector();
+    const single1 = { company: 'AntGroup' };
+    const tokenA = Symbol('tokenA');
+    const tokenB = Symbol('tokenB');
+    const tokenC = Symbol('tokenC');
+    injector.addProviders(
+      {
+        token: tokenA,
+        useValue: single1,
+      },
+      {
+        token: tokenB,
+        useAlias: tokenA,
+      },
+      {
+        token: tokenC,
+        useAlias: tokenB,
+      },
+    );
+    const aa = injector.get(tokenA);
+    const bb = injector.get(tokenB);
+    expect(aa).toBe(bb);
+    const cc = injector.get(tokenC);
+    expect(aa).toBe(cc);
+  });
 });

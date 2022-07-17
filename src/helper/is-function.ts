@@ -63,7 +63,5 @@ export function isFactoryCreator(creator: InstanceCreator): creator is FactoryCr
 }
 
 export function isAliasCreator(creator: InstanceCreator): creator is AliasCreator {
-  return (
-    Object.prototype.hasOwnProperty.call(creator, 'original') && Object.prototype.hasOwnProperty.call(creator, 'target')
-  );
+  return Object.prototype.hasOwnProperty.call(creator, 'useAlias');
 }

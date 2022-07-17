@@ -72,6 +72,9 @@ interface BasicCreator {
   tag?: Tag;
   dropdownForTag?: boolean;
   status?: CreatorStatus;
+  /**
+   * Store the instantiated object.
+   */
   instance?: any;
   /**
    * Represent this creator is parsed from `Parameter`. and the params of Inject has set `default` attribution.
@@ -100,8 +103,7 @@ export interface FactoryCreator<T = any> extends BasicCreator {
 }
 
 export interface AliasCreator extends BasicCreator {
-  original: Token;
-  target: Token;
+  useAlias: Token;
 }
 
 export type InstanceCreator = ValueCreator | ClassCreator | FactoryCreator | AliasCreator;

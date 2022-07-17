@@ -87,6 +87,19 @@ export class Injector {
     return injector;
   }
 
+  resolveAliasToken<T extends Token>(token: T) {
+    // determine whether the Token is alias
+    let [aliasCreator] = this.getCreator(token);
+
+    while (aliasCreator && isAliasCreator(aliasCreator)) {
+      token = aliasCreator.useAlias as T;
+
+      [aliasCreator] = this.getCreator(token);
+    }
+
+    return token;
+  }
+
   get<T extends ConstructorOf<any>>(token: T, args?: ConstructorParameters<T>, opts?: InstanceOpts): TokenResult<T>;
   get<T extends Token>(token: T, opts?: InstanceOpts): TokenResult<T>;
   get<T extends Token, K extends ConstructorOf<any> = ConstructorOf<any>>(
@@ -103,11 +116,7 @@ export class Injector {
       args = undefined;
     }
 
-    // 如果是 AliasCreator，将 Token 换成新的即可
-    const [mayAlias] = this.getCreator(token);
-    if (mayAlias && isAliasCreator(mayAlias)) {
-      token = mayAlias.target as T;
-    }
+    token = this.resolveAliasToken(token);
 
     let creator: InstanceCreator | null = null;
     let injector: Injector = this;
@@ -298,15 +307,15 @@ export class Injector {
   }
 
   protected getTagToken(token: Token, tag: Tag): Token | undefined | null {
-    const tokenMap: Map<Token, Token> = this.tagMatrix.get(tag) || new Map();
+    const tokenMap = this.tagMatrix.get(tag);
 
-    if (tokenMap.has(token)) {
+    if (tokenMap && tokenMap.has(token)) {
       return tokenMap.get(token);
     } else if (this.parent) {
       return this.parent.getTagToken(token, tag);
-    } else {
-      return null;
     }
+
+    return null;
   }
 
   private setProviders(providers: Provider[], opts: AddProvidersOpts = {}) {
@@ -315,16 +324,17 @@ export class Injector {
       const token = Helper.hasTag(provider) ? this.exchangeToken(originToken, provider.tag) : originToken;
       const current = opts.deep ? this.getCreator(token)[0] : this.creatorMap.get(token);
 
-      const isOverride = [
-        // 先判断 provider 是否有 override 定义
+      const shouldBeSet = [
+        // use provider's override attribute.
         Helper.isTypeProvider(provider) ? false : provider.override,
-        // 判断这是否是一次 override 强制行为
+        // use opts.override. The user explicitly call `overrideProviders`.
         opts.override,
-        // 如果没有当前 provider 或者当前值是默认对象，执行覆盖
+        // if this token do not have corresponding creator, use override
+        // if the creator is default(it is a fallback value), it means we can override it.
         !current || current.isDefault,
       ].some(Boolean);
 
-      if (isOverride) {
+      if (shouldBeSet) {
         const creator = Helper.parseCreatorFromProvider(provider);
 
         this.creatorMap.set(token, creator);
@@ -367,7 +377,7 @@ export class Injector {
   }
 
   private getCreator(token: Token): [InstanceCreator | null, Injector] {
-    const creator = this.creatorMap.get(token) || null;
+    const creator = this.creatorMap.get(token);
     if (creator) {
       return [creator, this];
     }
