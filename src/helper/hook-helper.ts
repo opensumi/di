@@ -507,11 +507,11 @@ export type IHookMetadata = Array<{
   options: IHookOptions;
 }>;
 
-export function makeAsAspect(target: object) {
+export function markAsAspect(target: object) {
   Reflect.defineMetadata(ASPECT_KEY, true, target);
 }
 
-export function makeAsHook(
+export function markAsHook(
   target: object,
   prop: MethodName,
   type: HookType,

@@ -13,7 +13,7 @@ import {
   IAfterReturningAspectHookFunction,
   IAfterThrowingAspectHookFunction,
 } from './declare';
-import { makeAsAspect, makeAsHook } from './helper';
+import { markAsAspect, markAsHook } from './helper';
 
 /**
  * 装饰一个 Class 是否是可以被依赖注入
@@ -165,7 +165,7 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
  */
 export function Aspect() {
   return (target: any) => {
-    makeAsAspect(target);
+    markAsAspect(target);
   };
 }
 
@@ -189,7 +189,7 @@ export function Before<ThisType = any, Args extends any[] = any, Result = any>(
     target: T,
     property: K,
   ) => {
-    makeAsHook(target, property, HookType.Before, token, method, options);
+    markAsHook(target, property, HookType.Before, token, method, options);
   };
 }
 
@@ -213,7 +213,7 @@ export function After<ThisType = any, Args extends any[] = any, Result = any>(
     target: T,
     property: K,
   ) => {
-    makeAsHook(target, property, HookType.After, token, method, options);
+    markAsHook(target, property, HookType.After, token, method, options);
   };
 }
 
@@ -245,7 +245,7 @@ export function Around<ThisType = any, Args extends any[] = any, Result = any>(
     target: T,
     property: K,
   ) => {
-    makeAsHook(target, property, HookType.Around, token, method, options);
+    markAsHook(target, property, HookType.Around, token, method, options);
   };
 }
 
@@ -270,7 +270,7 @@ export function AfterReturning<ThisType = any, Args extends any[] = any, Result 
     target: T,
     property: K,
   ) => {
-    makeAsHook(target, property, HookType.AfterReturning, token, method, options);
+    markAsHook(target, property, HookType.AfterReturning, token, method, options);
   };
 }
 
@@ -295,6 +295,6 @@ export function AfterThrowing<ThisType = any, Args extends any[] = any, Result =
     target: T,
     property: K,
   ) => {
-    makeAsHook(target, property, HookType.AfterThrowing, token, method, options);
+    markAsHook(target, property, HookType.AfterThrowing, token, method, options);
   };
 }
