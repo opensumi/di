@@ -87,8 +87,10 @@ export class Injector {
     return injector;
   }
 
+  /**
+   * If the token is an alias, find the finally token
+   */
   resolveAliasToken<T extends Token>(token: T) {
-    // determine whether the Token is alias
     let [aliasCreator] = this.getCreator(token);
 
     while (aliasCreator && isAliasCreator(aliasCreator)) {
@@ -338,8 +340,19 @@ export class Injector {
         const creator = Helper.parseCreatorFromProvider(provider);
 
         this.creatorMap.set(token, creator);
+        if (isAliasCreator(creator)) {
+          // Make sure there are no cycles
+          const paths = [token, creator.useAlias];
+          let [aliasCreator] = this.getCreator(creator.useAlias);
 
-        if (isClassCreator(creator)) {
+          while (aliasCreator && isAliasCreator(aliasCreator)) {
+            if (paths.includes(aliasCreator.useAlias)) {
+              throw InjectorError.aliasCircularError(paths, aliasCreator.useAlias);
+            }
+            paths.push(aliasCreator.useAlias);
+            [aliasCreator] = this.getCreator(aliasCreator.useAlias);
+          }
+        } else if (isClassCreator(creator)) {
           const domain = creator.opts.domain;
           if (domain != null) {
             const domains = Array.isArray(domain) ? domain : [domain];

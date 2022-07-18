@@ -1,4 +1,5 @@
 import { asSingleton, Autowired, Inject, Injectable, Injector } from '../../src';
+import { aliasCircularError } from '../../src/error';
 
 describe('useAlias is work', () => {
   it('can alias useValue', () => {
@@ -59,7 +60,7 @@ describe('useAlias is work', () => {
     const bb = injector.get(tokenB);
     expect(aa()).toEqual(bb());
   });
-  it('can resolve multilayer alias', () => {
+  it('can resolve nested alias', () => {
     const injector = new Injector();
     const single1 = { company: 'AntGroup' };
     const tokenA = Symbol('tokenA');
@@ -84,5 +85,31 @@ describe('useAlias is work', () => {
     expect(aa).toBe(bb);
     const cc = injector.get(tokenC);
     expect(aa).toBe(cc);
+  });
+  it('can detect useAlias Token registration cycle', () => {
+    const injector = new Injector();
+    const single1 = { company: 'AntGroup' };
+    const tokenA = Symbol('tokenA');
+    const tokenB = Symbol('tokenB');
+    const tokenC = Symbol('tokenC');
+
+    expect(() => {
+      injector.addProviders(
+        {
+          token: tokenA,
+          useValue: single1,
+        },
+        {
+          token: tokenB,
+          useAlias: tokenC,
+        },
+        {
+          token: tokenC,
+          useAlias: tokenB,
+        },
+      );
+      // Because tokenC is added later, so the first one in the array is tokenC, and tokenC alias to tokenB.
+      // So the cycle is C **alias to** B **alias to** C
+    }).toThrowError(aliasCircularError([tokenC, tokenB], tokenC));
   });
 });
