@@ -62,6 +62,6 @@ export function circularError(target: object, ctx: Context) {
 
 export function aliasCircularError(paths: Token[], current: Token) {
   return new Error(
-    `Register AliasProvider cycle detected! ${[...paths, current].map((v) => stringify(v)).join(' -> ')}`,
+    `useAlias registration cycle detected! ${[...paths, current].map((v) => stringify(v)).join(' -> ')}`,
   );
 }
