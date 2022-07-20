@@ -59,3 +59,9 @@ export function circularError(target: object, ctx: Context) {
 
   return new Error(`Detected circular dependencies when creating ${stringify(target)}. ` + traceResult);
 }
+
+export function aliasCircularError(paths: Token[], current: Token) {
+  return new Error(
+    `useAlias registration cycle detected! ${[...paths, current].map((v) => stringify(v)).join(' -> ')}`,
+  );
+}
