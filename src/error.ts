@@ -32,7 +32,7 @@ export function notInjectError(target: object, index: number) {
   );
 }
 
-export function tokenInvalidError(target: object, key: string | symbol, token: any) {
+export function tokenInvalidError(target: object, key: Token, token: any) {
   const tokenType = String(token);
   const reason =
     '(1) Please check your `tsconfig.json` to enable `emitDecoratorMetadata` and `experimentalDecorators`. (2) Has not defined token cause TS compiled to Object. (3) Has circular dependencies cause reading property error.';

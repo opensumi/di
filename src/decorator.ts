@@ -54,8 +54,8 @@ interface InjectOpts {
  * 把构造函数的参数和一个特定的注入标记关联起来
  * @param token
  */
-export function Inject(token: string | symbol, opts: InjectOpts = {}): ParameterDecorator {
-  return (target, _: string | symbol, index: number) => {
+export function Inject(token: Token, opts: InjectOpts = {}): ParameterDecorator {
+  return (target, _: Token, index: number) => {
     Helper.setParameterIn(target, { ...opts, token }, index);
   };
 }
@@ -64,8 +64,8 @@ export function Inject(token: string | symbol, opts: InjectOpts = {}): Parameter
  * 构造函数可选依赖的装饰器
  * @param token
  */
-export function Optional(token: string | symbol = Symbol()): ParameterDecorator {
-  return (target, _: string | symbol, index: number) => {
+export function Optional(token: Token = Symbol()): ParameterDecorator {
+  return (target, _: Token, index: number) => {
     Helper.setParameterIn(target, { default: undefined, token }, index);
   };
 }
