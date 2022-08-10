@@ -18,7 +18,7 @@
 ## Table of Contents
 
 - [Install](#install)
-- [Usage](#usage)
+- [Quick Start](#quick-start)
 - [API](#API)
 - [Example Readmes](#example-readmes)
 - [Related Efforts](#related-efforts)
@@ -30,13 +30,14 @@ npm install @opensumi/di --save
 yarn add @opensumi/di
 ```
 
-## Usage
+## Quick Start
 
 Let's start with a simple example:
 
 ```ts
 import { Injector } from '@opensumi/di';
 
+// we create a new Injector instance
 const injector = new Injector();
 
 const TokenA = Symbol('TokenA');
@@ -56,7 +57,7 @@ injector.addProviders({
 });
 ```
 
-Here we use a `ValueProvider`, and its role is to provide a value:
+We use a `ValueProvider` here, and its role is to provide a value:
 
 ```ts
 interface ValueProvider {
@@ -264,28 +265,28 @@ const b = injector.get(B);
 console.log(b.a instanceof A); // print 'Create A'; print 'true'
 ```
 
-### 单例与多例的用法
+### Use Singleton pattern Or Multiton pattern
 
 ```ts
 @Injectable()
-class Single {
+class Singleton {
   constructor() {}
 }
 
 @Injectable({ multiple: true })
-class Multiple {
+class Multiton {
   constructor() {}
 }
 
 const injector = new Injector();
-injector.addProviders(Single, Multiple);
+injector.addProviders(Singleton, Multiton);
 
-const single1 = injector.get(Single);
-const single2 = injector.get(Single);
+const single1 = injector.get(Singleton);
+const single2 = injector.get(Singleton);
 console.log(single1 === single2); // print 'true'
 
-const multiple1 = injector.get(Multiple);
-const multiple2 = injector.get(Multiple);
+const multiple1 = injector.get(Multiton);
+const multiple2 = injector.get(Multiton);
 console.log(multiple1 === multiple2); // print 'false'
 ```
 
