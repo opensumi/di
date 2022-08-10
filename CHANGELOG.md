@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.0](https://github.com/opensumi/di/compare/v1.7.0...v1.8.0) (2022-08-10)
+
+
+### Features
+
+* support detect useAlias registration cycle ([#46](https://github.com/opensumi/di/issues/46)) ([7b00e61](https://github.com/opensumi/di/commit/7b00e612639459401f9bc8349f63be16f94466a6))
+
 ## [1.7.0](https://github.com/opensumi/di/compare/v1.6.0...v1.7.0) (2022-07-17)
 
 
