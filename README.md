@@ -20,7 +20,7 @@
 - [Install](#install)
 - [Quick Start](#quick-start)
 - [API](#API)
-- [Example Readmes](#example-readmes)
+- [Examples](#examples)
 - [Related Efforts](#related-efforts)
 
 ## Install
@@ -453,7 +453,7 @@ markInjectable(Editor);
 
 You can use this function to mark some Class as Injectable.
 
-## Example Readmes
+## Examples
 
 See More Examples [in the test case](test/use-case.test.ts).
 
