@@ -148,6 +148,21 @@ describe('test injector work', () => {
       const c = injector.get(C);
       expect(injector.hasInstance(c)).toBe(false);
     });
+
+    it('hasInstance 支持 primitive 的判断', () => {
+      const token = 'token';
+      const instance = true;
+      const provider = { token, useValue: instance };
+      const injector = new Injector([provider, B, C]);
+
+      expect(injector.hasInstance(instance)).toBe(true);
+
+      const b = injector.get(B);
+      expect(injector.hasInstance(b)).toBe(true);
+
+      const c = injector.get(C);
+      expect(injector.hasInstance(c)).toBe(false);
+    });
   });
 
   describe('addProviders', () => {

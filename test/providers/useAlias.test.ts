@@ -1,4 +1,4 @@
-import { asSingleton, Autowired, Inject, Injectable, Injector } from '../../src';
+import { Injectable, Injector } from '../../src';
 import { aliasCircularError } from '../../src/error';
 
 describe('useAlias is work', () => {

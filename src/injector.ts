@@ -40,7 +40,7 @@ export class Injector {
   parent?: Injector;
 
   private tagMatrix = new Map<Tag, Map<Token, Token>>();
-  private domainMap = new Map<string | symbol, Token[]>();
+  private domainMap = new Map<Domain, Token[]>();
   private opts: InjectorOpts;
 
   constructor(providers: Provider[] = [], opts: InjectorOpts = {}, parent?: Injector) {
@@ -89,6 +89,8 @@ export class Injector {
 
   /**
    * If the token is an alias, find the finally token
+   *
+   * the cycles check is done when register alias provider
    */
   resolveAliasToken<T extends Token>(token: T) {
     let [aliasCreator] = this.getCreator(token);
@@ -123,21 +125,19 @@ export class Injector {
     let creator: InstanceCreator | null = null;
     let injector: Injector = this;
 
-    // 如果传递了 args 参数，一定是对 class 进行多例创建
+    // If user passed the args parameter, he want to instantiate the class
     if (args) {
-      // 此时一定是使用多例配置
+      // At this time, it must not be singleton
       opts = {
         ...opts,
         multiple: true,
       };
-
-      // 尝试直接从当前已有的实现去解析创建器，且 injector 一直使用当前上下文
+      // here we do not use the parsed injector(the second return value of `getCreator`)
       [creator] = this.getCreator(token);
 
       if (!creator) {
-        // 如果没有找到 Creator，那么：
-        // 1. 该 Class 没有使用 Injectable 注解
-        //    我们也允许非 Injectable 的 Class 当做 Token，直接实例化该 Class
+        // if there is no specific Creator, then:
+        // 1. if token is a Class, we also allow the not-Injectable Class as Token, we just instantiate this Class
         if (isTypeProvider(token)) {
           creator = {
             opts: {},
@@ -155,7 +155,7 @@ export class Injector {
         [creator, injector] = this.getCreator(tagToken);
       }
 
-      // 如果没有得到创建器，就从单纯的 Token 去查找创建器
+      // if there is no Creator, 就从单纯的 Token 去查找创建器
       if (!creator) {
         [creator, injector] = this.getCreator(token);
       }
@@ -354,7 +354,7 @@ export class Injector {
           }
         } else if (isClassCreator(creator)) {
           const domain = creator.opts.domain;
-          if (domain != null) {
+          if (domain) {
             const domains = Array.isArray(domain) ? domain : [domain];
             this.addToDomain(domains, token);
           }
