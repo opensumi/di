@@ -21,6 +21,7 @@
 - [Quick Start](#quick-start)
 - [API](#API)
 - [Examples](#examples)
+- [FAQ](#faq)
 - [Related Efforts](#related-efforts)
 
 ## Install
@@ -456,6 +457,10 @@ You can use this function to mark some Class as Injectable.
 ## Examples
 
 See More Examples [in the test case](test/use-case.test.ts).
+
+## FAQ
+
+Please see [FAQ.md](docs/faq.md).
 
 ## Related Efforts
 
