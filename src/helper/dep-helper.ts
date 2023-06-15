@@ -26,7 +26,7 @@ function getAllDepsWithScanned(targets: Token[], scanned: Token[]): Token[] {
       scanned.push(target);
     }
 
-    // 查找本身的依赖，构造函数的依赖，依赖的依赖
+    // Find the dependencies of the target, the dependencies of the constructor, and the dependencies of the dependencies
     const targetDeps = getDeps(target);
     const parameters = getParameterDeps(target);
     const spreadDeeps = getAllDepsWithScanned(targetDeps, scanned);

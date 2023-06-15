@@ -31,14 +31,14 @@ export function applyHooks<T = any>(instance: T, token: Token, hooks: IHookStore
     return instance;
   }
   if (!hooks.hasHooks(token)) {
-    // fallback
-    // experimental 特性， 不影响原来使用
-    // 但是这样要求hook添加必须在instance创建前
     return instance;
   }
-  // 使用 proxy 模式存在一个弊端，
-  // 就是如果class的方法是使用 a = () => this.b() 类似这种 bound function 写的, 并且内部有this调用的函数，
-  // 此处的 b() 无法被正确拦截
+
+  // One disadvantage of using a proxy is that it can be difficult to intercept certain methods
+  // that are defined using bound functions.
+  //
+  // If the methods of a class defined using a bound function such as a = () => this.b() are used,
+  // the b() function cannot be intercepted correctly.
   const hookedCache: Map<MethodName, any> = new Map();
   const proxy = new Proxy(instance as any, {
     get: (target, prop) => {
@@ -60,8 +60,8 @@ export function applyHooks<T = any>(instance: T, token: Token, hooks: IHookStore
 }
 
 /**
- * 使用hooks将函数组装成一个hook后的最终函数
- * @param rawMethod 原始方法
+ * To use hooks to assemble a final wrapped function
+ * @param rawMethod the original method
  * @param hooks hooks
  */
 export function createHookedFunction<ThisType, Args extends any[], Result>(
@@ -77,13 +77,13 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
   // Onion model
   hooks.forEach((h) => {
     if (isBeforeHook(h)) {
-      // 对于 before hook ，先来的先执行
+      // for the "before hook", the first one to come is executed first.
       beforeHooks.push(h);
     } else if (isAfterHook(h)) {
-      // 对于 after hook ，后来的先执行
+      // For the "after hook", the one that comes later is executed first.
       afterHooks.unshift(h);
     } else if (isAroundHook(h)) {
-      // around 后来的先执行
+      // For the "around hook", the one that comes later is executed first.
       aroundHooks.unshift(h);
     } else if (isAfterReturningHook(h)) {
       afterReturningHooks.push(h);
@@ -92,7 +92,6 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
     }
   });
 
-  // around 在最外层, 后来的先执行
   return function (this: any, ...args: Args) {
     let promise: Promise<any> | undefined;
     let ret: Result = undefined as any;
@@ -104,9 +103,10 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
       runAroundHooks();
 
       if (promise) {
+        // If there is one hook that is asynchronous, convert all of them to asynchronous.
         promise = promise.then(() => {
           return ret;
-        }); // 有一个hook为异步，全部转换为异步
+        });
         return promise as any;
       } else {
         return ret;
@@ -128,7 +128,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
         }
 
         if (p) {
-          // 是异步, 此时使用promise的reject和resolve
+          // p is a promise, use Promise's reject and resolve at this time
           p.then(
             () => {
               runAfterReturning();
@@ -178,10 +178,10 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
       function runAroundHookAtIndex(index: number): Promise<void> | undefined {
         const aroundHook = aroundHooks[index];
         if (!aroundHook) {
-          // 最内层
+          // the innermost layer
           wrapped();
           if (promise) {
-            // 说明在before和after的hook中产生了异步
+            // it seems that asynchronous operations are being performed within the "before" and "after" hooks.
             return promise;
           }
         } else {
@@ -284,7 +284,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
         try {
           hook.hook(afterReturningJoinPoint);
         } catch (e) {
-          // no op, 忽略AfterReturning中的错误
+          // no op, ignore error on AfterReturning
         }
       });
     }
@@ -312,7 +312,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
         try {
           hook.hook(afterThrowingJoinPoint);
         } catch (e) {
-          // no op, 忽略AfterThrowing中的错误
+          // no op, ignore error on AfterThrowing
         }
       });
     }

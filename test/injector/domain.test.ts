@@ -7,7 +7,7 @@ describe('domain', () => {
     injector = new Injector([]);
   });
 
-  it('没有描述 domain 的情况下，getFromDomain 不会报错', () => {
+  it('if domain is not found, getFromDomain will not throw error', () => {
     @Injectable()
     class T {}
 
@@ -16,10 +16,11 @@ describe('domain', () => {
     expect(result).toEqual([]);
   });
 
-  it('有描述 domain，get 之后可以从 domain 获取', () => {
+  it('if domain is registered, we can get instance through domain', () => {
     @Injectable({ domain: 'domain' })
     class T {}
 
+    // T is not registered in injector
     const result = injector.getFromDomain('domain');
     expect(result).toEqual([]);
     const a = injector.get(T);
@@ -28,7 +29,7 @@ describe('domain', () => {
     expect(result2).toEqual([a]);
   });
 
-  it('使用 string 作为 domain', () => {
+  it('Use string as domain', () => {
     @Injectable({ domain: 'domain' })
     class T {}
 
@@ -42,7 +43,7 @@ describe('domain', () => {
     expect(result[1]).toBeInstanceOf(K);
   });
 
-  it('使用 Token 作为 domain', () => {
+  it('Use Token as domain', () => {
     const domain = Symbol('domain');
 
     @Injectable({ domain })
@@ -58,7 +59,7 @@ describe('domain', () => {
     expect(result[1]).toBeInstanceOf(K);
   });
 
-  it('交叉多个 Domain', () => {
+  it('cross multiple domains', () => {
     @Injectable({ domain: ['domain1', 'domain2'] })
     class T {}
 
