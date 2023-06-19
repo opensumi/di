@@ -1,21 +1,6 @@
 # @opensumi/di
 
-[中文文档](./README-zh_CN.md)
-
-[![CI](https://github.com/opensumi/di/actions/workflows/ci.yml/badge.svg)](https://github.com/opensumi/di/actions/workflows/ci.yml) [![NPM Version][npm-image]][npm-url] [![NPM downloads][download-image]][download-url] [![Test Coverage][test-image]][test-url] [![License][license-image]][license-url]
-
-[npm-image]: https://img.shields.io/npm/v/@opensumi/di.svg
-[npm-url]: https://www.npmjs.com/package/@opensumi/di
-[download-image]: https://img.shields.io/npm/dm/@opensumi/di.svg
-[download-url]: https://npmjs.org/package/@opensumi/di
-[license-image]: https://img.shields.io/npm/l/@opensumi/di.svg
-[license-url]: https://github.com/opensumi/di/blob/main/LICENSE
-[test-image]: https://codecov.io/gh/opensumi/di/branch/main/graph/badge.svg?token=07JAPLU957
-[test-url]: https://codecov.io/gh/opensumi/di
-
-> Inspired By [Angular](https://angular.io/guide/dependency-injection).
-
-This tool will help you achieve dependency inversion effectively without concerning the details of object instantiation. Additionally, since object instantiation is done within a registry, both the factory pattern and singleton pattern can be easily implemented.
+这个工具将会帮助你很好的帮助你实现依赖反转，而不在关系那些对象实例化的细节。同时，因为对象的实例化在注册器中进行创建，所以工厂模式和单例模式都很容易实现。
 
 ## Table of Contents
 
@@ -35,12 +20,12 @@ yarn add @opensumi/di
 
 ## Quick Start
 
-Let's start with a simple example:
+让我们从一个简单的例子开始:
 
 ```ts
 import { Injector } from '@opensumi/di';
 
-// we create a new Injector instance
+// 创建一个 Injector，这是一个 IoC 容器
 const injector = new Injector();
 
 const TokenA = Symbol('TokenA');
@@ -89,11 +74,11 @@ injector.get(TokenA) === 1;
 
 ### Providers
 
-Here are all the providers we have:
+这是目前支持的 Provider 类型:
 
 #### ClassProvider
 
-Declare a provider that includes a constructor and its token.
+定义一个 Token 使用某个特定的构造函数的时候会用到的 Provider。
 
 ```ts
 interface ClassProvider {
@@ -102,7 +87,7 @@ interface ClassProvider {
 }
 ```
 
-After dependency inversion, constructors depending on abstractions instead of instances can be highly effective. For example, consider the following example:
+在依赖反转之后，构造函数都依赖抽象而不依赖实例的时候会非常有效。比如下面的例子：
 
 ```ts
 interface Drivable {
@@ -121,7 +106,7 @@ class Student {
 }
 ```
 
-The student object depends on a drivable mode of transportation, which can be provided either as a bicycle or a car during object creation:
+学生对象依赖的是一个可驾驶的交通工具，可以在创建对象的时候提供一个自行车，也可以在创建的时候提供一个汽车：
 
 ```ts
 @Injectable()
@@ -162,7 +147,7 @@ injector.get(TokenA) === 1; // true
 
 #### FactoryProvider
 
-Declare a provider, and later you can use this token to invoke this factory function.
+提供一个函数进行对象实例创建的 Provider。
 
 ```ts
 interface FactoryFunction<T = any> {
@@ -174,7 +159,7 @@ interface FactoryProvider {
 }
 ```
 
-It also provides some helper functions for the factory pattern:
+同时也提供了一些工厂模式的帮助函数：
 
 1. `asSingleton`
 
@@ -219,11 +204,9 @@ injector.get(TokenA) === 1; // true
 injector.get(TokenB) === 1; // true
 ```
 
-### Perform constructor injection
+### 对构造函数进行注入
 
-In this example, you can see the `class B` depends on `class A`,And declare this dependency relationship in the parameter list of the constructor.:
-
-So, during the instantiation process of `class B`, the Injector will automatically create the `A` instance and inject it into the `B` instance.
+在下面这个例子里，你会发现 `class B` 依赖于 `class A`，并且在构造函数的参数列表中声明了这个依赖关系，所以在 `B` 的实例创建过程中，Injector 会自动创建 `A` 的实例，并且注入到 `B` 的实例中。
 
 ```ts
 @Injectable()
@@ -241,11 +224,11 @@ class B {
 const injector = new Injector();
 injector.addProviders(A, B);
 
-const b = injector.get(B); // print 'Create A'
-console.log(b.a instanceof A); // print 'true'
+const b = injector.get(B); // 打印 'Create A'
+console.log(b.a instanceof A); // 打印 'true'
 ```
 
-### Use `@Autowired` for dynamic injection
+### 使用 `@Autowired()` 进行动态注入
 
 ```ts
 @Injectable()
@@ -265,10 +248,10 @@ const injector = new Injector();
 injector.addProviders(A, B);
 
 const b = injector.get(B);
-console.log(b.a instanceof A); // print 'Create A'; print 'true'
+console.log(b.a instanceof A); // 1. 打印 'Create A', 2. 打印 'true'
 ```
 
-### Use Singleton pattern Or Multiton pattern
+### 可以创建单例或者多例
 
 ```ts
 @Injectable()
@@ -293,7 +276,7 @@ const multiple2 = injector.get(Multiton);
 console.log(multiple1 === multiple2); // print 'false'
 ```
 
-### Depend on abstractions rather than implementations
+### 类型依赖抽象而不是依赖实现的用法
 
 ```ts
 const LOGGER_TOKEN = Symbol('LOGGER_TOKEN');
@@ -323,10 +306,10 @@ injector.addProviders({
 });
 
 const app = injector.get(App);
-console.log(app.logger instanceof LoggerImpl); // print 'true'
+console.log(app.logger instanceof LoggerImpl); // 打印 'true'
 ```
 
-### Use an abstract class as a Token
+### 使用抽象函数作为 Token 进行依赖注入
 
 ```ts
 abstract class Logger {
@@ -376,9 +359,9 @@ const a = injector.get(A);
 console.log(injector.hasInstance(a)); // print 'false'
 ```
 
-All constructor functions that need to be created by the Injector must be decorated with this decorator in order to work properly. Otherwise, an error will be thrown.
+所有需要被 Injector 创建的构造函数都应该使用这个装饰器修饰才可以正常使用，否则会报错。
 
-- multiple: Whether to enable the multiple instance mode or not, once the multiple instance mode is enabled, the Injector will not hold references to instance objects.
+- multiple: 是否启用多例模式，一旦启用了多例模式之后，Injector 将不会持有实例对象的引用。
 
 ### decorator: @Autowired
 
@@ -395,9 +378,9 @@ class B {
 }
 ```
 
-Decorating a property will allow the registry to dynamically create a dependency instance, which will only be created when it is accessed. For example, in the given example, the instance of class A will be created only when `b.a` is accessed.
+修饰一个属性会被注册器动态创建依赖实例，而这个依赖实例只有在被使用的时候才会被创建出来。比如上面的例子中，只有访问到 `b.a` 的时候，才会创建 A 的实例。
 
-> It's important to note that since `Autowired` depends on an instance of the `Injector`, only objects created by the `Injector` can use this decorator.
+> 需要注意的是，因为 Autowired 依赖着 Injector 的实例，所以只有从 Injector 创建出来的对象可以使用这个装饰器
 
 ### decorator: @Inject
 
@@ -414,7 +397,7 @@ class B {
 }
 ```
 
-When performing dependency injection in a constructor parameter, it is necessary to specify the decorator for the dependency token when a constructor depends on an abstraction that is passed into the constructor. In such cases, you will need to use this decorator.
+在构造函数进行依赖注入的时候，需要特别指定依赖 Token 的时候的装饰器。当一个构造函数依赖某个抽象，并且这个抽象是在构造函数中传递进来的时候，会需要使用这个装饰器。
 
 ### Injector.get
 
@@ -425,9 +408,7 @@ interface Injector<T extends Token> {
 }
 ```
 
-You can use this method to create an instance of a specific token from the `Injector`.
-
-if you pass a constructor as the first parameter and provide constructor arguments as the second parameter (if any), the Injector will directly create an instance of the constructor and apply dependency injection. In this case, the constructor does not need to be decorated with Injectable and can still create objects successfully. For example:
+从 Injector 获取一个对象实例的方法，如果传递的是一个构造函数，第二个参数可以传递构造函数 Arguments 数据，此时将会直接将构造函数创建实例返回，并附加依赖注入的功能，此时的构造函数不需要被 Injectable 装饰也能正常创建对象。例如下面这样：
 
 ```ts
 @Injectable()
