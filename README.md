@@ -2,7 +2,7 @@
 
 [中文文档](./README-zh_CN.md)
 
-[![CI](https://github.com/opensumi/di/actions/workflows/ci.yml/badge.svg)](https://github.com/opensumi/di/actions/workflows/ci.yml) [![NPM Version][npm-image]][npm-url] [![NPM downloads][download-image]][download-url] [![Test Coverage][test-image]][test-url] [![License][license-image]][license-url]
+[![CI](https://github.com/opensumi/di/actions/workflows/ci.yml/badge.svg)](https://github.com/opensumi/di/actions/workflows/ci.yml) [![NPM Version][npm-image]][npm-url] [![NPM downloads][download-image]][download-url] [![Test Coverage][test-image]][test-url] [![License][license-image]][license-url] [![Bundle size for @opensumi/di][pkg-size-img]][pkg-size]
 
 [npm-image]: https://img.shields.io/npm/v/@opensumi/di.svg
 [npm-url]: https://www.npmjs.com/package/@opensumi/di
@@ -12,6 +12,8 @@
 [license-url]: https://github.com/opensumi/di/blob/main/LICENSE
 [test-image]: https://codecov.io/gh/opensumi/di/branch/main/graph/badge.svg?token=07JAPLU957
 [test-url]: https://codecov.io/gh/opensumi/di
+[pkg-size]: https://pkg-size.dev/@opensumi/di
+[pkg-size-img]: https://pkg-size.dev/badge/bundle/43685
 
 > Inspired By [Angular](https://angular.io/guide/dependency-injection).
 
