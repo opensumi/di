@@ -16,7 +16,7 @@
     "release:beta": "npm run release -- --prerelease beta"
   },
   "dependencies": {
-    "reflect-metadata": "^0.1.13"
+    "@abraham/reflection": "^0.12.0"
   },
   "devDependencies": {
     "@commitlint/cli": "17.2.0",

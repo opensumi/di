@@ -7,7 +7,6 @@
     "declaration": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "charset": "utf8",
     "pretty": false,
     "noEmitOnError": false,
     "noFallthroughCasesInSwitch": true,

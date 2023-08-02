@@ -1,4 +1,4 @@
-import 'reflect-metadata';
+import '@abraham/reflection';
 import { InstanceOpts } from '../declare';
 import type { Injector } from '../injector';
 import { VERSION } from '../constants';
@@ -22,8 +22,8 @@ const defaultInstanceOpts: InstanceOpts = {};
 
 export function markInjectable(target: object, opts: InstanceOpts = defaultInstanceOpts) {
   // 合并的时候只合并当前对象的数据
-  const currentOpts = Reflect.getOwnMetadata(INJECTABLE_KEY, target);
-  Reflect.defineMetadata(INJECTABLE_KEY, { ...opts, ...currentOpts, version: VERSION }, target);
+  const currentOpts = Reflect.getOwnMetadata<InstanceOpts>(INJECTABLE_KEY, target);
+  Reflect.defineMetadata<InstanceOpts>(INJECTABLE_KEY, { ...opts, ...currentOpts, version: VERSION }, target);
 }
 
 export function getInjectableOpts(target: object): InstanceOpts | undefined {

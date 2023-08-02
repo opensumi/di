@@ -1,15 +1,15 @@
-import 'reflect-metadata';
+import '@abraham/reflection';
 
 function findConstructor(target: object) {
   return typeof target === 'object' ? target.constructor : target;
 }
 
-function getConstructorMetadata(metadataKey: any, target: object, propertyKey?: string | symbol) {
+function getConstructorMetadata<MetadataValue>(metadataKey: any, target: object, propertyKey?: string | symbol) {
   const constructor = findConstructor(target);
   if (propertyKey == null) {
-    return Reflect.getMetadata(metadataKey, constructor);
+    return Reflect.getMetadata<MetadataValue>(metadataKey, constructor);
   } else {
-    return Reflect.getMetadata(metadataKey, constructor, propertyKey);
+    return Reflect.getMetadata<MetadataValue>(metadataKey, constructor, propertyKey);
   }
 }
 
@@ -27,10 +27,10 @@ function defineConstructorMetadata(
   }
 }
 
-export function createConstructorMetadataManager(metadataKey: any) {
+export function createConstructorMetadataManager<MetadataValue>(metadataKey: any) {
   return {
-    get(target: object, propertyKey?: string | symbol) {
-      return getConstructorMetadata(metadataKey, target, propertyKey);
+    get(target: object, propertyKey?: string | symbol): MetadataValue | undefined {
+      return getConstructorMetadata<MetadataValue>(metadataKey, target, propertyKey);
     },
     set(metadataValue: any, target: object, propertyKey?: string | symbol) {
       return defineConstructorMetadata(metadataKey, metadataValue, target, propertyKey);

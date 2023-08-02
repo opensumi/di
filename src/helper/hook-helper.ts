@@ -1,4 +1,4 @@
-import 'reflect-metadata';
+import '@abraham/reflection';
 import {
   IHookStore,
   IDisposable,
@@ -519,7 +519,7 @@ export function markAsHook(
   targetMethod: MethodName,
   options: IHookOptions,
 ) {
-  let hooks = Reflect.getOwnMetadata(HOOK_KEY, target);
+  let hooks = Reflect.getOwnMetadata<IHookMetadata>(HOOK_KEY, target);
   if (!hooks) {
     hooks = [];
     Reflect.defineMetadata(HOOK_KEY, hooks, target);

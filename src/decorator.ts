@@ -1,4 +1,5 @@
-import 'reflect-metadata';
+import '@abraham/reflection';
+
 import * as Helper from './helper';
 import * as Error from './error';
 import {
@@ -55,7 +56,7 @@ interface InjectOpts {
  * @param token
  */
 export function Inject(token: Token, opts: InjectOpts = {}): ParameterDecorator {
-  return (target, _: Token, index: number) => {
+  return (target, _: string | symbol | undefined, index: number) => {
     Helper.setParameterIn(target, { ...opts, token }, index);
   };
 }
@@ -65,7 +66,7 @@ export function Inject(token: Token, opts: InjectOpts = {}): ParameterDecorator 
  * @param token
  */
 export function Optional(token: Token = Symbol()): ParameterDecorator {
-  return (target, _: Token, index: number) => {
+  return (target, _: string | symbol | undefined, index: number) => {
     Helper.setParameterIn(target, { default: undefined, token }, index);
   };
 }
@@ -78,9 +79,9 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
   return (target: object, propertyKey: string | symbol) => {
     const INSTANCE_KEY = Symbol('INSTANCE_KEY');
 
-    let realToken = token as Token;
+    let realToken = token as Token | undefined;
     if (realToken === undefined) {
-      realToken = Reflect.getMetadata('design:type', target, propertyKey);
+      realToken = Reflect.getMetadata<Token>('design:type', target, propertyKey);
     }
 
     if (!Helper.isToken(realToken)) {
@@ -101,7 +102,7 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
             throw Error.noInjectorError(this);
           }
 
-          this[INSTANCE_KEY] = injector.get(realToken, opts);
+          this[INSTANCE_KEY] = injector.get(realToken!, opts);
         }
 
         return this[INSTANCE_KEY];

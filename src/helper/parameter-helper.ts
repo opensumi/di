@@ -2,7 +2,7 @@ import { Token, ParameterOpts } from '../declare';
 import { createConstructorMetadataManager } from './reflect-helper';
 
 const PARAMETER_KEY = Symbol('PARAMETER_KEY');
-const parametersMeta = createConstructorMetadataManager(PARAMETER_KEY);
+const parametersMeta = createConstructorMetadataManager<Token[]>(PARAMETER_KEY);
 
 function getParameters(target: object): Token[] {
   return parametersMeta.get(target) || [];
@@ -13,9 +13,9 @@ export function setParameters(target: object, parameters: Token[]) {
 }
 
 const TOKEN_KEY = Symbol('TOKEN_KEY');
-const tokenMeta = createConstructorMetadataManager(TOKEN_KEY);
+const tokenMeta = createConstructorMetadataManager<(ParameterOpts | null)[]>(TOKEN_KEY);
 
-function getParameterTokens(target: object): Array<ParameterOpts | null> {
+function getParameterTokens(target: object): (ParameterOpts | null)[] {
   return tokenMeta.get(target) || [];
 }
 

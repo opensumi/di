@@ -4,7 +4,7 @@ import { getParameterDeps } from './parameter-helper';
 import { createConstructorMetadataManager } from './reflect-helper';
 
 const DEP_KEY = Symbol('DEP_KEY');
-const depMeta = createConstructorMetadataManager(DEP_KEY);
+const depMeta = createConstructorMetadataManager<Token[]>(DEP_KEY);
 
 function getDeps(target: object): Token[] {
   return depMeta.get(target) || [];
