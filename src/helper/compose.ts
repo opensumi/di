@@ -31,26 +31,23 @@ function dispatch<C>(
 
   stack.depth = idx;
 
-  const { length } = middlewareList;
-
   let maybePromise: Promise<void> | void;
-  if (idx <= length) {
-    if (idx < length) {
-      const middleware = middlewareList[idx];
 
-      maybePromise = middleware({
-        ...ctx,
-        proceed: () => {
-          return dispatch(middlewareList, idx + 1, stack, ctx);
-        },
-      } as Context<C>);
+  if (idx < middlewareList.length) {
+    const middleware = middlewareList[idx];
 
-      if (middleware.awaitPromise) {
-        maybePromise = Promise.resolve(maybePromise);
-      }
-    } else if (ctx.proceed) {
-      maybePromise = ctx.proceed();
+    maybePromise = middleware({
+      ...ctx,
+      proceed: () => {
+        return dispatch(middlewareList, idx + 1, stack, ctx);
+      },
+    } as Context<C>);
+
+    if (middleware.awaitPromise) {
+      maybePromise = Promise.resolve(maybePromise);
     }
+  } else if (ctx.proceed) {
+    maybePromise = ctx.proceed();
   }
 
   return maybePromise;
