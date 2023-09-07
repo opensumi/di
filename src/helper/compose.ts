@@ -26,7 +26,7 @@ function dispatch<C>(
   ctx: PureContext<C>,
 ): Promise<void> | void {
   if (idx <= stack.depth) {
-    throw new Error('joinPoint.proceed() called multiple times');
+    throw new Error('ctx.proceed() called multiple times');
   }
 
   stack.depth = idx;

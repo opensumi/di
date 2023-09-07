@@ -124,8 +124,6 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
         let p: Promise<Result> | undefined;
         if (promise) {
           p = promise;
-        } else if (ret && isPromiseLike(ret)) {
-          p = ret;
         }
 
         if (p) {
