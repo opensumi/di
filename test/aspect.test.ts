@@ -1,13 +1,9 @@
 import { Injectable, Aspect, Around, IAroundJoinPoint, Injector } from '../src';
 
 describe('aspect', () => {
-  jest.setTimeout(1000 * 1000);
-  /**
-   * 下面的 case 目前输出：
-   * TestAspect2 async 10
-   * 然后执行超时
-   */
-  it('异步的hook异常, promise无法结束', async () => {
+  jest.setTimeout(50 * 1000);
+
+  it('test around hook: union model1', async () => {
     function delay(value: number, time: number): Promise<number> {
       return new Promise((resolve) => {
         setTimeout(() => {
@@ -68,16 +64,7 @@ describe('aspect', () => {
     expect(result).toBe(3);
   });
 
-  /**
-   * 下面的 case 目前输出：
-   * TestAspect2 async 10
-   * TestAspect2 undefined
-   * TestClass invoke result undefined
-   * 到这里单测就停了，其实后续会再执行
-   * TestAspect undefined
-   * TestClass add result 3
-   */
-  it('异步的hook异常, 等待的promise错误', async () => {
+  it('test union model: union model2', async () => {
     function delay(value: number, time: number): Promise<number> {
       return new Promise((resolve) => {
         setTimeout(() => {
