@@ -131,7 +131,7 @@ export type MethodName = string | number | symbol;
 export enum HookType {
   Before = 'Before',
   After = 'After',
-  Around = 'Around ',
+  Around = 'Around',
   AfterReturning = 'AfterReturning',
   AfterThrowing = 'AfterThrowing',
 }

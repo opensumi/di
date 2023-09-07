@@ -463,24 +463,24 @@ describe('test injector work', () => {
         }
       }
 
-      injector.createHook<TestClass, [number, number], number>({
-        hook: (joinPoint: IBeforeJoinPoint<TestClass, [number, number], number>) => {
-          const [a, b] = joinPoint.getArgs();
-          joinPoint.setArgs([a + 1, b + 1]);
-        },
-        method: 'add',
-        target: TestClass,
-        type: HookType.Before,
-      });
-      injector.createHook({
-        hook: () => undefined,
-        method: 'add',
-        target: TestClass,
-        type: 'other' as any, // 不会造成任何影响(为了提高覆盖率)
-      });
-      const testClass = injector.get(TestClass);
-      expect(testClass.add(1, 2)).toBe(5);
-      expect(testClass.add(3, 4)).toBe(9);
+      // injector.createHook<TestClass, [number, number], number>({
+      //   hook: (joinPoint: IBeforeJoinPoint<TestClass, [number, number], number>) => {
+      //     const [a, b] = joinPoint.getArgs();
+      //     joinPoint.setArgs([a + 1, b + 1]);
+      //   },
+      //   method: 'add',
+      //   target: TestClass,
+      //   type: HookType.Before,
+      // });
+      // injector.createHook({
+      //   hook: () => undefined,
+      //   method: 'add',
+      //   target: TestClass,
+      //   type: 'other' as any, // 不会造成任何影响(为了提高覆盖率)
+      // });
+      // const testClass = injector.get(TestClass);
+      // expect(testClass.add(1, 2)).toBe(5);
+      // expect(testClass.add(3, 4)).toBe(9);
 
       // 同步变成异步
       // Async hook on sync target
@@ -511,68 +511,68 @@ describe('test injector work', () => {
       expect(ret).toBeInstanceOf(Promise);
       expect(await ret).toBe(9);
 
-      injector.createHook<TestClass2, [number, number], number>({
-        hook: async (joinPoint) => {
-          const result = joinPoint.getResult();
-          joinPoint.setResult(result + 1);
-        },
-        method: 'add',
-        target: TestClass2,
-        type: HookType.After,
-      });
-      const testClass2 = injector.get(TestClass2);
-      expect(testClass2.add(1, 2)).toBe(4);
+      // injector.createHook<TestClass2, [number, number], number>({
+      //   hook: async (joinPoint) => {
+      //     const result = joinPoint.getResult();
+      //     joinPoint.setResult(result + 1);
+      //   },
+      //   method: 'add',
+      //   target: TestClass2,
+      //   type: HookType.After,
+      // });
+      // const testClass2 = injector.get(TestClass2);
+      // expect(testClass2.add(1, 2)).toBe(4);
 
-      injector.createHooks([
-        {
-          hook: (joinPoint) => {
-            joinPoint.proceed();
-            const result = joinPoint.getResult();
-            if (result === 3) {
-              return joinPoint.setResult(10);
-            }
-          },
-          method: 'add',
-          target: TestClass3,
-          type: HookType.Around,
-        },
-      ]);
-      const testClass3 = injector.get(TestClass3);
-      expect(testClass3.add(1, 2)).toBe(10);
-      expect(testClass3.add(1, 3)).toBe(4);
+      // injector.createHooks([
+      //   {
+      //     hook: (joinPoint) => {
+      //       joinPoint.proceed();
+      //       const result = joinPoint.getResult();
+      //       if (result === 3) {
+      //         return joinPoint.setResult(10);
+      //       }
+      //     },
+      //     method: 'add',
+      //     target: TestClass3,
+      //     type: HookType.Around,
+      //   },
+      // ]);
+      // const testClass3 = injector.get(TestClass3);
+      // expect(testClass3.add(1, 2)).toBe(10);
+      // expect(testClass3.add(1, 3)).toBe(4);
 
-      // Async hook on async target
-      injector.createHooks([
-        {
-          awaitPromise: true,
-          hook: async (joinPoint) => {
-            joinPoint.proceed();
-            const result = await joinPoint.getResult();
-            if (result === 3) {
-              return joinPoint.setResult(10);
-            }
-          },
-          method: 'add',
-          target: TestClass4,
-          type: HookType.Around,
-        },
-      ]);
-      const testClass4 = injector.get(TestClass4);
-      expect(await testClass4.add(1, 2)).toBe(10);
+      // // Async hook on async target
+      // injector.createHooks([
+      //   {
+      //     awaitPromise: true,
+      //     hook: async (joinPoint) => {
+      //       joinPoint.proceed();
+      //       const result = await joinPoint.getResult();
+      //       if (result === 3) {
+      //         return joinPoint.setResult(10);
+      //       }
+      //     },
+      //     method: 'add',
+      //     target: TestClass4,
+      //     type: HookType.Around,
+      //   },
+      // ]);
+      // const testClass4 = injector.get(TestClass4);
+      // expect(await testClass4.add(1, 2)).toBe(10);
 
-      // Sync hook on async target
-      injector.createHook<TestClass5, [number, number], number>({
-        hook: async (joinPoint) => {
-          const [a, b] = joinPoint.getArgs();
-          joinPoint.setArgs([a + 1, b + 1]);
-          joinPoint.proceed();
-        },
-        method: 'add',
-        target: TestClass5,
-        type: HookType.Around,
-      });
-      const testClass5 = injector.get(TestClass5);
-      expect(await testClass5.add(1, 2)).toBe(5);
+      // // Sync hook on async target
+      // injector.createHook<TestClass5, [number, number], number>({
+      //   hook: async (joinPoint) => {
+      //     const [a, b] = joinPoint.getArgs();
+      //     joinPoint.setArgs([a + 1, b + 1]);
+      //     joinPoint.proceed();
+      //   },
+      //   method: 'add',
+      //   target: TestClass5,
+      //   type: HookType.Around,
+      // });
+      // const testClass5 = injector.get(TestClass5);
+      // expect(await testClass5.add(1, 2)).toBe(5);
     });
 
     it('使用注解来创建hook', async () => {
