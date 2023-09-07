@@ -1,12 +1,12 @@
 interface CallStack {
-  index: number;
+  depth: number;
 }
+
+export type Optional<T extends object, K extends keyof T = keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export type Context<T> = {
   proceed(): Promise<void> | void;
 } & T;
-
-export type Optional<T extends object, K extends keyof T = keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export type PureContext<T> = Optional<Context<T>, 'proceed'>;
 
@@ -21,27 +21,27 @@ export interface Middleware<C> {
 
 function dispatch<C>(
   middlewareList: Middleware<C>[],
-  depth: number,
+  idx: number,
   stack: CallStack,
   ctx: PureContext<C>,
 ): Promise<void> | void {
-  if (depth <= stack.index) {
+  if (idx <= stack.depth) {
     throw new Error('joinPoint.proceed() called multiple times');
   }
 
-  stack.index = depth;
+  stack.depth = idx;
 
   const { length } = middlewareList;
 
   let maybePromise: Promise<void> | void;
-  if (depth <= length) {
-    if (depth < length) {
-      const middleware = middlewareList[depth];
+  if (idx <= length) {
+    if (idx < length) {
+      const middleware = middlewareList[idx];
 
       maybePromise = middleware({
         ...ctx,
         proceed: () => {
-          return dispatch(middlewareList, depth + 1, stack, ctx);
+          return dispatch(middlewareList, idx + 1, stack, ctx);
         },
       } as Context<C>);
 
@@ -49,8 +49,6 @@ function dispatch<C>(
         maybePromise = Promise.resolve(maybePromise);
       }
     } else if (ctx.proceed) {
-      // 这里可以不用 Promise.resolve
-      // 但是为了兼容旧的表现，这里还是加上了
       maybePromise = ctx.proceed();
     }
   }
@@ -60,7 +58,7 @@ function dispatch<C>(
 
 export default function compose<C>(middlewareList: Middleware<C>[]): Composed<C> {
   return (ctx) => {
-    const stack = { index: -1 };
+    const stack: CallStack = { depth: -1 };
     return dispatch<C>(middlewareList, 0, stack, ctx);
   };
 }

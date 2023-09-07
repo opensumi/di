@@ -7,6 +7,8 @@ describe('di compose', () => {
       getResult(): any;
     }
 
+    const mockFn = jest.fn();
+
     const middleware1: Middleware<ExampleContext> = async (ctx) => {
       const name = ctx.getName();
       console.log(`middleware1: ${name}`);
@@ -27,18 +29,19 @@ describe('di compose', () => {
 
     const all = compose<ExampleContext>([middleware1, middleware2]);
     let ret = undefined as any;
-    all({
+    await all({
       getName() {
         return 'example';
       },
       async proceed() {
-        console.log('invoked');
+        mockFn();
         ret = 'final result';
       },
       getResult(): any {
         return ret;
       },
     });
+    expect(mockFn).toBeCalledTimes(1);
   });
 
   it('can worked with sync', async () => {
