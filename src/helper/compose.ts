@@ -36,15 +36,15 @@ function dispatch<C>(
   if (idx < middlewareList.length) {
     const middleware = middlewareList[idx];
 
-    maybePromise = middleware({
+    const t = middleware({
       ...ctx,
-      proceed: () => {
-        return dispatch(middlewareList, idx + 1, stack, ctx);
-      },
+      proceed: () => dispatch(middlewareList, idx + 1, stack, ctx),
     } as Context<C>);
 
     if (middleware.awaitPromise) {
-      maybePromise = Promise.resolve(maybePromise);
+      maybePromise = Promise.resolve(t);
+    } else {
+      maybePromise = t;
     }
   } else if (ctx.proceed) {
     maybePromise = ctx.proceed();
