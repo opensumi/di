@@ -17,19 +17,21 @@ describe('di compose', () => {
       console.log(`middleware1 result: ${result}`);
       console.log(`middleware1 after: ${name}`);
     };
+    middleware1.awaitPromise = true;
 
     const middleware2: Middleware<ExampleContext> = async (ctx) => {
       const name = ctx.getName();
       console.log(`middleware2: ${name}`);
       await ctx.proceed();
       const result = ctx.getResult();
+      expect(result).toBe('final result');
       console.log(`middleware2 result: ${result}`);
       console.log(`middleware2 after: ${name}`);
     };
-
+    middleware2.awaitPromise = true;
     const all = compose<ExampleContext>([middleware1, middleware2]);
     let ret = undefined as any;
-    await all({
+    const result = all({
       getName() {
         return 'example';
       },
@@ -41,6 +43,9 @@ describe('di compose', () => {
         return ret;
       },
     });
+    // if the first of the middleware await, the result will be a promise
+    expect(result).toBeInstanceOf(Promise);
+    await result;
     expect(mockFn).toBeCalledTimes(1);
   });
 
@@ -69,7 +74,7 @@ describe('di compose', () => {
 
     const all = compose<ExampleContext>([middleware1, middleware2]);
     let ret = undefined as any;
-    all({
+    const result = all({
       getName() {
         return 'example';
       },
@@ -81,6 +86,7 @@ describe('di compose', () => {
         return ret;
       },
     });
+    expect(result).toBeFalsy();
   });
   it('will throw error when call proceed twice', async () => {
     interface ExampleContext {

@@ -43,8 +43,6 @@ function dispatch<C>(
 
     if (middleware.awaitPromise) {
       maybePromise = Promise.resolve(t);
-    } else {
-      maybePromise = t;
     }
   } else if (ctx.proceed) {
     maybePromise = ctx.proceed();

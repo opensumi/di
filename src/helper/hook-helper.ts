@@ -22,7 +22,7 @@ import {
   IAfterThrowingJoinPoint,
   IInstanceHooks,
 } from '../declare';
-import compose from './compose';
+import compose, { Middleware } from './compose';
 
 export const HOOKED_SYMBOL = Symbol('COMMON_DI_HOOKED');
 
@@ -145,9 +145,9 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
 
     function runAroundHooks(): Promise<void> | void {
       const hooks = aroundHooks.map((v) => {
-        const fn = v.hook;
+        const fn = v.hook as Middleware<IAroundJoinPoint<ThisType, Args, Result>>;
         if (v.awaitPromise) {
-          (fn as any).awaitPromise = true;
+          fn.awaitPromise = true;
         }
         return fn;
       });
