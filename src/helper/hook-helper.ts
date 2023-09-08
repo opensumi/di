@@ -146,9 +146,6 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
     function runAroundHooks(): Promise<void> | void {
       const hooks = aroundHooks.map((v) => {
         const fn = v.hook as Middleware<IAroundJoinPoint<ThisType, Args, Result>>;
-        if (v.awaitPromise) {
-          fn.awaitPromise = true;
-        }
         return fn;
       });
       const composed = compose<IAroundJoinPoint<ThisType, Args, Result>>(hooks);
@@ -396,7 +393,6 @@ function runOneHook<
   P extends IJoinPoint,
 >(hook: T, joinPoint: P, promise: Promise<any> | undefined): Promise<void> | undefined {
   if (hook.awaitPromise) {
-    // 如果要求await hook，如果之前有promise，直接用，不然创建Promise给下一个使用
     promise = promise || Promise.resolve();
     promise = promise.then(() => {
       return hook.hook(joinPoint);

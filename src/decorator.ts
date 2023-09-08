@@ -12,6 +12,7 @@ import {
   IHookOptions,
   IAfterReturningAspectHookFunction,
   IAfterThrowingAspectHookFunction,
+  IAroundHookOptions,
 } from './declare';
 import { markAsAspect, markAsHook } from './helper';
 
@@ -239,7 +240,7 @@ export function After<ThisType = any, Args extends any[] = any, Result = any>(
 export function Around<ThisType = any, Args extends any[] = any, Result = any>(
   token: Token,
   method: MethodName,
-  options: IHookOptions = {},
+  options: IAroundHookOptions = {},
 ) {
   return <T extends Record<K, IAroundAspectHookFunction<ThisType, Args, Result>>, K extends MethodName>(
     target: T,

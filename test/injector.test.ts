@@ -544,7 +544,6 @@ describe('test injector work', () => {
       // Async hook on async target
       injector.createHooks([
         {
-          awaitPromise: true,
           hook: async (joinPoint) => {
             joinPoint.proceed();
             const result = await joinPoint.getResult();

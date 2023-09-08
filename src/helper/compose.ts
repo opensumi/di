@@ -16,7 +16,6 @@ export interface Composed<C> {
 
 export interface Middleware<C> {
   (ctx: Context<C>): Promise<void> | void;
-  awaitPromise?: boolean;
 }
 
 function dispatch<C>(
@@ -36,14 +35,10 @@ function dispatch<C>(
   if (idx < middlewareList.length) {
     const middleware = middlewareList[idx];
 
-    const t = middleware({
+    maybePromise = middleware({
       ...ctx,
       proceed: () => dispatch(middlewareList, idx + 1, stack, ctx),
     } as Context<C>);
-
-    if (middleware.awaitPromise) {
-      maybePromise = Promise.resolve(t);
-    }
   } else if (ctx.proceed) {
     maybePromise = ctx.proceed();
   }
