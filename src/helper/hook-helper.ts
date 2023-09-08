@@ -307,7 +307,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
       });
     }
 
-    function wrapped(): Result {
+    function wrapped(): Result | void | Promise<Result | void> {
       promise = runBeforeHooks();
 
       if (promise) {
@@ -330,9 +330,9 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
       if (promise) {
         return promise.then(() => {
           return ret;
-        }) as any; // 挂载了async hook方法
+        });
       } else {
-        return ret as any;
+        return ret;
       }
     }
   };
