@@ -22,6 +22,7 @@ import {
   IAfterThrowingJoinPoint,
   IInstanceHooks,
 } from '../declare';
+import compose, { Middleware } from './compose';
 
 export const HOOKED_SYMBOL = Symbol('COMMON_DI_HOOKED');
 
@@ -93,14 +94,14 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
   });
 
   return function (this: any, ...args: Args) {
-    let promise: Promise<any> | undefined;
+    let promise: Promise<any> | undefined | void;
     let ret: Result = undefined as any;
     let error: Error | undefined;
     const self = this;
     const originalArgs: Args = args;
 
     try {
-      runAroundHooks();
+      promise = runAroundHooks();
 
       if (promise) {
         // If there is one hook that is asynchronous, convert all of them to asynchronous.
@@ -123,8 +124,6 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
         let p: Promise<Result> | undefined;
         if (promise) {
           p = promise;
-        } else if (isPromiseLike(ret)) {
-          p = ret;
         }
 
         if (p) {
@@ -144,8 +143,13 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
       }
     }
 
-    function runAroundHooks(): Promise<void> | undefined {
-      let i = 0;
+    function runAroundHooks(): Promise<void> | void {
+      const hooks = aroundHooks.map((v) => {
+        const fn = v.hook as Middleware<IAroundJoinPoint<ThisType, Args, Result>>;
+        return fn;
+      });
+      const composed = compose<IAroundJoinPoint<ThisType, Args, Result>>(hooks);
+
       const aroundJoinPoint: IAroundJoinPoint<ThisType, Args, Result> = {
         getArgs: () => {
           return args;
@@ -162,35 +166,21 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
         getThis: () => {
           return self;
         },
-        proceed: () => {
-          i++;
-          promise = runAroundHookAtIndex(i);
-          return promise;
-        },
         setArgs: (_args: Args) => {
           args = _args;
         },
         setResult: (_ret: Result) => {
           ret = _ret;
         },
+        proceed: () => {
+          const maybePromise = wrapped();
+          if (maybePromise && isPromiseLike(maybePromise)) {
+            return maybePromise.then(() => Promise.resolve());
+          }
+        },
       };
 
-      function runAroundHookAtIndex(index: number): Promise<void> | undefined {
-        const aroundHook = aroundHooks[index];
-        if (!aroundHook) {
-          // the innermost layer
-          wrapped();
-          if (promise) {
-            // it seems that asynchronous operations are being performed within the "before" and "after" hooks.
-            return promise;
-          }
-        } else {
-          promise = runOneHook(aroundHook, aroundJoinPoint, promise);
-          return promise;
-        }
-      }
-
-      return runAroundHookAtIndex(0);
+      return composed(aroundJoinPoint);
     }
 
     function runBeforeHooks(): Promise<void> | undefined {
@@ -317,7 +307,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
       });
     }
 
-    function wrapped(): Result {
+    function wrapped(): Result | void | Promise<Result | void> {
       promise = runBeforeHooks();
 
       if (promise) {
@@ -340,9 +330,9 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
       if (promise) {
         return promise.then(() => {
           return ret;
-        }) as any; // 挂载了async hook方法
+        });
       } else {
-        return ret as any;
+        return ret;
       }
     }
   };
@@ -403,7 +393,6 @@ function runOneHook<
   P extends IJoinPoint,
 >(hook: T, joinPoint: P, promise: Promise<any> | undefined): Promise<void> | undefined {
   if (hook.awaitPromise) {
-    // 如果要求await hook，如果之前有promise，直接用，不然创建Promise给下一个使用
     promise = promise || Promise.resolve();
     promise = promise.then(() => {
       return hook.hook(joinPoint);

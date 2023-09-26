@@ -56,6 +56,23 @@ describe('test injector work', () => {
     expect(injector.get(INJECTOR_TOKEN)).toBe(injector);
   });
 
+  it('get INJECTOR_TOKEN in the constructor', () => {
+    const injector = new Injector();
+
+    @Injectable()
+    class E {
+      @Autowired(INJECTOR_TOKEN)
+      injector!: Injector;
+      constructor() {
+        expect(this.injector).toBe(injector);
+      }
+    }
+
+    const e = injector.get(E);
+    expect(e).toBeInstanceOf(E);
+    expect(injector.get(INJECTOR_TOKEN)).toBe(injector);
+  });
+
   it('使用多例模式创建对象', () => {
     const injector = new Injector([A, B, C]);
     const b1 = injector.get(B, { multiple: true });
@@ -544,7 +561,6 @@ describe('test injector work', () => {
       // Async hook on async target
       injector.createHooks([
         {
-          awaitPromise: true,
           hook: async (joinPoint) => {
             joinPoint.proceed();
             const result = await joinPoint.getResult();

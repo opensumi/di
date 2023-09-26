@@ -131,7 +131,7 @@ export type MethodName = string | number | symbol;
 export enum HookType {
   Before = 'Before',
   After = 'After',
-  Around = 'Around ',
+  Around = 'Around',
   AfterReturning = 'AfterReturning',
   AfterThrowing = 'AfterThrowing',
 }
@@ -257,5 +257,14 @@ export interface IDisposable {
 
 export interface IHookOptions {
   // Whether to wait for the hook (if the return value of the hook is a promise)
+  await?: boolean;
+}
+
+export interface IAroundHookOptions {
+  /**
+   * @deprecated AroundHook will always await the promise, it act as the union model.
+   *
+   * Whether to wait for the hook (if the return value of the hook is a promise)
+   */
   await?: boolean;
 }
