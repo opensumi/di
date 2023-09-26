@@ -1,6 +1,13 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+
+## [1.8.1](https://github.com/opensumi/di/compare/v1.8.0...v1.8.1) (2023-09-26)
+
+
+### Bug Fixes
+
+* union model in promise ([#107](https://github.com/opensumi/di/issues/107)) ([015f1e2](https://github.com/opensumi/di/commit/015f1e2562ecc56851c3eb496c101403e6e91324))
 
 ## [1.8.0](https://github.com/opensumi/di/compare/v1.7.0...v1.8.0) (2022-08-10)
 
