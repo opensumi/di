@@ -30,6 +30,7 @@ import {
   getHookMeta,
   isAliasCreator,
 } from './helper';
+import { EventEmitter } from './helper/event';
 
 export class Injector {
   id = Helper.createId('Injector');
@@ -268,6 +269,12 @@ export class Injector {
     return this.hookStore.createOneHook(hook);
   }
 
+  private disposeEventEmitter = new EventEmitter<Token>();
+
+  onceTokenDispose(key: Token, cb: () => void) {
+    return this.disposeEventEmitter.once(key, cb);
+  }
+
   disposeOne(token: Token, key = 'dispose') {
     const creator = this.creatorMap.get(token);
     if (!creator || creator.status === CreatorStatus.init) {
@@ -282,38 +289,29 @@ export class Injector {
 
     creator.instance = undefined;
     creator.status = CreatorStatus.init;
+
+    if (maybePromise && Helper.isPromiseLike(maybePromise)) {
+      maybePromise = maybePromise.then(() => {
+        this.disposeEventEmitter.emit(token);
+      });
+    } else {
+      this.disposeEventEmitter.emit(token);
+    }
     return maybePromise;
   }
 
   disposeAll(key = 'dispose') {
     const creatorMap = this.creatorMap;
-    const toDisposeInstances = new Set<any>();
 
-    const promises: Promise<unknown>[] = [];
+    const promises: (Promise<unknown> | undefined)[] = [];
 
-    // 还原对象状态
-    for (const creator of creatorMap.values()) {
-      const instance = creator.instance;
-
-      if (creator.status === CreatorStatus.done) {
-        if (instance && typeof instance[key] === 'function') {
-          toDisposeInstances.add(instance);
-        }
-
-        creator.instance = undefined;
-        creator.status = CreatorStatus.init;
-      }
+    for (const token of creatorMap.keys()) {
+      promises.push(this.disposeOne(token, key));
     }
 
-    // 执行销毁函数
-    for (const instance of toDisposeInstances) {
-      const maybePromise = instance[key]();
-      if (maybePromise) {
-        promises.push(maybePromise);
-      }
-    }
-
-    return Promise.all(promises);
+    return Promise.all(promises).then(() => {
+      this.disposeEventEmitter.dispose();
+    });
   }
 
   protected getTagToken(token: Token, tag: Tag): Token | undefined | null {

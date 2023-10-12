@@ -56,7 +56,7 @@ interface InjectOpts {
  * @param token
  */
 export function Inject(token: Token, opts: InjectOpts = {}): ParameterDecorator {
-  return (target, _: Token, index: number) => {
+  return (target, _: string | symbol | undefined, index: number) => {
     Helper.setParameterIn(target, { ...opts, token }, index);
   };
 }
@@ -66,7 +66,7 @@ export function Inject(token: Token, opts: InjectOpts = {}): ParameterDecorator 
  * @param token
  */
 export function Optional(token: Token = Symbol()): ParameterDecorator {
-  return (target, _: Token, index: number) => {
+  return (target, _: string | symbol | undefined, index: number) => {
     Helper.setParameterIn(target, { default: undefined, token }, index);
   };
 }
@@ -103,6 +103,9 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
           }
 
           this[INSTANCE_KEY] = injector.get(realToken, opts);
+          injector.onceTokenDispose(realToken, () => {
+            this[INSTANCE_KEY] = undefined;
+          });
         }
 
         return this[INSTANCE_KEY];

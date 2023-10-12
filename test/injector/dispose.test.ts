@@ -111,6 +111,37 @@ describe('dispose', () => {
     injector.disposeOne(DisposeCls);
     expect(spy).toBeCalledTimes(1);
   });
+
+  it("dispose an instance will also dispose it's instance", () => {
+    const spy = jest.fn();
+
+    @Injectable()
+    class A {
+      constructor() {
+        spy();
+      }
+    }
+
+    @Injectable()
+    class B {
+      @Autowired()
+      a!: A;
+    }
+
+    const instance = injector.get(B);
+    expect(injector.hasInstance(instance)).toBeTruthy();
+    expect(instance).toBeInstanceOf(B);
+    expect(instance.a).toBeInstanceOf(A);
+    expect(spy).toBeCalledTimes(1);
+
+    injector.disposeOne(A);
+    const creatorA = injector.creatorMap.get(A);
+    expect(creatorA!.status).toBe(CreatorStatus.init);
+    expect(creatorA!.instance).toBeUndefined();
+
+    expect(instance.a).toBeInstanceOf(A);
+    expect(spy).toBeCalledTimes(2);
+  });
 });
 
 describe('dispose asynchronous', () => {
@@ -217,5 +248,39 @@ describe('dispose asynchronous', () => {
 
     await injector.disposeOne(DisposeCls);
     expect(spy).toBeCalledTimes(1);
+  });
+
+  it("dispose an instance will also dispose it's instance", async () => {
+    const spy = jest.fn();
+
+    @Injectable()
+    class A {
+      constructor() {
+        spy();
+      }
+      async dispose() {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+    }
+
+    @Injectable()
+    class B {
+      @Autowired()
+      a!: A;
+    }
+
+    const instance = injector.get(B);
+    expect(injector.hasInstance(instance)).toBeTruthy();
+    expect(instance).toBeInstanceOf(B);
+    expect(instance.a).toBeInstanceOf(A);
+    expect(spy).toBeCalledTimes(1);
+
+    await injector.disposeOne(A);
+    const creatorA = injector.creatorMap.get(A);
+    expect(creatorA!.status).toBe(CreatorStatus.init);
+    expect(creatorA!.instance).toBeUndefined();
+
+    expect(instance.a).toBeInstanceOf(A);
+    expect(spy).toBeCalledTimes(2);
   });
 });
