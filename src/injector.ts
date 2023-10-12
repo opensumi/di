@@ -271,7 +271,7 @@ export class Injector {
 
   private disposeEventEmitter = new EventEmitter<Token>();
 
-  onceTokenDispose(key: Token, cb: () => void) {
+  onceTokenDisposed(key: Token, cb: () => void) {
     return this.disposeEventEmitter.once(key, cb);
   }
 
