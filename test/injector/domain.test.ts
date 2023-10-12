@@ -76,4 +76,14 @@ describe('domain', () => {
     const result3 = injector.getFromDomain('domain3');
     expect(result3.length).toBe(1);
   });
+  it('child injector can get instance from parent injector', () => {
+    @Injectable({ domain: 'domain' })
+    class T {}
+
+    injector.addProviders(T);
+    const childInjector = injector.createChild([]);
+    const result = childInjector.getFromDomain('domain');
+    expect(result.length).toBe(1);
+    expect(result[0]).toBeInstanceOf(T);
+  });
 });

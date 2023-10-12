@@ -180,11 +180,19 @@ export class Injector {
     return this.createInstance(ctx, opts, args as ConstructorParameters<K>);
   }
 
+  private getTokenForDomain(domain: Domain): Token[] {
+    let tokens = this.domainMap.get(domain) || [];
+    if (this.parent) {
+      tokens = tokens.concat(this.parent.getTokenForDomain(domain));
+    }
+    return tokens;
+  }
+
   getFromDomain<T = any>(...domains: Domain[]): Array<T> {
-    const tokenSet = new Set<any>();
+    const tokenSet = new Set<Token>();
 
     for (const domain of domains) {
-      const arr = this.domainMap.get(domain) || [];
+      const arr = this.getTokenForDomain(domain);
       arr.forEach((item) => tokenSet.add(item));
     }
 
