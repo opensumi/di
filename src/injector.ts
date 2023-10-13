@@ -316,7 +316,7 @@ export class Injector {
     for (const provider of providers) {
       const originToken = Helper.parseTokenFromProvider(provider);
       const token = Helper.hasTag(provider) ? this.exchangeToken(originToken, provider.tag) : originToken;
-      const current = opts.deep ? this.getCreator(token)[0] : this.creatorMap.get(token);
+      const current = opts.deep ? this.getCreator(token)[0] : this.resolveToken(token)[1];
 
       const shouldBeSet = [
         // use provider's override attribute.
@@ -333,7 +333,7 @@ export class Injector {
 
         this.creatorMap.set(token, creator);
         // use effect to Make sure there are no cycles
-        void this.getCreator(token);
+        void this.resolveToken(token);
 
         if (isClassCreator(creator)) {
           const domain = creator.opts.domain;
@@ -372,7 +372,7 @@ export class Injector {
     }
   }
 
-  private getCreator(token: Token): [InstanceCreator | null, Injector] {
+  private resolveToken(token: Token): [Token, InstanceCreator | undefined] {
     let creator = this.creatorMap.get(token);
 
     const paths = [token];
@@ -386,6 +386,12 @@ export class Injector {
       paths.push(token);
       creator = this.creatorMap.get(token);
     }
+
+    return [token, creator];
+  }
+
+  private getCreator(token: Token): [InstanceCreator | null, Injector] {
+    const creator: InstanceCreator | undefined = this.resolveToken(token)[1];
 
     if (creator) {
       return [creator, this];
