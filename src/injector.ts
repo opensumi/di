@@ -93,16 +93,16 @@ export class Injector {
    *
    * the cycles check is done when register alias provider
    */
-  resolveAliasToken<T extends Token>(token: T) {
+  resolveToken<T extends Token>(token: T): [T, T[]] {
+    const deps = [token] as T[];
     let [aliasCreator] = this.getCreator(token);
-
     while (aliasCreator && isAliasCreator(aliasCreator)) {
       token = aliasCreator.useAlias as T;
-
+      deps.push(token);
       [aliasCreator] = this.getCreator(token);
     }
 
-    return token;
+    return [token, deps];
   }
 
   get<T extends ConstructorOf<any>>(token: T, args?: ConstructorParameters<T>, opts?: InstanceOpts): TokenResult<T>;
@@ -121,7 +121,7 @@ export class Injector {
       args = undefined;
     }
 
-    token = this.resolveAliasToken(token);
+    [token] = this.resolveToken(token);
 
     let creator: InstanceCreator | null = null;
     let injector: Injector = this;
@@ -269,19 +269,26 @@ export class Injector {
     return this.hookStore.createOneHook(hook);
   }
 
-  private disposeEventEmitter = new EventEmitter<Token>();
+  private instanceDisposedEmitter = new EventEmitter<Token>();
 
-  onceTokenDisposed(key: Token, cb: () => void) {
-    return this.disposeEventEmitter.once(key, cb);
+  onceInstanceDisposed(instance: any, cb: () => void) {
+    const instanceId = this.getInstanceId(instance);
+    if (!instanceId) {
+      return;
+    }
+    return this.instanceDisposedEmitter.once(instanceId, cb);
   }
 
   disposeOne(token: Token, key = 'dispose') {
-    const creator = this.creatorMap.get(token);
+    [token] = this.resolveToken(token);
+
+    const [creator] = this.getCreator(token);
     if (!creator || creator.status === CreatorStatus.init) {
       return;
     }
 
     const instance = creator.instance;
+    const instanceId = this.getInstanceId(instance);
     let maybePromise: Promise<unknown> | undefined;
     if (instance && typeof instance[key] === 'function') {
       maybePromise = instance[key]();
@@ -292,15 +299,15 @@ export class Injector {
 
     if (maybePromise && Helper.isPromiseLike(maybePromise)) {
       maybePromise = maybePromise.then(() => {
-        this.disposeEventEmitter.emit(token);
+        this.instanceDisposedEmitter.emit(instanceId);
       });
     } else {
-      this.disposeEventEmitter.emit(token);
+      this.instanceDisposedEmitter.emit(instanceId);
     }
     return maybePromise;
   }
 
-  disposeAll(key = 'dispose') {
+  disposeAll(key = 'dispose'): Promise<void> {
     const creatorMap = this.creatorMap;
 
     const promises: (Promise<unknown> | undefined)[] = [];
@@ -310,7 +317,7 @@ export class Injector {
     }
 
     return Promise.all(promises).then(() => {
-      this.disposeEventEmitter.dispose();
+      this.instanceDisposedEmitter.dispose();
     });
   }
 
@@ -504,5 +511,9 @@ export class Injector {
     });
 
     return applyHooks(ret, token, this.hookStore);
+  }
+
+  getInstanceId(instance: any) {
+    return instance && instance.__id;
   }
 }

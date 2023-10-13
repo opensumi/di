@@ -6,6 +6,8 @@ export class EventEmitter<T> {
       this._listeners.set(event, []);
     }
     this._listeners.get(event)!.push(listener);
+
+    return () => this.off(event, listener);
   }
 
   off(event: T, listener: Function) {
@@ -20,18 +22,19 @@ export class EventEmitter<T> {
   }
 
   once(event: T, listener: Function) {
-    const onceListener = (...args: any[]) => {
-      listener(...args);
-      this.off(event, onceListener);
-    };
-    this.on(event, onceListener);
+    const remove: () => void = this.on(event, (...args: any[]) => {
+      remove();
+      listener.apply(this, args);
+    });
+
+    return remove;
   }
 
   emit(event: T, ...args: any[]) {
     if (!this._listeners.has(event)) {
       return;
     }
-    this._listeners.get(event)!.forEach((listener) => listener(...args));
+    [...this._listeners.get(event)!].forEach((listener) => listener.apply(this, args));
   }
 
   dispose() {

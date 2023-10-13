@@ -1,4 +1,4 @@
-import { Injectable, Injector } from '../../src';
+import { Autowired, Injectable, Injector } from '../../src';
 import { aliasCircularError } from '../../src/error';
 
 describe('useAlias is work', () => {
@@ -111,5 +111,47 @@ describe('useAlias is work', () => {
       // Because tokenC is added later, so the first one in the array is tokenC, and tokenC alias to tokenB.
       // So the cycle is C **alias to** B **alias to** C
     }).toThrowError(aliasCircularError([tokenC, tokenB], tokenC));
+  });
+  it('dispose alias will delete all its token', () => {
+    const injector = new Injector();
+    const instantiateSpy = jest.fn();
+    @Injectable()
+    class A {
+      constructor() {
+        instantiateSpy();
+      }
+    }
+
+    const tokenA = Symbol('tokenA');
+    const tokenB = Symbol('tokenB');
+    @Injectable()
+    class DisposeCls {
+      @Autowired(tokenA)
+      a!: A;
+      @Autowired(tokenB)
+      aa!: A;
+    }
+
+    injector.addProviders(
+      {
+        token: tokenA,
+        useClass: A,
+      },
+      {
+        token: tokenB,
+        useAlias: tokenA,
+      },
+    );
+
+    const disposeCls = injector.get(DisposeCls);
+    expect(disposeCls.a).toBeInstanceOf(A);
+    expect(disposeCls.a).toBe(disposeCls.aa);
+    expect(instantiateSpy).toBeCalledTimes(1);
+
+    injector.disposeOne(tokenB);
+    expect(instantiateSpy).toBeCalledTimes(1);
+    expect(disposeCls.a).toBeInstanceOf(A);
+    expect(disposeCls.a).toBe(disposeCls.aa);
+    expect(instantiateSpy).toBeCalledTimes(2);
   });
 });

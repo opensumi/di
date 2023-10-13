@@ -103,7 +103,7 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
           }
 
           this[INSTANCE_KEY] = injector.get(realToken, opts);
-          injector.onceTokenDisposed(realToken, () => {
+          injector.onceInstanceDisposed(this[INSTANCE_KEY], () => {
             this[INSTANCE_KEY] = undefined;
           });
         }
