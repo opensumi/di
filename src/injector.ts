@@ -295,9 +295,9 @@ export class Injector {
       promises.push(this.disposeOne(token, key));
     }
 
-    return Promise.all(promises).then(() => {
+    return Promise.all(promises).finally(() => {
       this.instanceDisposedEmitter.dispose();
-    });
+    }) as unknown as Promise<void>;
   }
 
   protected getTagToken(token: Token, tag: Tag): Token | undefined | null {
