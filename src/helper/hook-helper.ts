@@ -368,7 +368,7 @@ function isAfterThrowingHook<ThisType, Args extends any[], Result>(
   return hook && hook.type === HookType.AfterThrowing;
 }
 
-function isPromiseLike(thing: any): thing is Promise<any> {
+export function isPromiseLike(thing: any): thing is Promise<any> {
   return !!(thing as Promise<any>).then;
 }
 

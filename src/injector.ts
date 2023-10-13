@@ -30,6 +30,7 @@ import {
   getHookMeta,
   isAliasCreator,
 } from './helper';
+import { EventEmitter } from './helper/event';
 
 export class Injector {
   id = Helper.createId('Injector');
@@ -87,23 +88,6 @@ export class Injector {
     return injector;
   }
 
-  /**
-   * If the token is an alias, find the finally token
-   *
-   * the cycles check is done when register alias provider
-   */
-  resolveAliasToken<T extends Token>(token: T) {
-    let [aliasCreator] = this.getCreator(token);
-
-    while (aliasCreator && isAliasCreator(aliasCreator)) {
-      token = aliasCreator.useAlias as T;
-
-      [aliasCreator] = this.getCreator(token);
-    }
-
-    return token;
-  }
-
   get<T extends ConstructorOf<any>>(token: T, args?: ConstructorParameters<T>, opts?: InstanceOpts): TokenResult<T>;
   get<T extends Token>(token: T, opts?: InstanceOpts): TokenResult<T>;
   get<T extends Token, K extends ConstructorOf<any> = ConstructorOf<any>>(
@@ -119,8 +103,6 @@ export class Injector {
       opts = args;
       args = undefined;
     }
-
-    token = this.resolveAliasToken(token);
 
     let creator: InstanceCreator | null = null;
     let injector: Injector = this;
@@ -268,13 +250,24 @@ export class Injector {
     return this.hookStore.createOneHook(hook);
   }
 
+  private instanceDisposedEmitter = new EventEmitter<Token>();
+
+  onceInstanceDisposed(instance: any, cb: () => void) {
+    const instanceId = this.getInstanceId(instance);
+    if (!instanceId) {
+      return;
+    }
+    return this.instanceDisposedEmitter.once(instanceId, cb);
+  }
+
   disposeOne(token: Token, key = 'dispose') {
-    const creator = this.creatorMap.get(token);
+    const [creator] = this.getCreator(token);
     if (!creator || creator.status === CreatorStatus.init) {
       return;
     }
 
     const instance = creator.instance;
+    const instanceId = this.getInstanceId(instance);
     let maybePromise: Promise<unknown> | undefined;
     if (instance && typeof instance[key] === 'function') {
       maybePromise = instance[key]();
@@ -282,38 +275,29 @@ export class Injector {
 
     creator.instance = undefined;
     creator.status = CreatorStatus.init;
+
+    if (maybePromise && Helper.isPromiseLike(maybePromise)) {
+      maybePromise = maybePromise.then(() => {
+        this.instanceDisposedEmitter.emit(instanceId);
+      });
+    } else {
+      this.instanceDisposedEmitter.emit(instanceId);
+    }
     return maybePromise;
   }
 
-  disposeAll(key = 'dispose') {
+  disposeAll(key = 'dispose'): Promise<void> {
     const creatorMap = this.creatorMap;
-    const toDisposeInstances = new Set<any>();
 
-    const promises: Promise<unknown>[] = [];
+    const promises: (Promise<unknown> | undefined)[] = [];
 
-    // 还原对象状态
-    for (const creator of creatorMap.values()) {
-      const instance = creator.instance;
-
-      if (creator.status === CreatorStatus.done) {
-        if (instance && typeof instance[key] === 'function') {
-          toDisposeInstances.add(instance);
-        }
-
-        creator.instance = undefined;
-        creator.status = CreatorStatus.init;
-      }
+    for (const token of creatorMap.keys()) {
+      promises.push(this.disposeOne(token, key));
     }
 
-    // 执行销毁函数
-    for (const instance of toDisposeInstances) {
-      const maybePromise = instance[key]();
-      if (maybePromise) {
-        promises.push(maybePromise);
-      }
-    }
-
-    return Promise.all(promises);
+    return Promise.all(promises).finally(() => {
+      this.instanceDisposedEmitter.dispose();
+    }) as unknown as Promise<void>;
   }
 
   protected getTagToken(token: Token, tag: Tag): Token | undefined | null {
@@ -332,7 +316,7 @@ export class Injector {
     for (const provider of providers) {
       const originToken = Helper.parseTokenFromProvider(provider);
       const token = Helper.hasTag(provider) ? this.exchangeToken(originToken, provider.tag) : originToken;
-      const current = opts.deep ? this.getCreator(token)[0] : this.creatorMap.get(token);
+      const current = opts.deep ? this.getCreator(token)[0] : this.resolveToken(token)[1];
 
       const shouldBeSet = [
         // use provider's override attribute.
@@ -348,19 +332,10 @@ export class Injector {
         const creator = Helper.parseCreatorFromProvider(provider);
 
         this.creatorMap.set(token, creator);
-        if (isAliasCreator(creator)) {
-          // Make sure there are no cycles
-          const paths = [token, creator.useAlias];
-          let [aliasCreator] = this.getCreator(creator.useAlias);
+        // use effect to Make sure there are no cycles
+        void this.resolveToken(token);
 
-          while (aliasCreator && isAliasCreator(aliasCreator)) {
-            if (paths.includes(aliasCreator.useAlias)) {
-              throw InjectorError.aliasCircularError(paths, aliasCreator.useAlias);
-            }
-            paths.push(aliasCreator.useAlias);
-            [aliasCreator] = this.getCreator(aliasCreator.useAlias);
-          }
-        } else if (isClassCreator(creator)) {
+        if (isClassCreator(creator)) {
           const domain = creator.opts.domain;
           if (domain) {
             const domains = Array.isArray(domain) ? domain : [domain];
@@ -397,8 +372,27 @@ export class Injector {
     }
   }
 
+  private resolveToken(token: Token): [Token, InstanceCreator | undefined] {
+    let creator = this.creatorMap.get(token);
+
+    const paths = [token];
+
+    while (creator && isAliasCreator(creator)) {
+      token = creator.useAlias;
+
+      if (paths.includes(token)) {
+        throw InjectorError.aliasCircularError(paths, token);
+      }
+      paths.push(token);
+      creator = this.creatorMap.get(token);
+    }
+
+    return [token, creator];
+  }
+
   private getCreator(token: Token): [InstanceCreator | null, Injector] {
-    const creator = this.creatorMap.get(token);
+    const creator: InstanceCreator | undefined = this.resolveToken(token)[1];
+
     if (creator) {
       return [creator, this];
     }
@@ -506,5 +500,9 @@ export class Injector {
     });
 
     return applyHooks(ret, token, this.hookStore);
+  }
+
+  getInstanceId(instance: any) {
+    return instance && instance.__id;
   }
 }
