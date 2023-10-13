@@ -88,23 +88,6 @@ export class Injector {
     return injector;
   }
 
-  /**
-   * If the token is an alias, find the finally token
-   *
-   * the cycles check is done when register alias provider
-   */
-  resolveToken<T extends Token>(token: T): [T, T[]] {
-    const deps = [token] as T[];
-    let [aliasCreator] = this.getCreator(token);
-    while (aliasCreator && isAliasCreator(aliasCreator)) {
-      token = aliasCreator.useAlias as T;
-      deps.push(token);
-      [aliasCreator] = this.getCreator(token);
-    }
-
-    return [token, deps];
-  }
-
   get<T extends ConstructorOf<any>>(token: T, args?: ConstructorParameters<T>, opts?: InstanceOpts): TokenResult<T>;
   get<T extends Token>(token: T, opts?: InstanceOpts): TokenResult<T>;
   get<T extends Token, K extends ConstructorOf<any> = ConstructorOf<any>>(
@@ -120,8 +103,6 @@ export class Injector {
       opts = args;
       args = undefined;
     }
-
-    [token] = this.resolveToken(token);
 
     let creator: InstanceCreator | null = null;
     let injector: Injector = this;
@@ -280,8 +261,6 @@ export class Injector {
   }
 
   disposeOne(token: Token, key = 'dispose') {
-    [token] = this.resolveToken(token);
-
     const [creator] = this.getCreator(token);
     if (!creator || creator.status === CreatorStatus.init) {
       return;
@@ -353,19 +332,10 @@ export class Injector {
         const creator = Helper.parseCreatorFromProvider(provider);
 
         this.creatorMap.set(token, creator);
-        if (isAliasCreator(creator)) {
-          // Make sure there are no cycles
-          const paths = [token, creator.useAlias];
-          let [aliasCreator] = this.getCreator(creator.useAlias);
+        // use effect to Make sure there are no cycles
+        void this.getCreator(token);
 
-          while (aliasCreator && isAliasCreator(aliasCreator)) {
-            if (paths.includes(aliasCreator.useAlias)) {
-              throw InjectorError.aliasCircularError(paths, aliasCreator.useAlias);
-            }
-            paths.push(aliasCreator.useAlias);
-            [aliasCreator] = this.getCreator(aliasCreator.useAlias);
-          }
-        } else if (isClassCreator(creator)) {
+        if (isClassCreator(creator)) {
           const domain = creator.opts.domain;
           if (domain) {
             const domains = Array.isArray(domain) ? domain : [domain];
@@ -403,7 +373,20 @@ export class Injector {
   }
 
   private getCreator(token: Token): [InstanceCreator | null, Injector] {
-    const creator = this.creatorMap.get(token);
+    let creator = this.creatorMap.get(token);
+
+    const paths = [token];
+
+    while (creator && isAliasCreator(creator)) {
+      token = creator.useAlias;
+
+      if (paths.includes(token)) {
+        throw InjectorError.aliasCircularError(paths, token);
+      }
+      paths.push(token);
+      creator = this.creatorMap.get(token);
+    }
+
     if (creator) {
       return [creator, this];
     }
