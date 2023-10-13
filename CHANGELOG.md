@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.9.0](https://github.com/opensumi/di/compare/v1.8.1...v1.9.0) (2023-10-13)
+
+
+### Features
+
+* injector can get domain from parent ([#108](https://github.com/opensumi/di/issues/108)) ([07d3baf](https://github.com/opensumi/di/commit/07d3baff7f410911af05da1d6f90550b0a49b468))
+
+
+### Bug Fixes
+
+* dispose should also delete its all instance cache ([#110](https://github.com/opensumi/di/issues/110)) ([cec693b](https://github.com/opensumi/di/commit/cec693b898e8608bb6ec32207beeddbce31ec460))
+
 ## [1.8.1](https://github.com/opensumi/di/compare/v1.8.0...v1.8.1) (2023-09-26)
 
 
