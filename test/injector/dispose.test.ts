@@ -135,9 +135,9 @@ describe('dispose', () => {
     expect(spy).toBeCalledTimes(1);
 
     injector.disposeOne(A);
-    const creatorA = injector.creatorMap.get(A);
-    expect(creatorA!.status).toBe(CreatorStatus.init);
-    expect(creatorA!.instance).toBeUndefined();
+    const creatorA = injector.creatorMap.get(A)!;
+    expect(creatorA.status).toBe(CreatorStatus.init);
+    expect(creatorA.instance).toBeUndefined();
 
     expect(instance.a).toBeInstanceOf(A);
     expect(spy).toBeCalledTimes(2);
