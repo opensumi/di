@@ -34,7 +34,7 @@ import { EventEmitter } from './helper/event';
 
 export class Injector {
   id = Helper.createId('Injector');
-  creatorMap = new Map<Token, InstanceCreator>();
+
   depth = 0;
   tag?: string;
   hookStore: IHookStore;
@@ -42,6 +42,9 @@ export class Injector {
 
   private tagMatrix = new Map<Tag, Map<Token, Token>>();
   private domainMap = new Map<Domain, Token[]>();
+  creatorMap = new Map<Token, InstanceCreator>();
+  instanceRefMap = new Map<any, string>();
+
   private opts: InjectorOpts;
 
   constructor(providers: Provider[] = [], opts: InjectorOpts = {}, parent?: Injector) {
@@ -131,18 +134,18 @@ export class Injector {
         }
       }
     } else {
-      // 首先用 Tag 去置换 Token 进行对象实例化
+      // firstly, use tag to exchange token
       if (opts && Helper.hasTag(opts)) {
         const tagToken = this.exchangeToken(token, opts.tag);
         [creator, injector] = this.getCreator(tagToken);
       }
 
-      // if there is no Creator, 就从单纯的 Token 去查找创建器
+      // if there is no Creator, then use the token to find the Creator
       if (!creator) {
         [creator, injector] = this.getCreator(token);
       }
 
-      // 非严格模式下，会自动在 get 的时候去解析依赖和 provider
+      // if in non-strict mode, parse dependencies and providers automatically when get
       if (isTypeProvider(token) && !creator && !this.opts.strict) {
         this.parseDependencies(token);
         [creator, injector] = this.getCreator(token);
@@ -182,6 +185,9 @@ export class Injector {
     return tokens.map((token) => this.get(token));
   }
 
+  /**
+   * Only check this injector whether has the singleton instance.
+   */
   hasInstance(instance: any) {
     for (const creator of this.creatorMap.values()) {
       if (creator.instance === instance) {
@@ -222,7 +228,7 @@ export class Injector {
 
     this.setProviders(defaultProviders, { deep: true });
 
-    // 确保所有的依赖都有对应的 Provider
+    // make sure all dependencies have corresponding providers
     const notProvidedDeps = allDeps.filter((d) => !this.getCreator(d)[0]);
     if (notProvidedDeps.length) {
       throw InjectorError.noProviderError(...notProvidedDeps);
@@ -250,7 +256,7 @@ export class Injector {
     return this.hookStore.createOneHook(hook);
   }
 
-  private instanceDisposedEmitter = new EventEmitter<Token>();
+  private instanceDisposedEmitter = new EventEmitter<string>();
 
   onceInstanceDisposed(instance: any, cb: () => void) {
     const instanceId = this.getInstanceId(instance);
@@ -268,6 +274,8 @@ export class Injector {
 
     const instance = creator.instance;
     const instanceId = this.getInstanceId(instance);
+    this.instanceRefMap.delete(instance);
+
     let maybePromise: Promise<unknown> | undefined;
     if (instance && typeof instance[key] === 'function') {
       maybePromise = instance[key]();
@@ -278,10 +286,10 @@ export class Injector {
 
     if (maybePromise && Helper.isPromiseLike(maybePromise)) {
       maybePromise = maybePromise.then(() => {
-        this.instanceDisposedEmitter.emit(instanceId);
+        instanceId && this.instanceDisposedEmitter.emit(instanceId);
       });
     } else {
-      this.instanceDisposedEmitter.emit(instanceId);
+      instanceId && this.instanceDisposedEmitter.emit(instanceId);
     }
     return maybePromise;
   }
@@ -372,6 +380,11 @@ export class Injector {
     }
   }
 
+  private instanceIdGenerator = Helper.createIdFactory('Instance');
+  private getNextInstanceId() {
+    return this.instanceIdGenerator.create();
+  }
+
   private resolveToken(token: Token): [Token, InstanceCreator | undefined] {
     let creator = this.creatorMap.get(token);
 
@@ -404,6 +417,14 @@ export class Injector {
     return [null, this];
   }
 
+  private getOrSaveInstanceId(instance: any, id: string) {
+    if (this.instanceRefMap.has(instance)) {
+      return this.instanceRefMap.get(instance)!;
+    }
+    this.instanceRefMap.set(instance, id);
+    return id;
+  }
+
   private createInstance(ctx: Context, defaultOpts?: InstanceOpts, args?: any[]) {
     const { creator, token } = ctx;
 
@@ -411,9 +432,9 @@ export class Injector {
       throw InjectorError.tagOnlyError(String(creator.tag), String(this.tag));
     }
 
-    // ClassCreator 的时候，需要进行多例状态判断
     if (Helper.isClassCreator(creator)) {
       const opts = defaultOpts ?? creator.opts;
+      // if a class creator is singleton, and the instance is already created, return the instance.
       if (!opts.multiple && creator.status === CreatorStatus.done) {
         return creator.instance;
       }
@@ -444,7 +465,9 @@ export class Injector {
 
     try {
       const args = defaultArgs ?? this.getParameters(creator.parameters, ctx);
-      const instance = this.createInstanceWithInjector(cls, token, injector, args);
+      const nextId = this.getNextInstanceId();
+      const instance = this.createInstanceWithInjector(cls, token, injector, args, nextId);
+      void this.getOrSaveInstanceId(instance, nextId);
       creator.status = CreatorStatus.init;
 
       // if not allow multiple, save the instance in creator.
@@ -485,17 +508,23 @@ export class Injector {
     });
   }
 
-  private createInstanceWithInjector(cls: ConstructorOf<any>, token: Token, injector: Injector, args: any[]) {
-    // 在创建对象的过程中，先把 injector 挂载到 prototype 上，让构造函数能够访问
-    // 创建完实例之后从 prototype 上去掉 injector，防止内存泄露
+  private createInstanceWithInjector(
+    cls: ConstructorOf<any>,
+    token: Token,
+    injector: Injector,
+    args: any[],
+    id: string,
+  ) {
+    // when creating an instance, set injector to prototype, so that the constructor can access it.
+    // after creating the instance, remove the injector from prototype to prevent memory leaks.
     setInjector(cls.prototype, injector);
     const ret = new cls(...args);
     removeInjector(cls.prototype);
 
-    // 在实例上挂载 injector，让以后的对象内部都能访问到 injector
+    // mount injector on the instance, so that the inner object can access the injector in the future.
     setInjector(ret, injector);
     Object.assign(ret, {
-      __id: Helper.createId('Instance'),
+      __id: id,
       __injectorId: injector.id,
     });
 
@@ -503,6 +532,6 @@ export class Injector {
   }
 
   getInstanceId(instance: any) {
-    return instance && instance.__id;
+    return this.instanceRefMap.get(instance);
   }
 }

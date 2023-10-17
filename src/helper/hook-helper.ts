@@ -203,7 +203,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
         },
         setArgs: (_args: Args) => {
           if (!_inThisHook) {
-            throw new Error('不允许在Hook作用时间结束后设置参数');
+            throw new Error('It is not allowed to set the parameters after the Hook effect time is over');
           }
           args = _args;
         },
@@ -237,7 +237,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
         },
         setResult: (_ret: Result) => {
           if (!_inThisHook) {
-            throw new Error('不允许在Hook作用时间结束后设置返回值');
+            throw new Error('It is not allowed to set the return value after the Hook effect time is over');
           }
           ret = _ret;
         },
@@ -478,9 +478,10 @@ export class HookStore implements IHookStore {
     if (!instanceHooks.has(hook.method)) {
       return;
     }
-    const index = instanceHooks.get(hook.method)!.indexOf(hook);
+    const methodHooks = instanceHooks.get(hook.method)!;
+    const index = methodHooks.indexOf(hook);
     if (index > -1) {
-      instanceHooks.get(hook.method)!.splice(index, 1);
+      methodHooks.splice(index, 1);
     }
   }
 }

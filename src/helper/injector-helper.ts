@@ -39,3 +39,12 @@ let index = 0;
 export function createId(name: string) {
   return `${name}_${index++}`;
 }
+
+export function createIdFactory(name: string) {
+  let idx = 0;
+  return {
+    create() {
+      return `${name}_${idx++}`;
+    },
+  };
+}
