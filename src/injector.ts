@@ -417,7 +417,7 @@ export class Injector {
     return [null, this];
   }
 
-  private getOrSaveInstanceRef(instance: any, id: string) {
+  private getOrSaveInstanceId(instance: any, id: string) {
     if (this.instanceRefMap.has(instance)) {
       return this.instanceRefMap.get(instance)!;
     }
@@ -467,7 +467,7 @@ export class Injector {
       const args = defaultArgs ?? this.getParameters(creator.parameters, ctx);
       const nextId = this.getNextInstanceId();
       const instance = this.createInstanceWithInjector(cls, token, injector, args, nextId);
-      void this.getOrSaveInstanceRef(instance, nextId);
+      void this.getOrSaveInstanceId(instance, nextId);
       creator.status = CreatorStatus.init;
 
       // if not allow multiple, save the instance in creator.

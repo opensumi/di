@@ -431,8 +431,8 @@ describe('test injector work', () => {
 
       expect((instance1 as any).__id.startsWith('Instance')).toBeTruthy();
       expect((instance1 as any).__id).toBe((instance2 as any).__id);
-      expect((instance1 as any).__id).toBe((injector as any).getOrSaveInstanceRef(instance1));
-      expect((instance2 as any).__id).toBe((injector as any).getOrSaveInstanceRef(instance2));
+      expect((instance1 as any).__id).toBe((injector as any).getOrSaveInstanceId(instance1));
+      expect((instance2 as any).__id).toBe((injector as any).getOrSaveInstanceId(instance2));
       expect((instance1 as any).__id).not.toBe((instance3 as any).__id);
     });
   });
