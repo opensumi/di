@@ -21,6 +21,7 @@ import {
   IAfterReturningJoinPoint,
   IAfterThrowingJoinPoint,
   IInstanceHooks,
+  InstanceCreator,
 } from '../declare';
 import compose, { Middleware } from './compose';
 
@@ -516,7 +517,7 @@ export function markAsHook(
   }
   hooks.push({ prop, type, target: hookTarget, targetMethod, options });
 }
-export function isAspectCreator(target: object) {
+export function isAspectCreator(target: InstanceCreator) {
   return !!Reflect.getMetadata(ASPECT_KEY, (target as ClassCreator).useClass);
 }
 

@@ -598,5 +598,13 @@ describe('hook', () => {
     expect(testClass.add(1, 2)).toBe(3);
 
     expect(constructorSpy).toBeCalledTimes(2);
+
+    injector.addProviders(TestAspect);
+    injector.disposeOne(TestClass);
+
+    expect(example.run()).toBe(30);
+    expect(testClass.add(1, 2)).toBe(30);
+    const testClass2 = injector.get(TestClass);
+    expect(testClass2.add(1, 2)).toBe(30);
   });
 });

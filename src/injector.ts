@@ -363,6 +363,8 @@ export class Injector {
                     toDispose = undefined;
                   }
                   instance = undefined;
+                  // remove the aspect creator when the instance is disposed
+                  this.creatorMap.delete(creator.useClass);
                 });
               }
 
