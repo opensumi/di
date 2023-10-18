@@ -247,6 +247,7 @@ export interface IAfterThrowingJoinPoint<ThisType, Args extends any[], Result> e
 export interface IHookStore {
   createHooks(hooks: IValidAspectHook[]): IDisposable;
   createOneHook<ThisType, Args extends any[], Result>(hook: IValidAspectHook<ThisType, Args, Result>): IDisposable;
+  removeOneHook(hook: IValidAspectHook): void;
   getHooks(token: Token, method: MethodName): IValidAspectHook[];
   hasHooks(token: Token): boolean;
 }

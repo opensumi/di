@@ -469,7 +469,7 @@ export class HookStore implements IHookStore {
     };
   }
 
-  private removeOneHook(hook: IValidAspectHook): void {
+  removeOneHook(hook: IValidAspectHook): void {
     const token = hook.target;
     if (!this.hooks.has(token)) {
       return;

@@ -468,7 +468,7 @@ describe('hook', () => {
     expect(testClassChild2.add(1, 2)).toBe(600); // 两边的hook都会命中
   });
 
-  it('should dispose hook', () => {
+  it('could dispose proxied instance', () => {
     const constructorSpy = jest.fn();
 
     @Injectable()
@@ -530,6 +530,73 @@ describe('hook', () => {
     // injector.disposeOne(TestAspect);
 
     expect(example.run()).toBe(30);
+    expect(constructorSpy).toBeCalledTimes(2);
+  });
+
+  it('could dispose hook', () => {
+    const constructorSpy = jest.fn();
+
+    @Injectable()
+    class TestClass {
+      exp = 1;
+
+      constructor() {
+        constructorSpy();
+      }
+
+      add(a: number, b: number): number {
+        return a + b;
+      }
+    }
+
+    @Aspect()
+    @Injectable()
+    class TestAspect {
+      record = 2;
+
+      multipleTime = 0;
+
+      thrownError: any;
+
+      thrownRejection: any;
+
+      @Before<TestClass, [number, number], number>(TestClass, 'add')
+      interceptAdd(joinPoint: IBeforeJoinPoint<TestClass, [number, number], number>) {
+        const [a, b] = joinPoint.getArgs();
+        expect(joinPoint.getMethodName()).toBe('add');
+        expect(joinPoint.getOriginalArgs()).toBeInstanceOf(Array);
+        expect(joinPoint.getThis()).toBeInstanceOf(TestClass);
+        joinPoint.setArgs([a * 10, b * 10]);
+      }
+    }
+
+    @Injectable()
+    class Example {
+      @Autowired()
+      testClass!: TestClass;
+
+      run() {
+        return this.testClass.add(1, 2);
+      }
+    }
+
+    const injector = new Injector();
+    injector.addProviders(TestClass);
+    injector.addProviders(TestAspect);
+    const testClass = injector.get(TestClass);
+    expect(testClass.add(1, 2)).toBe(30);
+
+    const example = injector.get(Example);
+    expect(example.run()).toBe(30);
+
+    expect(constructorSpy).toBeCalledTimes(1);
+
+    injector.disposeOne(TestClass);
+    injector.disposeOne(TestAspect);
+
+    expect(example.run()).toBe(3);
+    expect(testClass.add(1, 2)).toBe(3);
+
     expect(constructorSpy).toBeCalledTimes(2);
   });
 });
