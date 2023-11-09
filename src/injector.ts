@@ -18,6 +18,7 @@ import {
   IValidAspectHook,
   Context,
   ParameterOpts,
+  IDisposable,
 } from './declare';
 import {
   isClassCreator,
@@ -349,7 +350,25 @@ export class Injector {
           }
           if (isAspectCreator(creator)) {
             const hookMetadata = getHookMeta(creator.useClass);
-            const getInstance = () => this.get(token);
+            let toDispose: IDisposable | undefined;
+            let instance: any;
+            const getInstance = () => {
+              if (!instance) {
+                instance = this.get(creator.useClass);
+                this.onceInstanceDisposed(instance, () => {
+                  if (toDispose) {
+                    toDispose.dispose();
+                    toDispose = undefined;
+                  }
+                  instance = undefined;
+                  // remove the aspect creator when the instance is disposed
+                  this.creatorMap.delete(creator.useClass);
+                });
+              }
+
+              return instance;
+            };
+
             const preprocessedHooks: IValidAspectHook[] = hookMetadata.map((metadata) => {
               const wrapped = (...args: any[]) => {
                 const instance = getInstance();
@@ -363,7 +382,7 @@ export class Injector {
                 type: metadata.type,
               };
             });
-            this.hookStore.createHooks(preprocessedHooks);
+            toDispose = this.hookStore.createHooks(preprocessedHooks);
           }
         }
       }
