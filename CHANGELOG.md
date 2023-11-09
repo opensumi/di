@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.10.0](https://github.com/opensumi/di/compare/v1.9.0...v1.10.0) (2023-11-09)
+
+
+### Features
+
+* support dispose hooks ([#113](https://github.com/opensumi/di/issues/113)) ([a1e587c](https://github.com/opensumi/di/commit/a1e587c7bdfe2993d61c58d523a69a16d74ce599))
+
+
+### Bug Fixes
+
+* avoid instance id conflict when have multi injector ([#114](https://github.com/opensumi/di/issues/114)) ([ca3da8c](https://github.com/opensumi/di/commit/ca3da8ccd7891f1d1d2d5f4ca217c93bc650673d))
+
 ## [1.9.0](https://github.com/opensumi/di/compare/v1.8.1...v1.9.0) (2023-10-13)
 
 
