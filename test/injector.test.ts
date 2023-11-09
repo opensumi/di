@@ -430,6 +430,7 @@ describe('test injector work', () => {
       expect((instance3 as any).__injectorId).toBe(injector.id);
 
       expect((instance1 as any).__id.startsWith('Instance')).toBeTruthy();
+      console.log(`file: injector.test.ts ~ it ~ (instance1 as any).__id:`, (instance1 as any).__id);
       expect((instance1 as any).__id).toBe((instance2 as any).__id);
       expect((instance1 as any).__id).toBe((injector as any).getOrSaveInstanceId(instance1));
       expect((instance2 as any).__id).toBe((injector as any).getOrSaveInstanceId(instance2));

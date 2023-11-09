@@ -34,6 +34,7 @@ import { EventEmitter } from './helper/event';
 
 export class Injector {
   id = Helper.createId('Injector');
+  private instanceIdGenerator = Helper.createIdFactory('Instance_' + this.id.slice(9));
 
   depth = 0;
   tag?: string;
@@ -45,10 +46,9 @@ export class Injector {
   creatorMap = new Map<Token, InstanceCreator>();
   instanceRefMap = new Map<any, string>();
 
-  private opts: InjectorOpts;
+  private instanceDisposedEmitter = new EventEmitter<string>();
 
-  constructor(providers: Provider[] = [], opts: InjectorOpts = {}, parent?: Injector) {
-    this.opts = opts;
+  constructor(providers: Provider[] = [], private opts: InjectorOpts = {}, parent?: Injector) {
     this.tag = opts.tag;
 
     if (parent) {
@@ -256,8 +256,6 @@ export class Injector {
     return this.hookStore.createOneHook(hook);
   }
 
-  private instanceDisposedEmitter = new EventEmitter<string>();
-
   onceInstanceDisposed(instance: any, cb: () => void) {
     const instanceId = this.getInstanceId(instance);
     if (!instanceId) {
@@ -380,7 +378,6 @@ export class Injector {
     }
   }
 
-  private instanceIdGenerator = Helper.createIdFactory('Instance');
   private getNextInstanceId() {
     return this.instanceIdGenerator.create();
   }
