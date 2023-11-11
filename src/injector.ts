@@ -19,6 +19,7 @@ import {
   Context,
   ParameterOpts,
   IDisposable,
+  FactoryCreator,
 } from './declare';
 import {
   isClassCreator,
@@ -35,7 +36,6 @@ import { EventEmitter } from './helper/event';
 
 export class Injector {
   id = Helper.createId('Injector');
-  private instanceIdGenerator = Helper.createIdFactory('Instance_' + this.id.slice(9));
 
   depth = 0;
   tag?: string;
@@ -45,9 +45,8 @@ export class Injector {
   private tagMatrix = new Map<Tag, Map<Token, Token>>();
   private domainMap = new Map<Domain, Token[]>();
   creatorMap = new Map<Token, InstanceCreator>();
-  instanceRefMap = new Map<any, string>();
 
-  private instanceDisposedEmitter = new EventEmitter<string>();
+  private instanceDisposedEmitter = new EventEmitter<InstanceCreator>();
 
   constructor(providers: Provider[] = [], private opts: InjectorOpts = {}, parent?: Injector) {
     this.tag = opts.tag;
@@ -191,7 +190,7 @@ export class Injector {
    */
   hasInstance(instance: any) {
     for (const creator of this.creatorMap.values()) {
-      if (creator.instance === instance) {
+      if (creator.instance?.has(instance)) {
         return true;
       }
     }
@@ -257,27 +256,33 @@ export class Injector {
     return this.hookStore.createOneHook(hook);
   }
 
-  onceInstanceDisposed(instance: any, cb: () => void) {
-    const instanceId = this.getInstanceId(instance);
-    if (!instanceId) {
+  onceInstanceDisposed(creator: InstanceCreator, cb: () => void) {
+    const instance = creator.instance;
+    if (!instance?.size) {
       return;
     }
-    return this.instanceDisposedEmitter.once(instanceId, cb);
+    return this.instanceDisposedEmitter.once(creator, cb);
   }
 
   disposeOne(token: Token, key = 'dispose') {
     const [creator] = this.getCreator(token);
-    if (!creator || creator.status === CreatorStatus.init) {
+    if (!creator) {
       return;
     }
 
     const instance = creator.instance;
-    const instanceId = this.getInstanceId(instance);
-    this.instanceRefMap.delete(instance);
 
-    let maybePromise: Promise<unknown> | undefined;
-    if (instance && typeof instance[key] === 'function') {
-      maybePromise = instance[key]();
+    let maybePromise: Promise<unknown> | void;
+    if (instance) {
+      const disposeFns = Array.from(instance.values())
+        .map((instanceItem) => {
+          if (typeof instanceItem[key] === 'function') {
+            return instanceItem[key]();
+          }
+        })
+        .filter(Boolean);
+
+      maybePromise = disposeFns.length ? Promise.all(disposeFns) : void 0;
     }
 
     creator.instance = undefined;
@@ -285,18 +290,19 @@ export class Injector {
 
     if (maybePromise && Helper.isPromiseLike(maybePromise)) {
       maybePromise = maybePromise.then(() => {
-        instanceId && this.instanceDisposedEmitter.emit(instanceId);
+        instance && this.instanceDisposedEmitter.emit(creator);
       });
     } else {
-      instanceId && this.instanceDisposedEmitter.emit(instanceId);
+      instance && this.instanceDisposedEmitter.emit(creator);
     }
+
     return maybePromise;
   }
 
   disposeAll(key = 'dispose'): Promise<void> {
     const creatorMap = this.creatorMap;
 
-    const promises: (Promise<unknown> | undefined)[] = [];
+    const promises: (Promise<unknown> | void)[] = [];
 
     for (const token of creatorMap.keys()) {
       promises.push(this.disposeOne(token, key));
@@ -355,7 +361,7 @@ export class Injector {
             const getInstance = () => {
               if (!instance) {
                 instance = this.get(creator.useClass);
-                this.onceInstanceDisposed(instance, () => {
+                this.onceInstanceDisposed(creator, () => {
                   if (toDispose) {
                     toDispose.dispose();
                     toDispose = undefined;
@@ -397,10 +403,6 @@ export class Injector {
     }
   }
 
-  private getNextInstanceId() {
-    return this.instanceIdGenerator.create();
-  }
-
   private resolveToken(token: Token): [Token, InstanceCreator | undefined] {
     let creator = this.creatorMap.get(token);
 
@@ -419,7 +421,7 @@ export class Injector {
     return [token, creator];
   }
 
-  private getCreator(token: Token): [InstanceCreator | null, Injector] {
+  getCreator(token: Token): [InstanceCreator | null, Injector] {
     const creator: InstanceCreator | undefined = this.resolveToken(token)[1];
 
     if (creator) {
@@ -433,14 +435,6 @@ export class Injector {
     return [null, this];
   }
 
-  private getOrSaveInstanceId(instance: any, id: string) {
-    if (this.instanceRefMap.has(instance)) {
-      return this.instanceRefMap.get(instance)!;
-    }
-    this.instanceRefMap.set(instance, id);
-    return id;
-  }
-
   private createInstance(ctx: Context, defaultOpts?: InstanceOpts, args?: any[]) {
     const { creator, token } = ctx;
 
@@ -452,18 +446,18 @@ export class Injector {
       const opts = defaultOpts ?? creator.opts;
       // if a class creator is singleton, and the instance is already created, return the instance.
       if (!opts.multiple && creator.status === CreatorStatus.done) {
-        return creator.instance;
+        return creator.instance!.values().next().value;
       }
 
       return this.createInstanceFromClassCreator(ctx as Context<ClassCreator>, opts, args);
     }
 
     if (Helper.isFactoryCreator(creator)) {
-      return applyHooks(creator.useFactory(this), token, this.hookStore);
+      return this.createInstanceFromFactory(ctx as Context<FactoryCreator>);
     }
 
     // must be ValueCreator, no need to hook.
-    return creator.instance;
+    return creator.instance!.values().next().value;
   }
 
   private createInstanceFromClassCreator(ctx: Context<ClassCreator>, opts: InstanceOpts, defaultArgs?: any[]) {
@@ -481,16 +475,14 @@ export class Injector {
 
     try {
       const args = defaultArgs ?? this.getParameters(creator.parameters, ctx);
-      const nextId = this.getNextInstanceId();
-      const instance = this.createInstanceWithInjector(cls, token, injector, args, nextId);
-      void this.getOrSaveInstanceId(instance, nextId);
+      const instance = this.createInstanceWithInjector(cls, token, injector, args);
       creator.status = CreatorStatus.init;
 
       // if not allow multiple, save the instance in creator.
       if (!opts.multiple) {
         creator.status = CreatorStatus.done;
-        creator.instance = instance;
       }
+      creator.instance ? creator.instance.add(instance) : (creator.instance = new Set([instance]));
 
       return instance;
     } catch (e) {
@@ -524,13 +516,7 @@ export class Injector {
     });
   }
 
-  private createInstanceWithInjector(
-    cls: ConstructorOf<any>,
-    token: Token,
-    injector: Injector,
-    args: any[],
-    id: string,
-  ) {
+  private createInstanceWithInjector(cls: ConstructorOf<any>, token: Token, injector: Injector, args: any[]) {
     // when creating an instance, set injector to prototype, so that the constructor can access it.
     // after creating the instance, remove the injector from prototype to prevent memory leaks.
     setInjector(cls.prototype, injector);
@@ -540,14 +526,18 @@ export class Injector {
     // mount injector on the instance, so that the inner object can access the injector in the future.
     setInjector(ret, injector);
     Object.assign(ret, {
-      __id: id,
       __injectorId: injector.id,
     });
 
     return applyHooks(ret, token, this.hookStore);
   }
 
-  getInstanceId(instance: any) {
-    return this.instanceRefMap.get(instance);
+  private createInstanceFromFactory(ctx: Context<FactoryCreator>) {
+    const { creator, token } = ctx;
+
+    const value = creator.useFactory(this);
+    creator.instance = new Set([value]);
+
+    return applyHooks(value, token, this.hookStore);
   }
 }

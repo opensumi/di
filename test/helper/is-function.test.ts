@@ -76,7 +76,7 @@ describe(__filename, () => {
 
   it('isValueCreator', () => {
     expect(Helper.isValueCreator(factoryProvider)).toBe(false);
-    expect(Helper.isValueCreator({ status: CreatorStatus.done, instance: A })).toBe(true);
+    expect(Helper.isValueCreator({ status: CreatorStatus.done, instance: new Set([A]) })).toBe(true);
   });
 
   it('isFactoryCreator', () => {

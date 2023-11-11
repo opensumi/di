@@ -250,6 +250,33 @@ describe('dispose asynchronous', () => {
     expect(spy).toBeCalledTimes(1);
   });
 
+  it("dispose creator with multiple instance will call call instances's dispose method", async () => {
+    const spy = jest.fn();
+
+    @Injectable({ multiple: true })
+    class DisposeCls {
+      dispose = async () => {
+        spy();
+      };
+    }
+
+    const instance = injector.get(DisposeCls);
+    expect(injector.hasInstance(instance)).toBeTruthy();
+    expect(instance).toBeInstanceOf(DisposeCls);
+
+    const instance2 = injector.get(DisposeCls);
+    expect(injector.hasInstance(instance2)).toBeTruthy();
+    expect(instance2).toBeInstanceOf(DisposeCls);
+
+    await injector.disposeOne(DisposeCls);
+    expect(injector.hasInstance(instance)).toBeFalsy();
+    expect(injector.hasInstance(instance2)).toBeFalsy();
+    expect(spy).toBeCalledTimes(2);
+
+    await injector.disposeOne(DisposeCls);
+    expect(spy).toBeCalledTimes(2);
+  });
+
   it("dispose an instance will also dispose it's instance", async () => {
     const spy = jest.fn();
 
@@ -282,5 +309,35 @@ describe('dispose asynchronous', () => {
 
     expect(instance.a).toBeInstanceOf(A);
     expect(spy).toBeCalledTimes(2);
+  });
+
+  it('dispose should dispose instance of useFactory', () => {
+    const injector = new Injector();
+    let aValue = 1;
+    const token = Symbol.for('A');
+
+    injector.addProviders(
+      ...[
+        {
+          token,
+          useFactory: () => aValue,
+        },
+      ],
+    );
+
+    @Injectable()
+    class B {
+      @Autowired(token)
+      a!: number;
+    }
+
+    const instance = injector.get(B);
+    expect(injector.hasInstance(instance)).toBeTruthy();
+    expect(instance).toBeInstanceOf(B);
+    expect(instance.a).toBe(1);
+
+    injector.disposeOne(token);
+    aValue = 2;
+    expect(instance.a).toBe(2);
   });
 });
