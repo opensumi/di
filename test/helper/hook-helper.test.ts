@@ -2,7 +2,6 @@ import { HookStore, applyHooks, isHooked } from '../../src/helper';
 import { HookType } from '../../src';
 
 describe('hook store test', () => {
-
   const token1 = Symbol();
 
   it('可以创建和删除hook', () => {
@@ -59,17 +58,18 @@ describe('hook store test', () => {
     expect(valueRet).toBe('1');
 
     const hookStore = new HookStore();
-    hookStore.createHooks([{
-      hook: () => void 0,
-      method: 'a',
-      target: token1,
-      type: HookType.After,
-    }]);
+    hookStore.createHooks([
+      {
+        hook: () => undefined,
+        method: 'a',
+        target: token1,
+        type: HookType.After,
+      },
+    ]);
     const objectRet = applyHooks({}, token1, hookStore);
     expect(isHooked(objectRet)).toBeTruthy();
 
     const objectRetNoHooks = applyHooks({}, token1, new HookStore());
     expect(isHooked(objectRetNoHooks)).toBeFalsy();
-
   });
 });

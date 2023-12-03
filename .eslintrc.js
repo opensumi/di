@@ -24,5 +24,11 @@ module.exports = {
         allowedNames: ['self', 'injector'],
       },
     ],
+    'no-void': [
+      'error',
+      {
+        allowAsStatement: true,
+      },
+    ],
   },
 };

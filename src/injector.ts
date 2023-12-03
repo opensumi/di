@@ -282,7 +282,7 @@ export class Injector {
         })
         .filter(Boolean);
 
-      maybePromise = disposeFns.length ? Promise.all(disposeFns) : void 0;
+      maybePromise = disposeFns.length ? Promise.all(disposeFns) : undefined;
     }
 
     creator.instance = undefined;
@@ -436,7 +436,7 @@ export class Injector {
   }
 
   private createInstance(ctx: Context, defaultOpts?: InstanceOpts, args?: any[]) {
-    const { creator, token } = ctx;
+    const { creator } = ctx;
 
     if (creator.dropdownForTag && creator.tag !== this.tag) {
       throw InjectorError.tagOnlyError(String(creator.tag), String(this.tag));
