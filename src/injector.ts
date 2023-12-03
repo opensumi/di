@@ -276,10 +276,21 @@ export class Injector {
     if (instance) {
       const disposeFns = [] as any[];
 
-      for (const i of instance.values()) {
-        if (i && typeof i[key] === 'function') {
-          disposeFns.push(i[key]());
+      for (const item of instance.values()) {
+        let _maybePromise: Promise<unknown> | undefined;
+        if (item && typeof item[key] === 'function') {
+          _maybePromise = item[key]();
+
+          if (_maybePromise && Helper.isPromiseLike(_maybePromise)) {
+            _maybePromise = _maybePromise.then(() => {
+              this.instanceDisposedEmitter.emit(item);
+            });
+          } else {
+            this.instanceDisposedEmitter.emit(item);
+          }
         }
+
+        _maybePromise && disposeFns.push(_maybePromise);
       }
 
       maybePromise = disposeFns.length ? Promise.all(disposeFns) : undefined;
@@ -287,14 +298,6 @@ export class Injector {
 
     creator.instance = undefined;
     creator.status = CreatorStatus.init;
-
-    if (maybePromise && Helper.isPromiseLike(maybePromise)) {
-      maybePromise = maybePromise.then(() => {
-        instance && this.instanceDisposedEmitter.emit(instance);
-      });
-    } else {
-      instance && this.instanceDisposedEmitter.emit(instance);
-    }
 
     return maybePromise;
   }
