@@ -25,7 +25,7 @@ describe('hasInstance', () => {
     expect(injector.hasInstance(b)).toBe(true);
 
     const c = injector.get(C);
-    expect(injector.hasInstance(c)).toBe(false);
+    expect(injector.hasInstance(c)).toBe(true);
   });
 
   it('hasInstance 支持 primitive 的判断', () => {
@@ -40,6 +40,6 @@ describe('hasInstance', () => {
     expect(injector.hasInstance(b)).toBe(true);
 
     const c = injector.get(C);
-    expect(injector.hasInstance(c)).toBe(false);
+    expect(injector.hasInstance(c)).toBe(true);
   });
 });

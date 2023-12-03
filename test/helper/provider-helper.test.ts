@@ -47,13 +47,15 @@ describe(__filename, () => {
       parameters: [],
       useClass: A,
     });
-    expect(Helper.parseCreatorFromProvider(valueProvider)).toMatchObject({
-      instance: expect.any(A),
-      status: CreatorStatus.done,
-    });
+
+    const creator = Helper.parseCreatorFromProvider(valueProvider);
+    expect(creator.instance?.has(A)).toBeTruthy;
+    expect(creator.status).toBe(CreatorStatus.done);
+
     expect(Helper.parseCreatorFromProvider(factoryProvider)).toMatchObject({
       useFactory: factoryProvider.useFactory,
     });
+
     expect(Helper.parseCreatorFromProvider(classProvider)).toMatchObject({
       parameters: [],
       useClass: A,

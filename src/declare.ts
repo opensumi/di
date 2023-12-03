@@ -75,7 +75,7 @@ interface BasicCreator {
   /**
    * Store the instantiated object.
    */
-  instance?: any;
+  instance?: Set<any>;
   /**
    * Represent this creator is parsed from `Parameter`. and the params of Inject has set `default` attribution.
    */
@@ -83,7 +83,6 @@ interface BasicCreator {
 }
 
 export interface ValueCreator extends BasicCreator {
-  instance: any;
   status: CreatorStatus.done;
 }
 
