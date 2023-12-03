@@ -49,7 +49,7 @@ describe(__filename, () => {
     });
 
     const creator = Helper.parseCreatorFromProvider(valueProvider);
-    expect(creator.instance?.has(A)).toBeTruthy;
+    expect(creator.instances?.has(A)).toBeTruthy;
     expect(creator.status).toBe(CreatorStatus.done);
 
     expect(Helper.parseCreatorFromProvider(factoryProvider)).toMatchObject({

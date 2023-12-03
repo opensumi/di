@@ -190,7 +190,7 @@ export class Injector {
    */
   hasInstance(instance: any) {
     for (const creator of this.creatorMap.values()) {
-      if (creator.instance?.has(instance)) {
+      if (creator.instances?.has(instance)) {
         return true;
       }
     }
@@ -266,37 +266,33 @@ export class Injector {
       return;
     }
 
-    if (creator.status === CreatorStatus.init) {
-      return;
-    }
-
-    const instance = creator.instance;
+    const instances = creator.instances;
 
     let maybePromise: Promise<unknown> | void | undefined;
-    if (instance) {
+    if (instances) {
       const disposeFns = [] as any[];
 
-      for (const item of instance.values()) {
+      for (const item of instances.values()) {
         let _maybePromise: Promise<unknown> | undefined;
         if (item && typeof item[key] === 'function') {
           _maybePromise = item[key]();
-
-          if (_maybePromise && Helper.isPromiseLike(_maybePromise)) {
-            _maybePromise = _maybePromise.then(() => {
-              this.instanceDisposedEmitter.emit(item);
-            });
-          } else {
-            this.instanceDisposedEmitter.emit(item);
-          }
         }
 
-        _maybePromise && disposeFns.push(_maybePromise);
+        if (_maybePromise && Helper.isPromiseLike(_maybePromise)) {
+          disposeFns.push(
+            _maybePromise.then(() => {
+              this.instanceDisposedEmitter.emit(item);
+            }),
+          );
+        } else {
+          this.instanceDisposedEmitter.emit(item);
+        }
       }
 
       maybePromise = disposeFns.length ? Promise.all(disposeFns) : undefined;
     }
 
-    creator.instance = undefined;
+    creator.instances = undefined;
     creator.status = CreatorStatus.init;
 
     return maybePromise;
@@ -449,7 +445,7 @@ export class Injector {
       const opts = defaultOpts ?? creator.opts;
       // if a class creator is singleton, and the instance is already created, return the instance.
       if (!opts.multiple && creator.status === CreatorStatus.done) {
-        return creator.instance!.values().next().value;
+        return creator.instances!.values().next().value;
       }
 
       return this.createInstanceFromClassCreator(ctx as Context<ClassCreator>, opts, args);
@@ -460,7 +456,7 @@ export class Injector {
     }
 
     // must be ValueCreator, no need to hook.
-    return creator.instance!.values().next().value;
+    return creator.instances!.values().next().value;
   }
 
   private createInstanceFromClassCreator(ctx: Context<ClassCreator>, opts: InstanceOpts, defaultArgs?: any[]) {
@@ -485,7 +481,7 @@ export class Injector {
       if (!opts.multiple) {
         creator.status = CreatorStatus.done;
       }
-      creator.instance ? creator.instance.add(instance) : (creator.instance = new Set([instance]));
+      creator.instances ? creator.instances.add(instance) : (creator.instances = new Set([instance]));
 
       return instance;
     } catch (e) {
@@ -536,7 +532,7 @@ export class Injector {
     const { creator, token } = ctx;
 
     const value = applyHooks(creator.useFactory(this), token, this.hookStore);
-    creator.instance ? creator.instance.add(value) : (creator.instance = new Set([value]));
+    creator.instances ? creator.instances.add(value) : (creator.instances = new Set([value]));
     return value;
   }
 }

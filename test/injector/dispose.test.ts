@@ -44,7 +44,7 @@ describe('dispose', () => {
 
     const creator = injector.creatorMap.get(A);
     expect(creator!.status).toBe(CreatorStatus.init);
-    expect(creator!.instance).toBeUndefined();
+    expect(creator!.instances).toBeUndefined();
 
     const a2 = injector.get(A);
     expect(a).not.toBe(a2);
@@ -62,11 +62,11 @@ describe('dispose', () => {
 
     const creatorA = injector.creatorMap.get(A);
     expect(creatorA!.status).toBe(CreatorStatus.init);
-    expect(creatorA!.instance).toBeUndefined();
+    expect(creatorA!.instances).toBeUndefined();
 
     const creatorB = injector.creatorMap.get(B);
     expect(creatorB!.status).toBe(CreatorStatus.init);
-    expect(creatorB!.instance).toBeUndefined();
+    expect(creatorB!.instances).toBeUndefined();
 
     const a2 = injector.get(A);
     expect(a).not.toBe(a2);
@@ -137,7 +137,7 @@ describe('dispose', () => {
     injector.disposeOne(A);
     const creatorA = injector.creatorMap.get(A)!;
     expect(creatorA.status).toBe(CreatorStatus.init);
-    expect(creatorA.instance).toBeUndefined();
+    expect(creatorA.instances).toBeUndefined();
 
     expect(instance.a).toBeInstanceOf(A);
     expect(spy).toBeCalledTimes(2);
@@ -181,7 +181,7 @@ describe('dispose asynchronous', () => {
 
     const creator = injector.creatorMap.get(A);
     expect(creator!.status).toBe(CreatorStatus.init);
-    expect(creator!.instance).toBeUndefined();
+    expect(creator!.instances).toBeUndefined();
 
     const a2 = injector.get(A);
     expect(a).not.toBe(a2);
@@ -199,11 +199,11 @@ describe('dispose asynchronous', () => {
 
     const creatorA = injector.creatorMap.get(A);
     expect(creatorA!.status).toBe(CreatorStatus.init);
-    expect(creatorA!.instance).toBeUndefined();
+    expect(creatorA!.instances).toBeUndefined();
 
     const creatorB = injector.creatorMap.get(B);
     expect(creatorB!.status).toBe(CreatorStatus.init);
-    expect(creatorB!.instance).toBeUndefined();
+    expect(creatorB!.instances).toBeUndefined();
 
     const a2 = injector.get(A);
     expect(a).not.toBe(a2);
@@ -305,7 +305,7 @@ describe('dispose asynchronous', () => {
     await injector.disposeOne(A);
     const creatorA = injector.creatorMap.get(A);
     expect(creatorA!.status).toBe(CreatorStatus.init);
-    expect(creatorA!.instance).toBeUndefined();
+    expect(creatorA!.instances).toBeUndefined();
 
     expect(instance.a).toBeInstanceOf(A);
     expect(spy).toBeCalledTimes(2);

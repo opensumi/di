@@ -45,7 +45,7 @@ export function parseCreatorFromProvider(provider: Provider): InstanceCreator {
 
   if (isValueProvider(provider)) {
     return {
-      instance: new Set([provider.useValue]),
+      instances: new Set([provider.useValue]),
       isDefault: provider.isDefault,
       status: CreatorStatus.done,
       ...basicObj,

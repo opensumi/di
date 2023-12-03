@@ -73,9 +73,9 @@ interface BasicCreator {
   dropdownForTag?: boolean;
   status?: CreatorStatus;
   /**
-   * Store the instantiated object.
+   * Store the instantiated objects.
    */
-  instance?: Set<any>;
+  instances?: Set<any>;
   /**
    * Represent this creator is parsed from `Parameter`. and the params of Inject has set `default` attribution.
    */
