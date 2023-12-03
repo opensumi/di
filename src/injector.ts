@@ -272,7 +272,7 @@ export class Injector {
 
     const instance = creator.instance;
 
-    let maybePromise: Promise<unknown> | void;
+    let maybePromise: Promise<unknown> | void | undefined;
     if (instance) {
       const disposeFns = Array.from(instance.values())
         .map((instanceItem) => {
@@ -525,9 +525,6 @@ export class Injector {
 
     // mount injector on the instance, so that the inner object can access the injector in the future.
     setInjector(ret, injector);
-    Object.assign(ret, {
-      __injectorId: injector.id,
-    });
 
     return applyHooks(ret, token, this.hookStore);
   }
@@ -535,9 +532,9 @@ export class Injector {
   private createInstanceFromFactory(ctx: Context<FactoryCreator>) {
     const { creator, token } = ctx;
 
-    const value = creator.useFactory(this);
+    const value = applyHooks(creator.useFactory(this), token, this.hookStore);
     creator.instance = new Set([value]);
 
-    return applyHooks(value, token, this.hookStore);
+    return value;
   }
 }

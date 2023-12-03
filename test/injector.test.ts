@@ -19,6 +19,7 @@ import {
   IAfterThrowingJoinPoint,
 } from '../src';
 import * as InjectorError from '../src/error';
+import { getInjectorOfInstance } from '../src/helper';
 
 describe('test injector work', () => {
   @Injectable()
@@ -425,9 +426,9 @@ describe('test injector work', () => {
       const instance2 = injector.get(A);
       const instance3 = injector.get(B);
 
-      expect((instance1 as any).__injectorId).toBe(injector.id);
-      expect((instance2 as any).__injectorId).toBe(injector.id);
-      expect((instance3 as any).__injectorId).toBe(injector.id);
+      expect(getInjectorOfInstance(instance1)!.id).toBe(injector.id);
+      expect(getInjectorOfInstance(instance2)!.id).toBe(injector.id);
+      expect(getInjectorOfInstance(instance3)!.id).toBe(injector.id);
     });
   });
 
