@@ -46,7 +46,7 @@ export class Injector {
   private domainMap = new Map<Domain, Token[]>();
   creatorMap = new Map<Token, InstanceCreator>();
 
-  private instanceDisposedEmitter = new EventEmitter<InstanceCreator>();
+  private instanceDisposedEmitter = new EventEmitter<any>();
 
   constructor(providers: Provider[] = [], private opts: InjectorOpts = {}, parent?: Injector) {
     this.tag = opts.tag;
@@ -256,12 +256,8 @@ export class Injector {
     return this.hookStore.createOneHook(hook);
   }
 
-  onceInstanceDisposed(creator: InstanceCreator, cb: () => void) {
-    const instance = creator.instance;
-    if (!instance?.size) {
-      return;
-    }
-    return this.instanceDisposedEmitter.once(creator, cb);
+  onceInstanceDisposed(instance: any, cb: () => void) {
+    return this.instanceDisposedEmitter.once(instance, cb);
   }
 
   disposeOne(token: Token, key = 'dispose') {
@@ -270,17 +266,21 @@ export class Injector {
       return;
     }
 
+    if (creator.status === CreatorStatus.init) {
+      return;
+    }
+
     const instance = creator.instance;
 
     let maybePromise: Promise<unknown> | void | undefined;
     if (instance) {
-      const disposeFns = Array.from(instance.values())
-        .map((instanceItem) => {
-          if (typeof instanceItem[key] === 'function') {
-            return instanceItem[key]();
-          }
-        })
-        .filter(Boolean);
+      const disposeFns = [] as any[];
+
+      for (const i of instance.values()) {
+        if (i && typeof i[key] === 'function') {
+          disposeFns.push(i[key]());
+        }
+      }
 
       maybePromise = disposeFns.length ? Promise.all(disposeFns) : undefined;
     }
@@ -290,10 +290,10 @@ export class Injector {
 
     if (maybePromise && Helper.isPromiseLike(maybePromise)) {
       maybePromise = maybePromise.then(() => {
-        instance && this.instanceDisposedEmitter.emit(creator);
+        instance && this.instanceDisposedEmitter.emit(instance);
       });
     } else {
-      instance && this.instanceDisposedEmitter.emit(creator);
+      instance && this.instanceDisposedEmitter.emit(instance);
     }
 
     return maybePromise;
@@ -361,7 +361,7 @@ export class Injector {
             const getInstance = () => {
               if (!instance) {
                 instance = this.get(creator.useClass);
-                this.onceInstanceDisposed(creator, () => {
+                this.onceInstanceDisposed(instance, () => {
                   if (toDispose) {
                     toDispose.dispose();
                     toDispose = undefined;
