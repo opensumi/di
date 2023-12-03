@@ -1,23 +1,4 @@
-import {
-  Autowired,
-  Injectable,
-  Injector,
-  INJECTOR_TOKEN,
-  Inject,
-  Optional,
-  Aspect,
-  Before,
-  After,
-  Around,
-  HookType,
-  IBeforeJoinPoint,
-  IAfterJoinPoint,
-  IAroundJoinPoint,
-  AfterReturning,
-  IAfterReturningJoinPoint,
-  AfterThrowing,
-  IAfterThrowingJoinPoint,
-} from '../src';
+import { Autowired, Injectable, Injector, INJECTOR_TOKEN, Inject, Optional } from '../src';
 import * as InjectorError from '../src/error';
 import { getInjectorOfInstance } from '../src/helper';
 
@@ -420,7 +401,7 @@ describe('test injector work', () => {
       expect(injector1.id).not.toBe(injector2.id);
     });
 
-    it('实例对象有 ID 数据', () => {
+    it('could get id from the instance', () => {
       const injector = new Injector();
       const instance1 = injector.get(A);
       const instance2 = injector.get(A);

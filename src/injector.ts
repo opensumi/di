@@ -533,8 +533,7 @@ export class Injector {
     const { creator, token } = ctx;
 
     const value = applyHooks(creator.useFactory(this), token, this.hookStore);
-    creator.instance = new Set([value]);
-
+    creator.instance ? creator.instance.add(value) : (creator.instance = new Set([value]));
     return value;
   }
 }
