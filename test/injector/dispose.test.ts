@@ -250,7 +250,7 @@ describe('dispose asynchronous', () => {
     expect(spy).toBeCalledTimes(1);
   });
 
-  it("dispose creator with multiple instance will call call instances's dispose method", async () => {
+  it("dispose creator with multiple instance will call instances's dispose method", async () => {
     const spy = jest.fn();
 
     @Injectable({ multiple: true })
