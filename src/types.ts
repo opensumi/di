@@ -168,6 +168,7 @@ export interface IAspectHook<ThisType = any, Args extends any[] = any[], Result 
   target: Token;
   method: MethodName;
   awaitPromise?: boolean;
+  priority?: number;
   type: HookType;
   hook: IAspectHookTypeFunction<ThisType, Args, Result>;
 }
@@ -256,15 +257,23 @@ export interface IDisposable {
 }
 
 export interface IHookOptions {
-  // Whether to wait for the hook (if the return value of the hook is a promise)
+  /**
+   * Whether to wait for the hook (if the return value of the hook is a promise)
+   */
   await?: boolean;
+
+  /**
+   * The priority of the hook.
+   * for `before` hooks, the higher the priority, the earlier the execution.
+   * for `after` and `around` hooks, the higher the priority, the later the execution.
+   * @default 0
+   */
+  priority?: number;
 }
 
-export interface IAroundHookOptions {
+export interface IAroundHookOptions extends IHookOptions {
   /**
-   * @deprecated AroundHook will always await the promise, it act as the union model.
-   *
-   * Whether to wait for the hook (if the return value of the hook is a promise)
+   * @deprecated around hooks act as the union model, you can just use `ctx.proceed()`(no await) to invoke the next hook.
    */
   await?: boolean;
 }

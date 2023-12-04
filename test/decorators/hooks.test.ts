@@ -17,7 +17,7 @@ import {
 } from '../../src';
 
 describe('hook', () => {
-  it('使用代码来创建hook', async () => {
+  it('could use code to create hook', async () => {
     const injector = new Injector();
     @Injectable()
     class TestClass {
@@ -172,7 +172,7 @@ describe('hook', () => {
     expect(await testClass5.add(1, 2)).toBe(5);
   });
 
-  it('使用注解来创建hook', async () => {
+  it('could use decorator to create hook', async () => {
     const TestClassToken = Symbol();
 
     const pendings: Array<Promise<any>> = [];
@@ -392,6 +392,102 @@ describe('hook', () => {
     expect(() => testClass.throwError2()).toThrowError();
 
     await Promise.all(pendings);
+  });
+
+  describe('hook priority', () => {
+    it("hook's priority should work case1", async () => {
+      @Injectable()
+      class TestClass {
+        async add(a: number, b: number): Promise<number> {
+          return a + b;
+        }
+      }
+      const injector = new Injector();
+
+      const resultArray = [] as number[];
+
+      injector.createHook<TestClass, [number, number], number>({
+        hook: async (joinPoint) => {
+          resultArray.push(1);
+          joinPoint.proceed();
+          resultArray.push(2);
+          return joinPoint.setResult(9);
+        },
+        method: 'add',
+        target: TestClass,
+        type: HookType.Around,
+        priority: 1001,
+      });
+
+      injector.createHooks([
+        {
+          hook: async (joinPoint) => {
+            resultArray.push(0);
+            joinPoint.proceed();
+            resultArray.push(3);
+            const result = await joinPoint.getResult();
+            if (result === 9) {
+              return joinPoint.setResult(10);
+            }
+          },
+          method: 'add',
+          target: TestClass,
+          type: HookType.Around,
+          priority: 10011,
+        },
+      ]);
+
+      const testClass = injector.get(TestClass);
+      expect(await testClass.add(1, 2)).toBe(9);
+      expect(resultArray).toEqual([1, 0, 3, 2]);
+    });
+
+    it("hook's priority should work case2", async () => {
+      @Injectable()
+      class TestClass {
+        async add(a: number, b: number): Promise<number> {
+          return a + b;
+        }
+      }
+      const injector = new Injector();
+
+      const resultArray = [] as number[];
+
+      injector.createHook<TestClass, [number, number], number>({
+        hook: async (joinPoint) => {
+          resultArray.push(1);
+          joinPoint.proceed();
+          resultArray.push(2);
+          return joinPoint.setResult(9);
+        },
+        method: 'add',
+        target: TestClass,
+        type: HookType.Around,
+        priority: 1001,
+      });
+
+      injector.createHooks([
+        {
+          hook: async (joinPoint) => {
+            resultArray.push(0);
+            joinPoint.proceed();
+            resultArray.push(3);
+            const result = await joinPoint.getResult();
+            if (result === 9) {
+              return joinPoint.setResult(10);
+            }
+          },
+          method: 'add',
+          target: TestClass,
+          type: HookType.Around,
+          priority: 100,
+        },
+      ]);
+
+      const testClass = injector.get(TestClass);
+      expect(await testClass.add(1, 2)).toBe(10);
+      expect(resultArray).toEqual([0, 1, 2, 3]);
+    });
   });
 
   it('子injector应该正确拦截', () => {

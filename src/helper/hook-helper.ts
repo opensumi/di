@@ -24,7 +24,7 @@ import {
 } from '../types';
 import compose, { Middleware } from '../compose';
 
-export const HOOKED_SYMBOL = Symbol('COMMON_DI_HOOKED');
+export const HOOKED_SYMBOL = Symbol('DI_HOOKED');
 
 export function applyHooks<T = any>(instance: T, token: Token, hooks: IHookStore): T {
   if (typeof instance !== 'object') {
@@ -75,6 +75,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
   const aroundHooks: Array<IAroundAspectHook<ThisType, Args, Result>> = [];
   const afterReturningHooks: Array<IAfterReturningAspectHook<ThisType, Args, Result>> = [];
   const afterThrowingHooks: Array<IAfterThrowingAspectHook<ThisType, Args, Result>> = [];
+
   // Onion model
   hooks.forEach((h) => {
     if (isBeforeHook(h)) {
@@ -119,27 +120,18 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
     } finally {
       if (error) {
         // noop
+      } else if (promise) {
+        promise.then(
+          () => {
+            runAfterReturning();
+          },
+          (e) => {
+            error = e;
+            runAfterThrowing();
+          },
+        );
       } else {
-        // 异步逻辑
-        let p: Promise<Result> | undefined;
-        if (promise) {
-          p = promise;
-        }
-
-        if (p) {
-          // p is a promise, use Promise's reject and resolve at this time
-          p.then(
-            () => {
-              runAfterReturning();
-            },
-            (e) => {
-              error = e;
-              runAfterThrowing();
-            },
-          );
-        } else {
-          runAfterReturning();
-        }
+        runAfterReturning();
       }
     }
 
@@ -218,6 +210,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
       if (afterHooks.length === 0) {
         return;
       }
+
       let _inThisHook = true;
       const afterJoinPoint: IAfterJoinPoint<ThisType, Args, Result> = {
         getArgs: () => {
@@ -252,6 +245,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
       if (afterReturningHooks.length === 0) {
         return;
       }
+
       const afterReturningJoinPoint: IAfterReturningJoinPoint<ThisType, Args, Result> = {
         getArgs: () => {
           return args;
@@ -283,6 +277,7 @@ export function createHookedFunction<ThisType, Args extends any[], Result>(
       if (afterThrowingHooks.length === 0) {
         return;
       }
+
       const afterThrowingJoinPoint: IAfterThrowingJoinPoint<ThisType, Args, Result> = {
         getError: () => {
           return error;
@@ -395,17 +390,15 @@ function runOneHook<
   if (hook.awaitPromise) {
     promise = promise || Promise.resolve();
     promise = promise.then(() => {
+      // notice: here we return hook's result, and the return statement on the next will return undefined.
       return hook.hook(joinPoint);
     });
-  } else {
-    if (promise) {
-      promise = promise.then(() => {
-        hook.hook(joinPoint);
-        return;
-      });
-    } else {
+  } else if (promise) {
+    promise = promise.then(() => {
       hook.hook(joinPoint);
-    }
+    });
+  } else {
+    hook.hook(joinPoint);
   }
   return promise;
 }
@@ -421,33 +414,37 @@ export class HookStore implements IHookStore {
     });
     return {
       dispose: () => {
-        disposers.forEach((disposer) => {
-          disposer.dispose();
-        });
+        for (const toDispose of disposers) {
+          toDispose.dispose();
+        }
       },
     };
   }
 
   hasHooks(token: Token) {
-    if (!this.hooks.has(token)) {
-      if (this.parent) {
-        return this.parent.hasHooks(token);
-      } else {
-        return false;
-      }
-    } else {
+    if (this.hooks.has(token)) {
       return true;
     }
+    if (this.parent) {
+      return this.parent.hasHooks(token);
+    }
+    return false;
   }
 
   getHooks(token: Token, method: string | number | symbol): IValidAspectHook[] {
     let hooks: IValidAspectHook[] = [];
     if (this.parent) {
-      hooks = this.parent.getHooks(token, method);
+      hooks = hooks.concat(this.parent.getHooks(token, method));
     }
+
     if (this.hooks.get(token)?.has(method)) {
       hooks = hooks.concat(this.hooks.get(token)!.get(method)!);
     }
+
+    hooks.sort((a, b) => {
+      return (b.priority || 0) - (a.priority || 0);
+    });
+
     return hooks;
   }
 
@@ -460,7 +457,6 @@ export class HookStore implements IHookStore {
     if (!instanceHooks.has(hook.method)) {
       instanceHooks.set(hook.method, []);
     }
-    // TODO: 支持order
     instanceHooks.get(hook.method)!.push(hook);
     return {
       dispose: () => {
@@ -516,6 +512,7 @@ export function markAsHook(
   }
   hooks.push({ prop, type, target: hookTarget, targetMethod, options });
 }
+
 export function isAspectCreator(target: InstanceCreator) {
   return !!Reflect.getMetadata(ASPECT_KEY, (target as ClassCreator).useClass);
 }

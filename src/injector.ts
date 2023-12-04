@@ -393,6 +393,7 @@ export class Injector {
               };
               return {
                 awaitPromise: metadata.options.await,
+                priority: metadata.options.priority || 0,
                 hook: wrapped,
                 method: metadata.targetMethod,
                 target: metadata.target,
