@@ -35,7 +35,13 @@ export function isInjectable(target: object) {
   return !!getInjectableOpts(target);
 }
 
-let index = 0;
-export function createId(name: string) {
-  return `${name}_${index++}`;
+export function createIdFactory(name: string) {
+  let idx = 0;
+  return {
+    next() {
+      return `${name}_${idx++}`;
+    },
+  };
 }
+
+export const injectorIdGenerator = createIdFactory('Injector');

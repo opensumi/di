@@ -1,5 +1,17 @@
-import * as Helper from './helper';
-import * as InjectorError from './error';
+import {
+  flatten,
+  getAllDeps,
+  getParameterOpts,
+  hasTag,
+  injectorIdGenerator,
+  isFactoryCreator,
+  isInjectableToken,
+  isPromiseLike,
+  parseCreatorFromProvider,
+  parseTokenFromProvider,
+  uniq,
+} from './helper';
+import { aliasCircularError, circularError, noProviderError, tagOnlyError } from './error';
 import {
   INJECTOR_TOKEN,
   Provider,
@@ -35,7 +47,7 @@ import {
 import { EventEmitter } from './helper/event';
 
 export class Injector {
-  id = Helper.createId('Injector');
+  id = injectorIdGenerator.next();
 
   depth = 0;
   tag?: string;
@@ -130,12 +142,12 @@ export class Injector {
             useClass: token,
           };
         } else {
-          throw InjectorError.noProviderError(token);
+          throw noProviderError(token);
         }
       }
     } else {
       // firstly, use tag to exchange token
-      if (opts && Helper.hasTag(opts)) {
+      if (opts && hasTag(opts)) {
         const tagToken = this.exchangeToken(token, opts.tag);
         [creator, injector] = this.getCreator(tagToken);
       }
@@ -153,7 +165,7 @@ export class Injector {
     }
 
     if (!creator) {
-      throw InjectorError.noProviderError(token);
+      throw noProviderError(token);
     }
 
     const ctx = {
@@ -207,14 +219,14 @@ export class Injector {
   }
 
   parseDependencies(...targets: Token[]) {
-    const deepDeps: Token[] = Helper.getAllDeps(...targets);
+    const deepDeps: Token[] = getAllDeps(...targets);
     const allDeps = targets.concat(deepDeps);
-    const providers = Helper.uniq(allDeps.filter(Helper.isInjectableToken));
+    const providers = uniq(allDeps.filter(isInjectableToken));
     this.setProviders(providers, { deep: true });
 
-    const defaultProviders = Helper.flatten(
+    const defaultProviders = flatten(
       providers.map((p) => {
-        return Helper.getParameterOpts(p);
+        return getParameterOpts(p);
       }),
     )
       .filter((opt) => {
@@ -231,7 +243,7 @@ export class Injector {
     // make sure all dependencies have corresponding providers
     const notProvidedDeps = allDeps.filter((d) => !this.getCreator(d)[0]);
     if (notProvidedDeps.length) {
-      throw InjectorError.noProviderError(...notProvidedDeps);
+      throw noProviderError(...notProvidedDeps);
     }
   }
 
@@ -278,7 +290,7 @@ export class Injector {
           _maybePromise = item[key]();
         }
 
-        if (_maybePromise && Helper.isPromiseLike(_maybePromise)) {
+        if (_maybePromise && isPromiseLike(_maybePromise)) {
           disposeFns.push(
             _maybePromise.then(() => {
               this.instanceDisposedEmitter.emit(item);
@@ -326,13 +338,13 @@ export class Injector {
 
   private setProviders(providers: Provider[], opts: AddProvidersOpts = {}) {
     for (const provider of providers) {
-      const originToken = Helper.parseTokenFromProvider(provider);
-      const token = Helper.hasTag(provider) ? this.exchangeToken(originToken, provider.tag) : originToken;
+      const originToken = parseTokenFromProvider(provider);
+      const token = hasTag(provider) ? this.exchangeToken(originToken, provider.tag) : originToken;
       const current = opts.deep ? this.getCreator(token)[0] : this.resolveToken(token)[1];
 
       const shouldBeSet = [
         // use provider's override attribute.
-        Helper.isTypeProvider(provider) ? false : provider.override,
+        isTypeProvider(provider) ? false : provider.override,
         // use opts.override. The user explicitly call `overrideProviders`.
         opts.override,
         // if this token do not have corresponding creator, use override
@@ -341,7 +353,7 @@ export class Injector {
       ].some(Boolean);
 
       if (shouldBeSet) {
-        const creator = Helper.parseCreatorFromProvider(provider);
+        const creator = parseCreatorFromProvider(provider);
 
         this.creatorMap.set(token, creator);
         // use effect to Make sure there are no cycles
@@ -411,7 +423,7 @@ export class Injector {
       token = creator.useAlias;
 
       if (paths.includes(token)) {
-        throw InjectorError.aliasCircularError(paths, token);
+        throw aliasCircularError(paths, token);
       }
       paths.push(token);
       creator = this.creatorMap.get(token);
@@ -438,10 +450,10 @@ export class Injector {
     const { creator } = ctx;
 
     if (creator.dropdownForTag && creator.tag !== this.tag) {
-      throw InjectorError.tagOnlyError(String(creator.tag), String(this.tag));
+      throw tagOnlyError(String(creator.tag), String(this.tag));
     }
 
-    if (Helper.isClassCreator(creator)) {
+    if (isClassCreator(creator)) {
       const opts = defaultOpts ?? creator.opts;
       // if a class creator is singleton, and the instance is already created, return the instance.
       if (!opts.multiple && creator.status === CreatorStatus.done) {
@@ -451,7 +463,7 @@ export class Injector {
       return this.createInstanceFromClassCreator(ctx as Context<ClassCreator>, opts, args);
     }
 
-    if (Helper.isFactoryCreator(creator)) {
+    if (isFactoryCreator(creator)) {
       return this.createInstanceFromFactory(ctx as Context<FactoryCreator>);
     }
 
@@ -467,7 +479,7 @@ export class Injector {
 
     // If you try to create an instance whose status is creating, it must be caused by circular dependencies.
     if (currentStatus === CreatorStatus.creating) {
-      throw InjectorError.circularError(cls, ctx);
+      throw circularError(cls, ctx);
     }
 
     creator.status = CreatorStatus.creating;
@@ -511,7 +523,7 @@ export class Injector {
       if (!creator && Object.prototype.hasOwnProperty.call(opts, 'default')) {
         return opts.default;
       }
-      throw InjectorError.noProviderError(opts.token);
+      throw noProviderError(opts.token);
     });
   }
 

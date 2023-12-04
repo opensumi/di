@@ -1,4 +1,3 @@
-import * as Error from '../error';
 import { Provider, Token, Tag, InstanceCreator, CreatorStatus, InstanceOpts } from '../declare';
 import {
   isValueProvider,
@@ -11,6 +10,7 @@ import {
 import { getParameterOpts } from './parameter-helper';
 import { getAllDeps } from './dep-helper';
 import { getInjectableOpts } from './injector-helper';
+import { noInjectableError } from '../error';
 
 export function getProvidersFromTokens(targets: Token[]) {
   const spreadDeps: Token[] = getAllDeps(...targets);
@@ -66,7 +66,7 @@ export function parseCreatorFromProvider(provider: Provider): InstanceCreator {
 
     const opts = getInjectableOpts(useClass);
     if (!opts) {
-      throw Error.noInjectableError(useClass);
+      throw noInjectableError(useClass);
     }
 
     const parameters = getParameterOpts(useClass);

@@ -1,6 +1,4 @@
 import 'reflect-metadata';
-import * as Helper from './helper';
-import * as Error from './error';
 import {
   Token,
   InstanceOpts,
@@ -14,7 +12,18 @@ import {
   IAfterThrowingAspectHookFunction,
   IAroundHookOptions,
 } from './declare';
-import { markAsAspect, markAsHook } from './helper';
+import {
+  addDeps,
+  getInjectorOfInstance,
+  getParameterDeps,
+  isToken,
+  markAsAspect,
+  markAsHook,
+  markInjectable,
+  setParameterIn,
+  setParameters,
+} from './helper';
+import { noInjectorError, notInjectError, tokenInvalidError } from './error';
 
 /**
  * 装饰一个 Class 是否是可以被依赖注入
@@ -22,11 +31,11 @@ import { markAsAspect, markAsHook } from './helper';
  */
 export function Injectable(opts?: InstanceOpts): ClassDecorator {
   return <T extends Function>(target: T) => {
-    Helper.markInjectable(target, opts);
+    markInjectable(target, opts);
 
     const params = Reflect.getMetadata('design:paramtypes', target);
     if (Array.isArray(params)) {
-      Helper.setParameters(target, params);
+      setParameters(target, params);
 
       // 如果支持多例创建，就不检查构造函数依赖的可注入性
       if (opts && opts.multiple) {
@@ -34,10 +43,10 @@ export function Injectable(opts?: InstanceOpts): ClassDecorator {
       }
 
       // 检查依赖的可注入性
-      const depTokens = Helper.getParameterDeps(target);
+      const depTokens = getParameterDeps(target);
       depTokens.forEach((item, index) => {
-        if (!Helper.isToken(item)) {
-          throw Error.notInjectError(target, index);
+        if (!isToken(item)) {
+          throw notInjectError(target, index);
         }
       });
     }
@@ -57,7 +66,7 @@ interface InjectOpts {
  */
 export function Inject(token: Token, opts: InjectOpts = {}): ParameterDecorator {
   return (target, _: string | symbol | undefined, index: number) => {
-    Helper.setParameterIn(target, { ...opts, token }, index);
+    setParameterIn(target, { ...opts, token }, index);
   };
 }
 
@@ -67,7 +76,7 @@ export function Inject(token: Token, opts: InjectOpts = {}): ParameterDecorator 
  */
 export function Optional(token: Token = Symbol()): ParameterDecorator {
   return (target, _: string | symbol | undefined, index: number) => {
-    Helper.setParameterIn(target, { default: undefined, token }, index);
+    setParameterIn(target, { default: undefined, token }, index);
   };
 }
 
@@ -84,22 +93,22 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
       realToken = Reflect.getMetadata('design:type', target, propertyKey);
     }
 
-    if (!Helper.isToken(realToken)) {
-      throw Error.tokenInvalidError(target, propertyKey, realToken);
+    if (!isToken(realToken)) {
+      throw tokenInvalidError(target, propertyKey, realToken);
     }
 
     // 添加构造函数的依赖
-    Helper.addDeps(target, realToken);
+    addDeps(target, realToken);
 
     const descriptor: PropertyDescriptor = {
       configurable: true,
       enumerable: true,
       get(this: any) {
         if (!this[INSTANCE_KEY]) {
-          const injector = Helper.getInjectorOfInstance(this);
+          const injector = getInjectorOfInstance(this);
 
           if (!injector) {
-            throw Error.noInjectorError(this);
+            throw noInjectorError(this);
           }
 
           this[INSTANCE_KEY] = injector.get(realToken, opts);
