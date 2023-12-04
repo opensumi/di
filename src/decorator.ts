@@ -36,12 +36,12 @@ export function Injectable(opts?: InstanceOpts): ClassDecorator {
     if (Array.isArray(params)) {
       setParameters(target, params);
 
-      // 如果支持多例创建，就不检查构造函数依赖的可注入性
+      // If it supports multiple instances, do not check the injectability of the constructor dependencies
       if (opts && opts.multiple) {
         return;
       }
 
-      // 检查依赖的可注入性
+      // Check the injectability of the constructor dependencies
       const depTokens = getParameterDeps(target);
       depTokens.forEach((item, index) => {
         if (!isToken(item)) {
