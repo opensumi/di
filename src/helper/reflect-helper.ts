@@ -1,5 +1,3 @@
-import 'reflect-metadata';
-
 function findConstructor(target: object) {
   return typeof target === 'object' ? target.constructor : target;
 }

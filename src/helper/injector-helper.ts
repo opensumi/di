@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { InstanceOpts } from '../types';
 import type { Injector } from '../injector';
 import { VERSION } from '../constants';

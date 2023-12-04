@@ -16,9 +16,6 @@
     "release": "commit-and-tag-version --npmPublishHint 'echo Just Push code to remote repo, npm publish will be done by CI.'",
     "release:beta": "npm run release -- --prerelease beta"
   },
-  "dependencies": {
-    "reflect-metadata": "^0.1.13"
-  },
   "devDependencies": {
     "@commitlint/cli": "17.2.0",
     "@commitlint/config-conventional": "17.2.0",
@@ -35,7 +32,8 @@
     "lint-staged": "13.0.3",
     "prettier": "2.7.1",
     "ts-jest": "29.0.3",
-    "typescript": "4.8.4"
+    "typescript": "4.8.4",
+    "reflect-metadata": "^0.1.13"
   },
   "repository": {
     "type": "git",
@@ -54,22 +52,6 @@
     "extends": [
       "@commitlint/config-conventional"
     ]
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "coveragePathIgnorePatterns": [
-      "/node_modules/",
-      "/test/"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 10,
-        "functions": 10,
-        "lines": 10,
-        "statements": 10
-      }
-    }
   },
   "keywords": [
     "di",
