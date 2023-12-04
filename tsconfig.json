@@ -10,10 +10,10 @@
     "pretty": false,
     "noEmitOnError": false,
     "noFallthroughCasesInSwitch": true,
-    "downlevelIteration": true,
+    "downlevelIteration": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "outDir": "dist"
+    "moduleResolution": "node"
   },
   "include": ["src", "test"]
 }
