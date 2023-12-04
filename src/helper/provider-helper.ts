@@ -1,4 +1,4 @@
-import { Provider, Token, Tag, InstanceCreator, CreatorStatus, InstanceOpts } from '../declare';
+import { Provider, Token, Tag, InstanceCreator, CreatorStatus, InstanceOpts } from '../types';
 import {
   isValueProvider,
   isClassProvider,

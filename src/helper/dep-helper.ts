@@ -1,5 +1,5 @@
-import { flatten, uniq } from './util';
-import { Token } from '../declare';
+import { flatten, uniq } from './utils';
+import { Token } from '../types';
 import { getParameterDeps } from './parameter-helper';
 import { createConstructorMetadataManager } from './reflect-helper';
 

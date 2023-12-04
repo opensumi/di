@@ -32,7 +32,7 @@ import {
   ParameterOpts,
   IDisposable,
   FactoryCreator,
-} from './declare';
+} from './types';
 import {
   isClassCreator,
   setInjector,

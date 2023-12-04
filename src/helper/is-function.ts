@@ -12,7 +12,7 @@ import {
   CreatorStatus,
   AliasProvider,
   AliasCreator,
-} from '../declare';
+} from '../types';
 import { isInjectable } from './injector-helper';
 
 export function isTypeProvider(provider: Provider | Token): provider is TypeProvider {

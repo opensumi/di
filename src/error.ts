@@ -1,4 +1,4 @@
-import { Context, Token } from './declare';
+import { Context, Token } from './types';
 
 function stringify(target: object | Token) {
   if (typeof target === 'object') {

@@ -1,4 +1,4 @@
-import { Token, ParameterOpts } from '../declare';
+import { Token, ParameterOpts } from '../types';
 import { createConstructorMetadataManager } from './reflect-helper';
 
 const PARAMETER_KEY = Symbol('PARAMETER_KEY');

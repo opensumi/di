@@ -1,4 +1,4 @@
-import compose, { Middleware } from '../../src/helper/compose';
+import compose, { Middleware } from '../../src/compose';
 
 interface ExampleContext {
   getName(): string;

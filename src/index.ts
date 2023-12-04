@@ -1,4 +1,4 @@
-export * from './declare';
+export * from './types';
 export * from './decorator';
 export * from './injector';
 export * from './factoryHelper';

@@ -1,4 +1,4 @@
-import * as Helper from '../../src/helper/util';
+import * as Helper from '../../src/helper/utils';
 
 describe(__filename, () => {
   it('uniq', () => {

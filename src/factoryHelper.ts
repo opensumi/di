@@ -1,4 +1,4 @@
-import { FactoryFunction } from './declare';
+import { FactoryFunction } from './types';
 
 import type { Injector } from './injector';
 

@@ -30,7 +30,7 @@ function dispatch<C>(
 
   stack.depth = idx;
 
-  let maybePromise: Promise<void> | void;
+  let maybePromise: Promise<void> | void | undefined;
 
   if (idx < middlewareList.length) {
     const middleware = middlewareList[idx];

@@ -22,8 +22,8 @@ import {
   IAfterThrowingJoinPoint,
   IInstanceHooks,
   InstanceCreator,
-} from '../declare';
-import compose, { Middleware } from './compose';
+} from '../types';
+import compose, { Middleware } from '../compose';
 
 export const HOOKED_SYMBOL = Symbol('COMMON_DI_HOOKED');
 

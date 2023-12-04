@@ -11,7 +11,7 @@ import {
   IAfterReturningAspectHookFunction,
   IAfterThrowingAspectHookFunction,
   IAroundHookOptions,
-} from './declare';
+} from './types';
 import {
   addDeps,
   getInjectorOfInstance,
@@ -26,7 +26,7 @@ import {
 import { noInjectorError, notInjectError, tokenInvalidError } from './error';
 
 /**
- * 装饰一个 Class 是否是可以被依赖注入
+ * Decorate a Class to mark it as injectable
  * @param opts
  */
 export function Injectable(opts?: InstanceOpts): ClassDecorator {
@@ -55,7 +55,7 @@ export function Injectable(opts?: InstanceOpts): ClassDecorator {
 
 interface InjectOpts {
   /**
-   * 默认值
+   * Default value when the token is not found
    */
   default?: any;
 }
@@ -97,7 +97,7 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
       throw tokenInvalidError(target, propertyKey, realToken);
     }
 
-    // 添加构造函数的依赖
+    // Add the dependency of the constructor
     addDeps(target, realToken);
 
     const descriptor: PropertyDescriptor = {
