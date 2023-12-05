@@ -390,7 +390,8 @@ function runOneHook<
   if (hook.awaitPromise) {
     promise = promise || Promise.resolve();
     promise = promise.then(() => {
-      // notice: here we return hook's result, and the return statement on the next will return undefined.
+      // notice: here we return hook's result
+      //         and the return statement on the next condition branch will return undefined.
       return hook.hook(joinPoint);
     });
   } else if (promise) {

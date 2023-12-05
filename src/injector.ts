@@ -386,19 +386,19 @@ export class Injector {
               return instance;
             };
 
-            const preprocessedHooks: IValidAspectHook[] = hookMetadata.map((metadata) => {
+            const preprocessedHooks = hookMetadata.map((metadata) => {
               const wrapped = (...args: any[]) => {
                 const instance = getInstance();
                 return instance[metadata.prop].call(instance, ...args);
               };
               return {
                 awaitPromise: metadata.options.await,
-                priority: metadata.options.priority || 0,
+                priority: metadata.options.priority,
                 hook: wrapped,
                 method: metadata.targetMethod,
                 target: metadata.target,
                 type: metadata.type,
-              };
+              } as IValidAspectHook;
             });
             toDispose = this.hookStore.createHooks(preprocessedHooks);
           }
