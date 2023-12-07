@@ -12,7 +12,7 @@ describe('Autowired decorator', () => {
       return B;
     }).toThrow();
   });
-  it('进行依赖注入的时候，没有定义 Token 会报错', () => {
+  it('will throw error if the Token is not defined, when performing dependency injection.', () => {
     expect(() => {
       interface A {
         log(): void;
@@ -26,7 +26,7 @@ describe('Autowired decorator', () => {
     }).toThrow(Error.tokenInvalidError(class B {}, 'a', Object));
   });
 
-  it('使用 null 进行依赖定义，期望报错', () => {
+  it('define dependencies with null, expect an error', () => {
     expect(() => {
       interface A {
         log(): void;
@@ -40,7 +40,7 @@ describe('Autowired decorator', () => {
     }).toThrow();
   });
 
-  it('使用原始 Number 进行依赖定义，期望报错', () => {
+  it('Define dependencies using the original Number, expect an error', () => {
     expect(() => {
       interface A {
         log(): void;

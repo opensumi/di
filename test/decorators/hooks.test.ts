@@ -74,14 +74,14 @@ describe('hook', () => {
       hook: () => undefined,
       method: 'add',
       target: TestClass,
-      type: 'other' as any, // 不会造成任何影响(为了提高覆盖率)
+      type: 'other' as any, // for coverage
     });
     const testClass = injector.get(TestClass);
     expect(testClass.add(1, 2)).toBe(5);
     expect(testClass.add(3, 4)).toBe(9);
 
-    // 同步变成异步
     // Async hook on sync target
+    // the sync method will be wrapped to async method
     injector.createHook<TestClass1, [number, number], number>({
       awaitPromise: true,
       hook: async (joinPoint: IBeforeJoinPoint<TestClass1, [number, number], number>) => {
@@ -490,7 +490,7 @@ describe('hook', () => {
     });
   });
 
-  it('子injector应该正确拦截', () => {
+  it('can work in child injector', () => {
     @Injectable()
     class TestClass {
       add(a: number, b: number): number {
@@ -560,8 +560,8 @@ describe('hook', () => {
     const testClassChild = injector2.get(TestClass);
     const testClassChild2 = injector2.get(TestClass2);
     expect(testClass.add(1, 2)).toBe(30);
-    expect(testClassChild.add(1, 2)).toBe(30); // 仅仅命中parent中的Hook
-    expect(testClassChild2.add(1, 2)).toBe(600); // 两边的hook都会命中
+    expect(testClassChild.add(1, 2)).toBe(30); // on hooked by parent
+    expect(testClassChild2.add(1, 2)).toBe(600); // will hooked by parent and child
   });
 
   it('could dispose proxied instance', () => {
@@ -623,7 +623,6 @@ describe('hook', () => {
     expect(constructorSpy).toBeCalledTimes(1);
 
     injector.disposeOne(TestClass);
-    // injector.disposeOne(TestAspect);
 
     expect(example.run()).toBe(30);
     expect(constructorSpy).toBeCalledTimes(2);
