@@ -65,3 +65,7 @@ export function aliasCircularError(paths: Token[], current: Token) {
     `useAlias registration cycle detected! ${[...paths, current].map((v) => stringify(v)).join(' -> ')}`,
   );
 }
+
+export function noInstancesInCompletedCreatorError(token: Token) {
+  return new Error(`Cannot find value of ${stringify(token)} in a completed creator.`);
+}

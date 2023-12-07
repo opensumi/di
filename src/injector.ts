@@ -11,7 +11,13 @@ import {
   parseTokenFromProvider,
   uniq,
 } from './helper';
-import { aliasCircularError, circularError, noProviderError, tagOnlyError } from './error';
+import {
+  aliasCircularError,
+  circularError,
+  noProviderError,
+  noInstancesInCompletedCreatorError,
+  tagOnlyError,
+} from './error';
 import {
   INJECTOR_TOKEN,
   Provider,
@@ -457,8 +463,12 @@ export class Injector {
     if (isClassCreator(creator)) {
       const opts = defaultOpts ?? creator.opts;
       // if a class creator is singleton, and the instance is already created, return the instance.
-      if (!opts.multiple && creator.status === CreatorStatus.done) {
-        return creator.instances!.values().next().value;
+      if (creator.status === CreatorStatus.done && !opts.multiple) {
+        if (creator.instances) {
+          return creator.instances.values().next().value;
+        }
+
+        throw noInstancesInCompletedCreatorError(ctx.token);
       }
 
       return this.createInstanceFromClassCreator(ctx as Context<ClassCreator>, opts, args);
@@ -468,8 +478,11 @@ export class Injector {
       return this.createInstanceFromFactory(ctx as Context<FactoryCreator>);
     }
 
-    // must be ValueCreator, no need to hook.
-    return creator.instances!.values().next().value;
+    if (creator.instances) {
+      return creator.instances.values().next().value;
+    }
+
+    throw noInstancesInCompletedCreatorError(ctx.token);
   }
 
   private createInstanceFromClassCreator(ctx: Context<ClassCreator>, opts: InstanceOpts, defaultArgs?: any[]) {
