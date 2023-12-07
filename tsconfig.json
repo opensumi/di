@@ -4,7 +4,6 @@
     "module": "commonjs",
     "lib": ["es2020"],
     "strict": true,
-    "declaration": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "pretty": false,

@@ -5,6 +5,7 @@
   "license": "MIT",
   "module": "esm/index.js",
   "main": "lib/index.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "prepare": "husky install",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",

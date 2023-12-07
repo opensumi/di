@@ -4,7 +4,9 @@
     "outDir": "esm",
     "module": "es2022",
     "target": "es2022",
-    "lib": ["es2022"]
+    "lib": ["es2022"],
+    "declaration": true,
+    "declarationDir": "types"
   },
   "include": ["src"]
 }

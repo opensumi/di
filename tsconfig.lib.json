@@ -3,7 +3,8 @@
   "compilerOptions": {
     "target": "es2015",
     "lib": ["es2015"],
-    "outDir": "lib"
+    "outDir": "lib",
+    "declaration": false
   },
   "include": ["src"]
 }
