@@ -44,7 +44,7 @@ import {
   getHookMeta,
   isAliasCreator,
 } from './helper';
-import { EventEmitter } from './helper/event';
+import { EventEmitter } from '@opensumi/events';
 
 export class Injector {
   id = injectorIdGenerator.next();

@@ -78,5 +78,8 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
+  },
+  "dependencies": {
+    "@opensumi/events": "^0.0.6"
   }
 }
