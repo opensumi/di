@@ -354,7 +354,7 @@ export class Injector {
             let instance: any;
             const getInstance = () => {
               if (!instance) {
-                instance = this.get(creator.useClass);
+                instance = this.get(token);
                 this.onceInstanceDisposed(instance, () => {
                   if (toDispose) {
                     toDispose.dispose();

@@ -124,4 +124,42 @@ describe('aspect', () => {
 
     expect(result).toBe(3);
   });
+
+  it('aspect针对token注入的内容，不会多次实例化', () => {
+    const spy = jest.fn();
+
+    @Injectable()
+    class B {
+      async do() {
+        console.log('do');
+      }
+    }
+    @Aspect()
+    @Injectable()
+    class A {
+      constructor() {
+        spy();
+      }
+
+      @Around(B, 'do', { await: true })
+      async aroundDo() {
+        console.log('aroundDo');
+      }
+    }
+    const token = 'token';
+
+    const injector = new Injector();
+    injector.addProviders({
+      token,
+      useClass: A,
+    });
+    injector.addProviders(B);
+    injector.get(token);
+    injector.get(B);
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    const b = injector.get(B);
+    b.do();
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
 });
