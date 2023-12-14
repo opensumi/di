@@ -54,28 +54,28 @@ describe(__filename, () => {
   });
 
   it('从子类设置的依赖能够覆盖父类的依赖', () => {
-    Helper.setParameters(Parent, [ 'parent', 'parent' ]);
+    Helper.setParameters(Parent, ['parent', 'parent']);
     const parentDeps = Helper.getParameterDeps(Parent);
-    expect(parentDeps).toEqual([ 'parent', 'parent' ]);
+    expect(parentDeps).toEqual(['parent', 'parent']);
 
-    Helper.setParameters(Constructor, [ 'child', 'child' ]);
+    Helper.setParameters(Constructor, ['child', 'child']);
     const childDeps = Helper.getParameterDeps(Constructor);
-    expect(childDeps).toEqual([ 'child', 'child' ]);
+    expect(childDeps).toEqual(['child', 'child']);
   });
 
   it('不同位置的 Token 描述能够合并', () => {
     Helper.setParameterIn(Parent, { token: 'parent' }, 0);
     Helper.setParameterIn(Constructor, { token: 'child' }, 1);
     const deps = Helper.getParameterDeps(Constructor);
-    expect(deps).toEqual([ 'parent', 'child' ]);
+    expect(deps).toEqual(['parent', 'child']);
   });
 
   it('能够得到构造依赖和 Token 定义的结果产物', () => {
-    Helper.setParameters(Constructor, [ 'parameter1', 'parameter2' ]);
+    Helper.setParameters(Constructor, ['parameter1', 'parameter2']);
     Helper.setParameterIn(Constructor, { token: 'token' }, 1);
 
     const deps = Helper.getParameterDeps(Constructor);
-    expect(deps).toEqual([ 'parameter1', 'token' ]);
+    expect(deps).toEqual(['parameter1', 'token']);
 
     const opts = Helper.getParameterOpts(Constructor);
     expect(opts).toEqual([{ token: 'parameter1' }, { token: 'token' }]);

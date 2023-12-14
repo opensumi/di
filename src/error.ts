@@ -67,5 +67,6 @@ export function aliasCircularError(paths: Token[], current: Token) {
 }
 
 export function noInstancesInCompletedCreatorError(token: Token) {
+  /* istanbul ignore next */
   return new Error(`Cannot find value of ${stringify(token)} in a completed creator.`);
 }

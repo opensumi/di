@@ -12,7 +12,7 @@
     "build": "npm run build:lib && npm run build:esm",
     "build:lib": "rm -rf lib && tsc -p tsconfig.lib.json",
     "build:esm": "rm -rf esm && tsc -p tsconfig.esm.json",
-    "test": "jest --coverage test/**",
+    "test": "jest --coverage tests/**",
     "test:watch": "yarn test --watch",
     "ci": "npm run lint && npm run test",
     "prepublishOnly": "npm run build",

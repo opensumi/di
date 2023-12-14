@@ -471,6 +471,7 @@ export class Injector {
         throw noInstancesInCompletedCreatorError(ctx.token);
       }
 
+      /* istanbul ignore next */
       return this.createInstanceFromClassCreator(ctx as Context<ClassCreator>, opts, args);
     }
 
@@ -482,6 +483,7 @@ export class Injector {
       return creator.instances.values().next().value;
     }
 
+    /* istanbul ignore next */
     throw noInstancesInCompletedCreatorError(ctx.token);
   }
 

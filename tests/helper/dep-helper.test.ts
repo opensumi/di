@@ -24,7 +24,7 @@ describe(__filename, () => {
     Helper.addDeps(Constructor, dep);
 
     const depsFromConstructor = Helper.getAllDeps(Constructor);
-    expect(depsFromConstructor).toEqual([ dep ]);
+    expect(depsFromConstructor).toEqual([dep]);
   });
 
   it('在父级进行依赖定义', () => {
@@ -32,7 +32,7 @@ describe(__filename, () => {
     Helper.addDeps(Parent, dep);
 
     const depsFromConstructor = Helper.getAllDeps(Constructor);
-    expect(depsFromConstructor).toEqual([ dep ]);
+    expect(depsFromConstructor).toEqual([dep]);
   });
 
   it('依赖取值出来应该是去重的结果', () => {
@@ -40,7 +40,7 @@ describe(__filename, () => {
     Helper.addDeps(Parent, dep, dep);
 
     const depsFromConstructor = Helper.getAllDeps(Constructor);
-    expect(depsFromConstructor).toEqual([ dep ]);
+    expect(depsFromConstructor).toEqual([dep]);
   });
 
   it('在父级进行依赖定义，并且再新定义', () => {
@@ -51,10 +51,10 @@ describe(__filename, () => {
     Helper.addDeps(Constructor, dep2);
 
     const depsFromParentConstructor = Helper.getAllDeps(Parent);
-    expect(depsFromParentConstructor).toEqual([ dep1 ]);
+    expect(depsFromParentConstructor).toEqual([dep1]);
 
     const depsFromConstructor = Helper.getAllDeps(Constructor);
-    expect(depsFromConstructor).toEqual([ dep1, dep2 ]);
+    expect(depsFromConstructor).toEqual([dep1, dep2]);
   });
 
   it('当前一个依赖包含了后面的所有依赖的时候，应该正确解析', () => {
@@ -68,7 +68,7 @@ describe(__filename, () => {
     const deps = Helper.getAllDeps(Dep1, Dep2);
     const depsAgain = Helper.getAllDeps(Dep2);
 
-    expect(deps).toEqual([ Dep2, Dep3 ]);
-    expect(depsAgain).toEqual([ Dep3 ]);
+    expect(deps).toEqual([Dep2, Dep3]);
+    expect(depsAgain).toEqual([Dep3]);
   });
 });
