@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.10.1](https://github.com/opensumi/di/compare/v1.10.0...v1.10.1) (2023-12-12)
+
+
+### Bug Fixes
+
+* hooked class will be instantiate multiple times ([#119](https://github.com/opensumi/di/issues/119)) ([924bef9](https://github.com/opensumi/di/commit/924bef9e29e077fdbb6a4362d29398429de1b24e))
+
 ## [1.10.0](https://github.com/opensumi/di/compare/v1.9.0...v1.10.0) (2023-11-09)
 
 
