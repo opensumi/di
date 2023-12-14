@@ -2,7 +2,7 @@
 import { asSingleton, Autowired, Inject, Injectable, Injector } from '../src';
 import * as Error from '../src/error';
 
-describe(__filename, () => {
+describe('use cases', () => {
   it('使用 Autowired 动态注入依赖', () => {
     const spy = jest.fn();
     @Injectable()

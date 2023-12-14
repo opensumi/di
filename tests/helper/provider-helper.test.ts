@@ -9,7 +9,7 @@ import {
   Injectable,
 } from '../../src';
 
-describe(__filename, () => {
+describe('provider helper', () => {
   @Injectable()
   class A {}
   const clsToken: Token = A;

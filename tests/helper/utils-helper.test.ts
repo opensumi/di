@@ -1,6 +1,6 @@
 import * as Helper from '../../src/helper/utils';
 
-describe(__filename, () => {
+describe('utils helper', () => {
   it('uniq', () => {
     const obj = {};
     const arr = [1, 2, obj, obj, 3];

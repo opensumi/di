@@ -1,7 +1,7 @@
 import * as Helper from '../../src/helper/dep-helper';
 import { ConstructorOf } from '../../src';
 
-describe(__filename, () => {
+describe('dep helper', () => {
   let Parent: ConstructorOf<any>;
   let Constructor: ConstructorOf<any>;
 

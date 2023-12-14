@@ -9,7 +9,7 @@ import {
   CreatorStatus,
 } from '../../src';
 
-describe(__filename, () => {
+describe('is function', () => {
   class A {}
   const clsToken: Token = A;
   const strToken: Token = 'strToken';

@@ -4,7 +4,7 @@ import { ConstructorOf, InstanceOpts } from '../../src';
 // eslint-disable-next-line
 const pkg = require('../../package.json');
 
-describe(__filename, () => {
+describe('injector helper', () => {
   let Parent: ConstructorOf<any>;
   let Constructor: ConstructorOf<any>;
 
