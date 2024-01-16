@@ -5,3 +5,4 @@ export * from './provider-helper';
 export * from './utils';
 export * from './is-function';
 export * from './hook-helper';
+export * from './event';
