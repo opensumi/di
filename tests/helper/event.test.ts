@@ -95,6 +95,7 @@ describe('event emitter types', () => {
     const spy = jest.fn();
     const spy2 = jest.fn();
 
+    emitter.on('test', spy);
     emitter.on('foo', spy2);
 
     expect(emitter.hasListener('test')).toBe(true);
@@ -102,7 +103,7 @@ describe('event emitter types', () => {
     expect(listeners.length).toBe(1);
 
     emitter.emit('test', 'hello', 'world');
-    expect(spy).toBeCalledWith('hello');
+    expect(spy).toBeCalledWith('hello', 'world');
     emitter.off('test', spy);
 
     const listeners2 = emitter.getListeners('test');
