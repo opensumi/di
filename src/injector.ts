@@ -468,6 +468,7 @@ export class Injector {
           return creator.instances.values().next().value;
         }
 
+        /* istanbul ignore next */
         throw noInstancesInCompletedCreatorError(ctx.token);
       }
 
