@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.0.0](https://github.com/opensumi/di/compare/v1.10.1...v2.0.0) (2024-01-19)
+
+### Breaking Changes
+
+* We remove the direct import of reflect-metadata, you need import it by your self.
+* Remove `__id` and `__injectorId` from the instantiated instance.
+
+### Features
+
+* hooks support priority option ([5f13619](https://github.com/opensumi/di/commit/5f13619eb644fa04ad486c511bcf8a18229dee5c))
+* make dispose support disposing instance of useFactory ([#116](https://github.com/opensumi/di/issues/116)) ([4a9e4a3](https://github.com/opensumi/di/commit/4a9e4a345dfd1ece3f67ecca315fb0acba62025c))
+* `hasInstance` support to check `useFactory`.
+
+
+### Bug Fixes
+
+* factory instances should save proxied ([dad48a8](https://github.com/opensumi/di/commit/dad48a81f47033e090202667cd4b3fccb9fa8e14))
+* instance should be disposed ([5f09c6a](https://github.com/opensumi/di/commit/5f09c6a17dd79175c14a6a688b06892572699024))
+* we should listen on instance disposed ([362196f](https://github.com/opensumi/di/commit/362196f50bb4f8a476b0d8c108dfbdb1455e1d9a))
+
 ## [1.10.1](https://github.com/opensumi/di/compare/v1.10.0...v1.10.1) (2023-12-12)
 
 
