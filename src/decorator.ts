@@ -60,7 +60,8 @@ interface InjectOpts {
 }
 
 /**
- * 把构造函数的参数和一个特定的注入标记关联起来
+ * Associate the constructor parameters with a specific injection token
+ *
  * @param token
  */
 export function Inject(token: Token, opts: InjectOpts = {}): ParameterDecorator {
@@ -70,7 +71,7 @@ export function Inject(token: Token, opts: InjectOpts = {}): ParameterDecorator 
 }
 
 /**
- * 构造函数可选依赖的装饰器
+ * Decorator for optional dependencies in the constructor
  * @param token
  */
 export function Optional(token: Token = Symbol()): ParameterDecorator {
@@ -80,7 +81,7 @@ export function Optional(token: Token = Symbol()): ParameterDecorator {
 }
 
 /**
- * 装饰一个类的属性，当这个属性被访问的时候，才开始使用注射器创建实例
+ * Decorate a class attribute, and only start using the injector to create an instance when this attribute is accessed
  * @param token
  */
 export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator {
@@ -120,7 +121,7 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
       },
     };
 
-    // 返回 descriptor，编译工具会自动进行 define
+    // return a descriptor and compiler(tsc/babel/...) will automatically perform define.
     return descriptor;
   };
 }
@@ -128,52 +129,7 @@ export function Autowired(token?: Token, opts?: InstanceOpts): PropertyDecorator
 // hooks start
 
 /**
- * 声明这是一个包含了 Hook 的 Class
- *
- * @description
- *    典型用法
- *
- *    const AToken = Symbol('AToken');
- *
- *    interface AToken {
- *      add(a: number): number
- *    }
- *
- *    @Injectable()
- *    Class AImpl {
- *
- *       private sum = 0;
- *
- *       add(a: number) {
- *          this.sum += a;
- *          return this.sum;
- *       }
- *
- *    }
- *
- *    @Aspect()
- *    @Injectable()
- *    Class OneAspectOfA {
- *
- *       // 拦截 AToken 实现 class 的 add 方法，在 add 方法执行前，将它的参数乘以2
- *       @Before(AToken, 'add')
- *       beforeAdd(joinPoint: IBeforeJoinPoint<AToken, [number], number>) {
- *          const [a] = joinPoint.getArgs();
- *          joinPoint.setArgs([a * 2]);
- *       }
- *
- *       @After(AToken, 'add')
- *       afterAdd(joinPoint: IAfterJoinPoint<AToken, [number], number>) {
- *          const ret = joinPoint.getResult();
- *          joinPoint.setResult(ret * 5); // 将返回值乘以5
- *       }
- *    }
- *
- *    // 必须添加 Aspect 的 class
- *    injector.addProviders(OneAspectOfA);
- *
- *    这种情况下，第一次调用 const hookedSum = injector.get(AToken).add(2) 后,
- *    AImpl 中的 sum 为 4, hookedSum 为 20
+ * mark a class as an aspect
  */
 export function Aspect() {
   return (target: any) => {
@@ -182,13 +138,9 @@ export function Aspect() {
 }
 
 /**
- * 在方法执行前进行 hook
- *    @Before(AToken, 'add')
- *    beforeAdd(joinPoint: IBeforeJoinPoint<AToken, [number, number], number>) {
- *      const [a, b] = joinPoint.getArgs();
- *      joinPoint.setArgs([a * 10, b * 10]);
- *    }
- * hook 的顺序遵循洋葱模型
+ * Hook before method execution
+ *
+ * The order of hooks follows the onion model
  * @param token
  * @param method
  */
@@ -206,13 +158,9 @@ export function Before<ThisType = any, Args extends any[] = any, Result = any>(
 }
 
 /**
- * 在方法结束后进行 hook
- *    @After(AToken, 'add')
- *    afterAdd(joinPoint: IAfterJoinPoint<AToken, [number, number], number>) {
- *      const ret = joinPoint.getResult();
- *      joinPoint.setResult(ret * 10); // 将返回值乘以10
- *    }
- * hook 的顺序遵循洋葱模型
+ * Hook after the method ends
+ *
+ * The order of hooks follows the onion model
  * @param token
  * @param method
  */
@@ -230,20 +178,7 @@ export function After<ThisType = any, Args extends any[] = any, Result = any>(
 }
 
 /**
- * 环绕型 Hook
- *    @Around(AToken, 'add')
- *    aroundAdd(joinPoint: IAroundJoinPoint<AToken, [number, number], number>) {
- *      const [a, b] = joinPoint.getArgs();
- *      if (a === b) {
- *        console.log('adding two same numbers');
- *      }
- *      joinPoint.proceed();
- *      const result = joinPoint.getResult();
- *      if (result === 10) {
- *         joinPoint.setResult(result * 10);
- *      }
- *    }
- * around 型 hook 是先来的被后来的包裹
+ * around hook, this method performs consistently with the onion model
  * @param token
  * @param method
  * @description
@@ -262,13 +197,8 @@ export function Around<ThisType = any, Args extends any[] = any, Result = any>(
 }
 
 /**
- * 在方法结束（并且回调给外层之后）后进行 hook
- *    @AfterReturning(AToken, 'add')
- *    afterReturningAdd(joinPoint: IAfterReturningJoinPoint<AToken, [number, number], number>) {
- *      const ret = joinPoint.getResult();
- *      console.log('the return value is ' + ret);
- *    }
- * hook 全都会执行, 即使出错
+ * Hook after the method ends (and after callback to the outer layer).
+ * the hook will be executed even if the method throws an error
  * @param token
  * @param method
  * @param options
@@ -287,13 +217,9 @@ export function AfterReturning<ThisType = any, Args extends any[] = any, Result 
 }
 
 /**
- * 在方法抛出异常（或者PromiseRejection）后进行 hook
- *    @AfterThrowing(AToken, 'add')
- *    afterThrowingAdd(joinPoint: IAfterReturningJoinPoint<AToken, [number, number], number>) {
- *      const error = joinPoint.getError();
- *      console.error('产生了一个错误', error);
- *    }
- * hook 全都会执行, 即使出错
+ * Hook after the method throws an exception (or PromiseRejection)
+ *
+ * the hook will be executed even if the method throws an error
  * @param token
  * @param method
  * @param options
