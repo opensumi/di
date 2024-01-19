@@ -6,7 +6,7 @@
 
 - [Install](#install)
 - [Quick Start](#quick-start)
-- [API](#API)
+- [API](#api)
 - [Examples](#examples)
 - [FAQ](#faq)
 - [Related Efforts](#related-efforts)
@@ -16,6 +16,32 @@
 ```sh
 npm install @opensumi/di --save
 yarn add @opensumi/di
+```
+
+将您的tsconfig.json修改为包含以下设置：
+
+```json
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}
+```
+
+为Reflect API添加一个polyfill（下面的例子使用reflect-metadata）。你可以使用：
+
+- [reflect-metadata](https://www.npmjs.com/package/reflect-metadata)
+- [core-js (core-js/es7/reflect)](https://www.npmjs.com/package/core-js)
+- [reflection](https://www.npmjs.com/package/@abraham/reflection)
+
+Reflect polyfill的导入应该只添加一次，并且在使用DI之前：
+
+```typescript
+// main.ts
+import "reflect-metadata";
+
+// 你的代码...
 ```
 
 ## Quick Start

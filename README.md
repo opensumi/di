@@ -23,16 +23,42 @@ This tool will help you achieve dependency inversion effectively without concern
 
 - [Install](#install)
 - [Quick Start](#quick-start)
-- [API](#API)
+- [API](#api)
 - [Examples](#examples)
 - [FAQ](#faq)
 - [Related Efforts](#related-efforts)
 
-## Install
+## Installation
 
 ```sh
 npm install @opensumi/di --save
 yarn add @opensumi/di
+```
+
+Modify your tsconfig.json to include the following settings:
+
+```json
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}
+```
+
+Add a polyfill for the Reflect API (examples below use reflect-metadata). You can use:
+
+- [reflect-metadata](https://www.npmjs.com/package/reflect-metadata)
+- [core-js (core-js/es7/reflect)](https://www.npmjs.com/package/core-js)
+- [reflection](https://www.npmjs.com/package/@abraham/reflection)
+
+The Reflect polyfill import should only be added once, and before DI is used:
+
+```typescript
+// main.ts
+import "reflect-metadata";
+
+// Your code here...
 ```
 
 ## Quick Start
