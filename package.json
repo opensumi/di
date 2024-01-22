@@ -62,7 +62,9 @@
     "injector"
   ],
   "files": [
-    "dist"
+    "esm",
+    "types",
+    "lib"
   ],
   "standard-version": {
     "bumpFiles": [
