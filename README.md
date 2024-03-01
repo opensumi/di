@@ -13,9 +13,7 @@
 [test-image]: https://codecov.io/gh/opensumi/di/branch/main/graph/badge.svg?token=07JAPLU957
 [test-url]: https://codecov.io/gh/opensumi/di
 [pkg-size]: https://pkg-size.dev/@opensumi/di
-[pkg-size-img]: https://pkg-size.dev/badge/bundle/43685
-
-> Inspired By [Angular](https://angular.io/guide/dependency-injection).
+[pkg-size-img]: https://pkg-size.dev/badge/bundle/15776
 
 This tool will help you achieve dependency inversion effectively without concerning the details of object instantiation. Additionally, since object instantiation is done within a registry, both the factory pattern and singleton pattern can be easily implemented.
 
@@ -56,7 +54,7 @@ The Reflect polyfill import should only be added once, and before DI is used:
 
 ```typescript
 // main.ts
-import "reflect-metadata";
+import 'reflect-metadata';
 
 // Your code here...
 ```
@@ -474,6 +472,12 @@ console.log(b.a instanceof A); // print 'true'
 ### Injector.hasInstance
 
 Whether have an instantiated object in the Injector.
+
+### Injector.disposeOne / Injector.disposeAll
+
+You can use `Injector.disposeOne` to dispose of a specific instance, and `Injector.disposeAll` to dispose of all instances.
+
+These two methods will delete the instance from the Injector, and then call the `dispose` method of the instance if it exists.
 
 ### markInjectable
 

@@ -18,7 +18,7 @@ npm install @opensumi/di --save
 yarn add @opensumi/di
 ```
 
-将您的tsconfig.json修改为包含以下设置：
+将您的 tsconfig.json 修改为包含以下设置：
 
 ```json
 {
@@ -29,17 +29,17 @@ yarn add @opensumi/di
 }
 ```
 
-为Reflect API添加一个polyfill（下面的例子使用reflect-metadata）。你可以使用：
+为 Reflect API 添加一个 polyfill（下面的例子使用 reflect-metadata）。你可以使用：
 
 - [reflect-metadata](https://www.npmjs.com/package/reflect-metadata)
 - [core-js (core-js/es7/reflect)](https://www.npmjs.com/package/core-js)
 - [reflection](https://www.npmjs.com/package/@abraham/reflection)
 
-Reflect polyfill的导入应该只添加一次，并且在使用DI之前：
+Reflect polyfill 的导入应该只添加一次，并且在使用 DI 之前：
 
 ```typescript
 // main.ts
-import "reflect-metadata";
+import 'reflect-metadata';
 
 // 你的代码...
 ```
@@ -453,6 +453,12 @@ console.log(b.a instanceof A); // print 'true'
 ### Injector.hasInstance
 
 Whether have an instantiated object in the Injector.
+
+### Injector.disposeOne / Injector.disposeAll
+
+可以使用 `Injector.disposeOne` 和 `Injector.disposeAll` 来释放 Token。
+
+这两个方法会从 DI 容器中删除当前已创建的实例，并尝试调用这个实例的 `dispose` 方法（可以没有）。
 
 ### markInjectable
 
